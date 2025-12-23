@@ -17,16 +17,3 @@ export function toPageRoute(page: number, surah?: number, ayah?: number): Href {
     },
   } as Href;
 }
-
-/**
- * Navigate to ayah (calculates page first)
- * Note: This is now async as it needs to query the database
- */
-export async function toAyahRoute(
-  getPageForAyah: (sura: number, ayah: number) => Promise<number | null>,
-  sura: number,
-  ayah: number,
-): Promise<Href> {
-  const page = await getPageForAyah(sura, ayah);
-  return toPageRoute(page ?? 1, sura, ayah);
-}

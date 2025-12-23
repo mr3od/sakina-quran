@@ -8,9 +8,7 @@ import React from "react";
 
 type Props = {
   page: number;
-  totalPages: number;
-  windowSize?: number;
-  onPageSettled: (page: number) => void;
+  onPageChange?: (page: number) => void;
   renderPage: (pageNumber: number) => React.ReactNode;
 };
 

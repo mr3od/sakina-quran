@@ -15,7 +15,7 @@ export function SurahListItem({ surah }: SurahListItemProps) {
   const firstPage = parseInt(surah.pages_range.split("-")[0]);
 
   return (
-    <Link href={`/pages/${firstPage}`} asChild>
+    <Link href={`/pages/${firstPage}?surah=${surah.id}`} asChild>
       <Pressable
         className="
           p-4 

@@ -9,16 +9,23 @@ interface AyahCardProps {
   ayah: Ayah;
   page?: number;
   onPress?: () => void;
+  highlighted?: boolean;
 }
 
-export function AyahCard({ ayah, page, onPress }: AyahCardProps) {
+export function AyahCard({ ayah, page, onPress, highlighted }: AyahCardProps) {
   const { isBookmarked, handleToggleBookmark, isPending } = useAyahCardLogic(
     ayah,
     page
   );
 
   return (
-    <View className="bg-surface rounded-lg p-6 border border-border-subtle">
+    <View
+      className={`bg-surface rounded-lg p-6 border ${
+        highlighted
+          ? "bg-surface-highlight border-primary/50"
+          : "border-border-subtle"
+      }`}
+    >
       <View className="flex-row items-center justify-between mb-4">
         <View
           className="w-8 h-8 rounded-full border border-border-base bg-background items-center justify-center"

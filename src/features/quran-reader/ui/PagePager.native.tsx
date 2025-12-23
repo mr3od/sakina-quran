@@ -1,51 +1,71 @@
-import React, { useEffect, useRef } from "react";
+import { TOTAL_PAGES } from "@/shared/constants/quran";
+import React, { useEffect, useRef, useState } from "react";
 import { View } from "react-native";
 import PagerView from "react-native-pager-view";
-import { getWindow } from "../domain/pager-window";
 
 type Props = {
-  page: number;
-  totalPages: number;
-  windowSize?: number; // must be odd; default 5
-  onPageSettled: (page: number) => void;
+  page: number; // The current page from URL/Props
+  onPageChange?: (page: number) => void;
   renderPage: (pageNumber: number) => React.ReactNode;
 };
 
-export function PagePager({
-  page,
-  totalPages,
-  windowSize = 5,
-  onPageSettled,
-  renderPage,
-}: Props) {
+export function PagePager({ page, onPageChange, renderPage }: Props) {
   const pagerRef = useRef<PagerView>(null);
+  // Internal state to track what the user is currently looking at
+  // We initialize with page - 1 because PagerView is 0-indexed
+  const [activeIndex, setActiveIndex] = useState(page - 1);
 
-  const { pages, selectedIndex } = getWindow(page, totalPages, windowSize);
-
-  // Keep the visible child aligned when the window shifts.
+  // Sync prop changes (e.g. Header "Next" button click) to PagerView
   useEffect(() => {
-    pagerRef.current?.setPageWithoutAnimation(selectedIndex);
-  }, [selectedIndex]);
+    if (pagerRef.current && activeIndex !== page - 1) {
+      // Use setPageWithoutAnimation for large jumps, or setPage for neighbor
+      const diff = Math.abs(activeIndex - (page - 1));
+      if (diff > 1) {
+        pagerRef.current.setPageWithoutAnimation(page - 1);
+      } else {
+        pagerRef.current.setPage(page - 1);
+      }
+      setActiveIndex(page - 1);
+    }
+  }, [page]);
+
+  // Handle user swiping
+  const handlePageSelected = (e: any) => {
+    const newIndex = e.nativeEvent.position;
+    setActiveIndex(newIndex);
+
+    // Notify parent to update URL/Header
+    // We send newIndex + 1 because domain logic is 1-indexed
+    if (onPageChange) {
+      onPageChange(newIndex + 1);
+    }
+  };
+
+  // Generate the array of pages once
+  // We use a sliding window: only render content if within range
+  const pages = Array.from({ length: TOTAL_PAGES });
 
   return (
     <PagerView
       ref={pagerRef}
       style={{ flex: 1 }}
-      initialPage={selectedIndex}
-      onPageSelected={(e) => {
-        const index = e.nativeEvent.position;
-        const nextPage = pages[index];
-        // Guard: only fire if page actually changed
-        if (typeof nextPage === "number" && nextPage !== page) {
-          onPageSettled(nextPage);
-        }
-      }}
+      initialPage={page - 1}
+      onPageSelected={handlePageSelected}
+      // optimization: offscreenLimit dictates how many pages ViewPager keeps attached
+      offscreenPageLimit={1}
     >
-      {pages.map((p) => (
-        <View key={p} style={{ flex: 1 }}>
-          {renderPage(p)}
-        </View>
-      ))}
+      {pages.map((_, index) => {
+        // Sliding Window Logic:
+        // Render current page, previous one, and next one.
+        // Everything else is an empty View to save massive memory.
+        const shouldRenderContent = Math.abs(activeIndex - index) <= 1;
+
+        return (
+          <View key={index} style={{ flex: 1 }}>
+            {shouldRenderContent ? renderPage(index + 1) : null}
+          </View>
+        );
+      })}
     </PagerView>
   );
 }

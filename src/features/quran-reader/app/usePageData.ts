@@ -1,9 +1,7 @@
 import { useDatabase } from "@/hooks/useDatabase";
-import { TOTAL_PAGES } from "@/shared/constants/quran";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { SQLiteDatabase } from "expo-sqlite";
 import { PageReaderRepository } from "../data/PageReaderRepository";
-import { clampPage } from "../domain/page";
 
 const ayahsKey = (page: number) =>
   ["quran-reader", "page-ayahs", page] as const;
@@ -15,11 +13,10 @@ async function fetchPageAyahs(db: SQLiteDatabase, page: number) {
 
 export function usePageAyahs(pageNumber: number) {
   const db = useDatabase();
-  const page = clampPage(pageNumber, TOTAL_PAGES);
 
   return useQuery({
-    queryKey: ayahsKey(page),
-    queryFn: () => fetchPageAyahs(db, page),
+    queryKey: ayahsKey(pageNumber),
+    queryFn: () => fetchPageAyahs(db, pageNumber),
 
     // Don't refetch forever, but also don't pin in memory forever.
     staleTime: Infinity,
@@ -32,10 +29,9 @@ export function usePrefetchPageAyahs() {
   const qc = useQueryClient();
 
   return async (pageNumber: number) => {
-    const page = clampPage(pageNumber, TOTAL_PAGES);
     await qc.prefetchQuery({
-      queryKey: ayahsKey(page),
-      queryFn: () => fetchPageAyahs(db, page),
+      queryKey: ayahsKey(pageNumber),
+      queryFn: () => fetchPageAyahs(db, pageNumber),
       staleTime: Infinity,
       gcTime: 15 * 60 * 1000,
     });

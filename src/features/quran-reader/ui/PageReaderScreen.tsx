@@ -1,21 +1,34 @@
-/** src/features/quran-reader/ui/PageReaderScreen.tsx */
-import { Link, Stack } from "expo-router"; // Import Link
+import { TOTAL_PAGES } from "@/shared/constants/quran";
+import { Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
 import React from "react";
 import { Text, View } from "react-native";
-import { toPageRoute } from "../app/quran-reader-route"; // Helper for paths
-import { usePrefetchAdjacentPages } from "../app/usePrefetchAdjacentPages";
-import { useReaderController } from "../app/useReaderController";
+import { toPageRoute } from "../app/quran-reader-route";
+import { usePrefetchPageAyahs } from "../app/usePageData";
 import { PagePage } from "./PagePage";
 import { PagePager } from "./PagePager";
 
 export function PageReaderScreen() {
-  const { currentPage, totalPages, commitPage } = useReaderController();
+  const router = useRouter();
+  const params = useLocalSearchParams<{ number?: string }>();
+  const prefetchPage = usePrefetchPageAyahs();
 
-  usePrefetchAdjacentPages(currentPage, 2);
+  // Fallback to 1 if undefined
+  const currentPage = params.number ? parseInt(params.number, 10) : 1;
 
-  const renderPage = (pageNumber: number) => (
-    <PagePage pageNumber={pageNumber} />
-  );
+  // Handle Swipe Navigation
+  const handlePageChange = (newPage: number) => {
+    // 1. Update the URL params without pushing a new history stack item immediately
+    // or causing a full unmount. 'setParams' is lighter than 'replace'.
+    router.setParams({ number: String(newPage) });
+
+    // 2. Prefetch data for the NEXT page (direction of travel)
+    // If going forward (newPage > currentPage), fetch newPage + 1
+    // If going backward, fetch newPage - 1
+    const nextPrefetch = newPage > currentPage ? newPage + 1 : newPage - 1;
+    if (nextPrefetch >= 1 && nextPrefetch <= TOTAL_PAGES) {
+      prefetchPage(nextPrefetch);
+    }
+  };
 
   return (
     <View className="flex-1 bg-background">
@@ -23,35 +36,39 @@ export function PageReaderScreen() {
 
       <View className="px-4 py-3 border-b border-border-subtle bg-surface">
         <View className="flex-row items-center justify-between">
-          {/* Previous Page Link */}
+          {/* Previous Page Link - Controlled by URL */}
           <Link
             href={toPageRoute(Math.max(1, currentPage - 1))}
-            replace // Use replace to avoid polluting history on every flip
+            replace
             asChild
             disabled={currentPage <= 1}
           >
             <Text
               style={{ minWidth: 44, minHeight: 44 }}
-              className={`font-ui-en text-base text-text-primary ${currentPage <= 1 ? "opacity-40" : ""}`}
+              className={`font-ui-en text-base text-text-primary ${
+                currentPage <= 1 ? "opacity-40" : ""
+              }`}
             >
               Prev
             </Text>
           </Link>
 
           <Text className="font-ui-en text-sm text-text-secondary">
-            Page {currentPage} / {totalPages}
+            Page {currentPage} / {TOTAL_PAGES}
           </Text>
 
-          {/* Next Page Link */}
+          {/* Next Page Link - Controlled by URL */}
           <Link
-            href={toPageRoute(Math.min(totalPages, currentPage + 1))}
+            href={toPageRoute(Math.min(TOTAL_PAGES, currentPage + 1))}
             replace
             asChild
-            disabled={currentPage >= totalPages}
+            disabled={currentPage >= TOTAL_PAGES}
           >
             <Text
               style={{ minWidth: 44, minHeight: 44, textAlign: "right" }}
-              className={`font-ui-en text-base text-text-primary ${currentPage >= totalPages ? "opacity-40" : ""}`}
+              className={`font-ui-en text-base text-text-primary ${
+                currentPage >= TOTAL_PAGES ? "opacity-40" : ""
+              }`}
             >
               Next
             </Text>
@@ -61,10 +78,10 @@ export function PageReaderScreen() {
 
       <PagePager
         page={currentPage}
-        totalPages={totalPages}
-        windowSize={5}
-        onPageSettled={commitPage}
-        renderPage={renderPage}
+        renderPage={(pageNumber: number) => (
+          <PagePage pageNumber={pageNumber} />
+        )}
+        onPageChange={handlePageChange}
       />
     </View>
   );
