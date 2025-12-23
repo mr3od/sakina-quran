@@ -1,0 +1,306 @@
+@import "tailwindcss";
+@import "uniwind";
+
+/* 1) PRIMITIVES (ONLY custom properties here) */
+@theme {
+  /* Sacred fonts (must be preserved exactly) */
+  --font-arabic: "UthmanicHafs_V22";
+  --font-ui-ar: "NotoSansArabic_400Regular";
+  --font-ui-en: "Inter_400Regular";
+
+  /* Color primitives */
+  --color-raml-50: #fcfaf8;
+  --color-raml-100: #f6f3ef;
+  --color-raml-200: #ede7e0;
+  --color-raml-300: #dccfbf;
+  --color-raml-400: #b9a690;
+  --color-raml-500: #978574;
+  --color-raml-600: #78695b;
+  --color-raml-700: #5e5146;
+  --color-raml-800: #483f36;
+  --color-raml-900: #332c26;
+  --color-raml-950: #1e1b17;
+
+  --color-zumurrud-50: #ecfdf8;
+  --color-zumurrud-100: #d1fae9;
+  --color-zumurrud-200: #a7f3d0;
+  --color-zumurrud-300: #6ee7b7;
+  --color-zumurrud-400: #34d399;
+  --color-zumurrud-500: #10b981;
+  --color-zumurrud-600: #059669;
+  --color-zumurrud-700: #047857;
+  --color-zumurrud-800: #065f46;
+  --color-zumurrud-900: #064e3b;
+
+  --color-dhahab-100: #fef3c7;
+  --color-dhahab-200: #fde68a;
+  --color-dhahab-300: #fcd34d;
+  --color-dhahab-400: #fbbf24;
+  --color-dhahab-500: #eab308;
+  --color-dhahab-600: #ca8a04;
+  --color-dhahab-700: #a16207;
+
+  --color-slate-50: #f8fafc;
+  --color-slate-100: #f1f5f9;
+  --color-slate-200: #e2e8f0;
+  --color-slate-400: #94a3b8;
+  --color-slate-700: #334155;
+  --color-slate-800: #1e293b;
+  --color-slate-900: #0f172a;
+  --color-slate-950: #020617;
+
+  /* Semantic alerts */
+  --color-success: #16a34a;
+  --color-warning: #d97706;
+  --color-error: #dc2626;
+  --color-info: #2563eb;
+
+  /* Spacing (tasbīḥ scale) */
+  --space-0: 0;
+  --space-1: 0.25rem; /* 4px */
+  --space-2: 0.5rem; /* 8px */
+  --space-3: 0.75rem; /* 12px */
+  --space-4: 1rem; /* 16px */
+  --space-5: 1.25rem; /* 20px */
+  --space-6: 1.5rem; /* 24px */
+  --space-8: 2rem; /* 32px */
+  --space-10: 2.5rem; /* 40px */
+  --space-12: 3rem; /* 48px */
+  --space-16: 4rem; /* 64px */
+
+  /* Semantic spacing */
+  --space-reading-margin: var(--space-12);
+  --space-verse-gap: var(--space-8);
+  --space-section-gap: var(--space-16);
+
+  /* Radii */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.08);
+  --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.12);
+
+  /* Type scale */
+  --font-size-xs: 0.75rem; /* 12px */
+  --font-size-sm: 0.875rem; /* 14px */
+  --font-size-md: 1rem; /* 16px */
+  --font-size-lg: 1.125rem; /* 18px */
+  --font-size-xl: 1.25rem; /* 20px */
+  --font-size-2xl: 1.5rem; /* 24px */
+  --font-size-3xl: 1.875rem; /* 30px */
+  --font-size-4xl: 2.25rem; /* 36px */
+
+  /* Quranic Arabic scale */
+  --font-size-quran-sm: 1.5rem; /* 24px */
+  --font-size-quran-base: 1.875rem; /* 30px */
+  --font-size-quran-lg: 2.25rem; /* 36px */
+  --font-size-quran-xl: 2.75rem; /* 44px */
+  --font-size-quran-2xl: 3.5rem; /* 56px */
+  --font-size-quran-3xl: 4rem; /* 64px */
+
+  /* Line heights */
+  --leading-quran: 2.2;
+  --leading-translation: 1.7;
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.75;
+
+  /* Weights */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+}
+
+/* 2) THEMES & PLATFORM OVERRIDES (put these in @layer theme) */
+@layer theme {
+  :root {
+    /* Built-in Uniwind themes (required) */
+    @variant light {
+      --color-bg-primary: var(--color-raml-50);
+      --color-bg-secondary: #ffffff;
+      --color-bg-elevated: var(--color-raml-100);
+      --color-background: var(--color-raml-50);
+      --color-surface: #ffffff;
+      --color-surface-elevated: var(--color-raml-100);
+
+      --color-text-primary: var(--color-raml-900);
+      --color-text-secondary: var(--color-raml-600);
+      --color-text-tertiary: var(--color-raml-500);
+      --color-text-quran: var(--color-raml-950);
+
+      --color-border-subtle: var(--color-raml-200);
+      --color-border-base: var(--color-raml-300);
+
+      --color-accent: var(--color-zumurrud-600);
+      --color-accent-hover: var(--color-zumurrud-700);
+
+      --color-highlight: rgba(234, 179, 8, 0.25);
+      --color-bookmark: var(--color-zumurrud-50);
+    }
+
+    @variant dark {
+      --color-bg-primary: var(--color-slate-950);
+      --color-bg-secondary: var(--color-slate-900);
+      --color-bg-elevated: var(--color-slate-800);
+      --color-background: var(--color-slate-950);
+      --color-surface: var(--color-slate-900);
+      --color-surface-elevated: var(--color-slate-800);
+
+      --color-text-primary: var(--color-slate-50);
+      --color-text-secondary: var(--color-slate-400);
+      --color-text-tertiary: var(--color-slate-500);
+      --color-text-quran: #f1f5f9;
+
+      --color-border-subtle: var(--color-slate-800);
+      --color-border-base: var(--color-slate-700);
+
+      --color-accent: var(--color-zumurrud-500);
+      --color-accent-hover: var(--color-zumurrud-400);
+
+      --color-highlight: rgba(234, 179, 8, 0.22);
+      --color-bookmark: rgba(16, 185, 129, 0.15);
+    }
+
+    /* Sakinah custom themes (optional) */
+    @variant fajr {
+      --color-bg-primary: var(--color-raml-50);
+      --color-bg-secondary: #ffffff;
+      --color-bg-elevated: var(--color-raml-100);
+      --color-background: var(--color-raml-50);
+      --color-surface: #ffffff;
+      --color-surface-elevated: var(--color-raml-100);
+
+      --color-text-primary: var(--color-raml-900);
+      --color-text-secondary: var(--color-raml-600);
+      --color-text-tertiary: var(--color-raml-500);
+      --color-text-quran: var(--color-raml-950);
+
+      --color-border-subtle: var(--color-raml-200);
+      --color-border-base: var(--color-raml-300);
+
+      --color-accent: var(--color-zumurrud-600);
+      --color-accent-hover: var(--color-zumurrud-700);
+
+      --color-highlight: rgba(234, 179, 8, 0.25);
+      --color-bookmark: var(--color-zumurrud-50);
+    }
+
+    @variant layl {
+      --color-bg-primary: var(--color-slate-950);
+      --color-bg-secondary: var(--color-slate-900);
+      --color-bg-elevated: var(--color-slate-800);
+      --color-background: var(--color-slate-950);
+      --color-surface: var(--color-slate-900);
+      --color-surface-elevated: var(--color-slate-800);
+
+      --color-text-primary: var(--color-slate-50);
+      --color-text-secondary: var(--color-slate-400);
+      --color-text-tertiary: var(--color-slate-500);
+      --color-text-quran: #f1f5f9;
+
+      --color-border-subtle: var(--color-slate-800);
+      --color-border-base: var(--color-slate-700);
+
+      --color-accent: var(--color-zumurrud-500);
+      --color-accent-hover: var(--color-zumurrud-400);
+
+      --color-highlight: rgba(234, 179, 8, 0.22);
+      --color-bookmark: rgba(16, 185, 129, 0.15);
+    }
+
+    @variant asr {
+      --color-bg-primary: #fbf4e6;
+      --color-bg-secondary: #f6ebd8;
+      --color-bg-elevated: #efe0c9;
+      --color-background: #fbf4e6;
+      --color-surface: #f6ebd8;
+      --color-surface-elevated: #efe0c9;
+
+      --color-text-primary: #473a2a;
+      --color-text-secondary: #6f5e4b;
+      --color-text-tertiary: #8f7e6a;
+      --color-text-quran: #2e1e1a;
+
+      --color-border-subtle: #e6d7bf;
+      --color-border-base: #ddceb8;
+
+      --color-accent: var(--color-dhahab-600);
+      --color-accent-hover: var(--color-dhahab-500);
+
+      --color-highlight: rgba(202, 138, 4, 0.25);
+      --color-bookmark: rgba(202, 138, 4, 0.12);
+    }
+
+    @variant tahajjud {
+      --color-bg-primary: #000000;
+      --color-bg-secondary: #0a0a0a;
+      --color-bg-elevated: #111111;
+      --color-background: #000000;
+      --color-surface: #0a0a0a;
+      --color-surface-elevated: #111111;
+
+      --color-text-primary: #ededed;
+      --color-text-secondary: #b3b3b3;
+      --color-text-tertiary: #808080;
+      --color-text-quran: #f5f5f5;
+
+      --color-border-subtle: #1a1a1a;
+      --color-border-base: #2a2a2a;
+
+      --color-accent: var(--color-zumurrud-500);
+      --color-accent-hover: var(--color-zumurrud-400);
+
+      --color-highlight: rgba(16, 185, 129, 0.18);
+      --color-bookmark: rgba(16, 185, 129, 0.1);
+    }
+
+    @variant masjid {
+      --color-bg-primary: #022c22;
+      --color-bg-secondary: #053b2f;
+      --color-bg-elevated: #065e4d;
+      --color-background: #022c22;
+      --color-surface: #053b2f;
+      --color-surface-elevated: #065e4d;
+
+      --color-text-primary: #f0fdfa;
+      --color-text-secondary: #a7f3d0;
+      --color-text-tertiary: #6ee7b7;
+      --color-text-quran: #ffffff;
+
+      --color-border-subtle: #064e3b;
+      --color-border-base: #0d9488;
+
+      --color-accent: var(--color-dhahab-400);
+      --color-accent-hover: var(--color-dhahab-300);
+
+      --color-highlight: rgba(251, 191, 36, 0.15);
+      --color-bookmark: rgba(16, 185, 129, 0.25);
+    }
+
+    /* Platform-specific overrides (allowed here) */
+    @media ios {
+      --font-ui-en: "-apple-system";
+      --font-ui-ar: "-apple-system";
+      --space-4: 20px;
+    }
+
+    @media android {
+      --font-ui-en: "Roboto";
+      --font-ui-ar: "Roboto";
+      --space-4: 16px;
+    }
+
+    @media web {
+      --font-ui-en: "Inter", system-ui, sans-serif;
+      --space-4: 16px;
+    }
+  }
+}

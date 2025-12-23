@@ -1,0 +1,54 @@
+name: Deploy Sakina Quran
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # --- Build & Push Steps ---
+
+      - name: Allow insecure registry
+        run: |
+          echo '{ "insecure-registries": ["${{ secrets.REGISTRY_URL }}"] }' | sudo tee /etc/docker/daemon.json
+          sudo systemctl restart docker
+
+      - name: Log in to Docker Registry
+        run: echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login ${{ secrets.REGISTRY_URL }} -u ${{ secrets.REGISTRY_USER }} --password-stdin
+
+      - name: Build and Push Docker image
+        run: |
+          # Build using the Expo Dockerfile
+          docker build -t sakina-quran .
+
+          # Tag for your private registry
+          docker tag sakina-quran ${{ secrets.REGISTRY_URL }}/abdulrahman/sakina-quran:latest
+
+          # Push to registry
+          docker push ${{ secrets.REGISTRY_URL }}/abdulrahman/sakina-quran:latest
+
+      # --- Deploy to VPS (MicroK8s) ---
+
+      - name: Set up SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.VPS_IP }} >> ~/.ssh/known_hosts
+
+      - name: Restart Deployment on VPS
+        run: |
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_IP }} << 'EOF'
+          # Force MicroK8s to restart the pod and pull the new image
+          # Ensure a deployment named 'sakina-deployment' exists on the server!
+          microk8s kubectl rollout restart deployment sakina-deployment
+          EOF
