@@ -5,6 +5,8 @@
 @theme {
   /* Sacred fonts (must be preserved exactly) */
   --font-arabic: "UthmanicHafs_V22";
+  --font-surah-name: "SurahNames_V4";
+  --font-juz-name: "JuzNames_V2";
   --font-ui-ar: "NotoSansArabic_400Regular";
   --font-ui-en: "Inter_400Regular";
 

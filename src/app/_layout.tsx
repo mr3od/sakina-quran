@@ -66,6 +66,8 @@ export default function RootLayout() {
           Font.loadAsync({
             // Quranic Script Font
             UthmanicHafs_V22: require("../../assets/fonts/UthmanicHafs_V22.ttf"),
+            SurahNames_V4: require("../../assets/fonts/SurahNames_V4.ttf"),
+            JuzNames_V2: require("../../assets/fonts/JuzNames_V2.ttf"),
             // Arabic UI Font
             NotoSansArabic_400Regular: require("../../assets/fonts/NotoSansArabic_400Regular.ttf"),
             // English UI Font

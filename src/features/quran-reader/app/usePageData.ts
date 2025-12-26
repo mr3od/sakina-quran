@@ -3,22 +3,27 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { SQLiteDatabase } from "expo-sqlite";
 import { PageReaderRepository } from "../data/PageReaderRepository";
 
-const ayahsKey = (page: number) =>
-  ["quran-reader", "page-ayahs", page] as const;
+const pageDataKey = (page: number) =>
+  ["quran-reader", "page-data", page] as const;
 
-async function fetchPageAyahs(db: SQLiteDatabase, page: number) {
+async function fetchPageData(db: SQLiteDatabase, page: number) {
   const repo = new PageReaderRepository(db);
-  return repo.getPageAyahs(page);
+
+  // Fetch Ayahs and Page Metadata (Juz/Hizb info) in parallel
+  const [ayahs, meta] = await Promise.all([
+    repo.getPageAyahs(page),
+    repo.getPageMeta(page),
+  ]);
+
+  return { ayahs, meta };
 }
 
 export function usePageAyahs(pageNumber: number) {
   const db = useDatabase();
 
   return useQuery({
-    queryKey: ayahsKey(pageNumber),
-    queryFn: () => fetchPageAyahs(db, pageNumber),
-
-    // Don't refetch forever, but also don't pin in memory forever.
+    queryKey: pageDataKey(pageNumber),
+    queryFn: () => fetchPageData(db, pageNumber),
     staleTime: Infinity,
     gcTime: 15 * 60 * 1000,
   });
@@ -30,8 +35,8 @@ export function usePrefetchPageAyahs() {
 
   return async (pageNumber: number) => {
     await qc.prefetchQuery({
-      queryKey: ayahsKey(pageNumber),
-      queryFn: () => fetchPageAyahs(db, pageNumber),
+      queryKey: pageDataKey(pageNumber),
+      queryFn: () => fetchPageData(db, pageNumber),
       staleTime: Infinity,
       gcTime: 15 * 60 * 1000,
     });

@@ -3,7 +3,7 @@
  */
 
 import { QuranRepository } from "@/entities/quran/api/QuranRepository";
-import type { Ayah } from "@/types/quran.types";
+import type { Ayah, PageSegment } from "@/types/quran.types";
 import type { SQLiteDatabase } from "expo-sqlite";
 
 export class PageReaderRepository {
@@ -18,6 +18,13 @@ export class PageReaderRepository {
    */
   async getPageAyahs(page: number): Promise<Ayah[]> {
     return this.repo.getAyahsByPage(page);
+  }
+
+  /**
+   * Get metadata (Juz, Hizb, Rub) for a specific page
+   */
+  async getPageMeta(page: number): Promise<PageSegment | null> {
+    return this.repo.getPageSegment(page);
   }
 
   /**

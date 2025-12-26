@@ -52,6 +52,8 @@
         {
           "fonts": [
             "./assets/fonts/UthmanicHafs_V22.ttf",
+            "./assets/fonts/SurahNames_V4.ttf",
+            "./assets/fonts/JuzNames_V2.ttf",
             "./assets/fonts/Inter_400Regular.ttf",
             "./assets/fonts/NotoSansArabic_400Regular.ttf"
           ]
