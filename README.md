@@ -7,6 +7,8 @@ Sakina Quran is a modern, open-source, offline-first Quran reading application b
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-iOS%20%7C%20Android%20%7C%20Web-lightgrey.svg)
 ![Stack](https://img.shields.io/badge/stack-Expo%20%7C%20React%20Native%20%7C%20SQLite-4630EB.svg)
+![Version](https://img.shields.io/badge/version-1.0.0-green.svg)
+![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)
 
 <!-- Add screenshots here later -->
 <!--
@@ -112,13 +114,49 @@ The app uses a pre-populated `assets/quran.db` file.
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please follow these steps:
+We welcome contributions from the community! Whether you're fixing bugs, adding features, or improving documentation, your help is appreciated.
 
-1. Fork the project.
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`).
-3. Commit your changes (`git commit -m 'feat: Add some AmazingFeature'`).
-4. Push to the branch (`git push origin feature/AmazingFeature`).
-5. Open a Pull Request.
+### Quick Start for Contributors
+
+1. **Read the guidelines**: Check out [CONTRIBUTING.md](CONTRIBUTING.md) for detailed instructions
+2. **Pick an issue**: Look for issues labeled `good first issue` or `help wanted`
+3. **Follow the workflow**: Branch from `development`, use conventional commits, bump version
+4. **Submit a PR**: Target the `development` branch with your changes
+
+### Branch Strategy
+
+- **`development`** - Integration branch for new features (deploy to dev environment)
+- **`main`** - Production branch (deploy to production)
+
+**Important**: Always branch from `development`, never from `main`.
+
+### Commit Convention
+
+We use [Conventional Commits](https://www.conventionalcommits.org/):
+
+```bash
+feat: add bookmark sync functionality
+fix: resolve crash on surah navigation
+docs: update installation instructions
+```
+
+### Version Management
+
+Version is managed in `app.json` (`expo.version`). Use semantic versioning and bump before creating a PR.
+
+For more details, see [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## 🐛 Reporting Issues
+
+Found a bug? Have a feature request? Please use our issue templates:
+
+- [Bug Report](.github/ISSUE_TEMPLATE/bug_report.md)
+- [Feature Request](.github/ISSUE_TEMPLATE/feature_request.md)
+- [Documentation](.github/ISSUE_TEMPLATE/documentation.md)
+
+## 🤖 AI Agent Guidelines
+
+If you're using an AI coding assistant, check out our [AI Agent Steering File](.kiro/steering/sakina-development.md) for project-specific guidelines.
 
 ## 📄 License
 
