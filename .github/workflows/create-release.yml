@@ -199,21 +199,27 @@ jobs:
           VERSION="${{ steps.version.outputs.version }}"
           IS_PRERELEASE="${{ steps.release-type.outputs.prerelease }}"
           BRANCH="${{ github.ref_name }}"
+          COMMIT="${{ github.sha }}"
+          
+          echo "Creating release on commit: $COMMIT"
           
           # Create release using GitHub CLI
+          # --target ensures the tag is created on the triggering commit, not default branch
           if [ "$IS_PRERELEASE" = "true" ]; then
             gh release create "$TAG" \
               --title "Release $VERSION" \
               --notes-file changelog.md \
+              --target "$COMMIT" \
               --prerelease
           else
             gh release create "$TAG" \
               --title "Release $VERSION" \
               --notes-file changelog.md \
+              --target "$COMMIT" \
               --latest
           fi
           
-          echo "✅ Release $TAG created successfully!"
+          echo "✅ Release $TAG created on commit $COMMIT"
       
       - name: Update existing release
         if: steps.check-release.outputs.should_update == 'true'
