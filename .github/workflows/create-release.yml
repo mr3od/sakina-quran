@@ -60,8 +60,11 @@ jobs:
           TAG="v${{ steps.version.outputs.version }}"
           BRANCH="${{ github.ref_name }}"
           
-          # Get all tags sorted by version
+          # Get all tags sorted by version (newest first)
           ALL_TAGS=$(git tag -l --sort=-v:refname)
+          
+          echo "Current tag: $TAG"
+          echo "All tags: $ALL_TAGS"
           
           # If updating existing release (promotion to main), get the tag before current
           if [ "${{ steps.check-release.outputs.should_update }}" = "true" ]; then
