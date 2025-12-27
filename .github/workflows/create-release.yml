@@ -199,21 +199,27 @@ jobs:
           VERSION="${{ steps.version.outputs.version }}"
           IS_PRERELEASE="${{ steps.release-type.outputs.prerelease }}"
           BRANCH="${{ github.ref_name }}"
+          COMMIT="${{ github.sha }}"
+          
+          echo "Creating release on commit: $COMMIT"
           
           # Create release using GitHub CLI
+          # --target ensures the tag is created on the triggering commit, not default branch
           if [ "$IS_PRERELEASE" = "true" ]; then
             gh release create "$TAG" \
               --title "Release $VERSION" \
               --notes-file changelog.md \
+              --target "$COMMIT" \
               --prerelease
           else
             gh release create "$TAG" \
               --title "Release $VERSION" \
               --notes-file changelog.md \
+              --target "$COMMIT" \
               --latest
           fi
           
-          echo "✅ Release $TAG created successfully!"
+          echo "✅ Release $TAG created on commit $COMMIT"
       
       - name: Update existing release
         if: steps.check-release.outputs.should_update == 'true'
@@ -223,24 +229,37 @@ jobs:
           TAG="v${{ steps.version.outputs.version }}"
           VERSION="${{ steps.version.outputs.version }}"
           IS_PRERELEASE="${{ steps.release-type.outputs.prerelease }}"
+          COMMIT="${{ github.sha }}"
           
-          # Update release using GitHub CLI
-          # When promoting to production, we need to explicitly set --prerelease=false
+          echo "Updating release $TAG to point to commit: $COMMIT"
+          
+          # gh release edit cannot change the tag target, so we need to:
+          # 1. Delete the existing release and tag
+          # 2. Recreate with the new target commit
+          
+          # Delete existing release (this also allows us to recreate with new target)
+          gh release delete "$TAG" --yes
+          
+          # Delete the old tag (both remote and ensure it's gone)
+          git push origin --delete "$TAG" 2>/dev/null || true
+          git tag -d "$TAG" 2>/dev/null || true
+          
+          # Recreate release on the new commit (main merge commit)
           if [ "$IS_PRERELEASE" = "true" ]; then
-            gh release edit "$TAG" \
+            gh release create "$TAG" \
               --title "Release $VERSION" \
               --notes-file changelog.md \
+              --target "$COMMIT" \
               --prerelease
           else
-            # Promoting to production: remove prerelease flag and mark as latest
-            gh release edit "$TAG" \
+            gh release create "$TAG" \
               --title "Release $VERSION" \
               --notes-file changelog.md \
-              --prerelease=false \
+              --target "$COMMIT" \
               --latest
           fi
           
-          echo "✅ Release $TAG updated successfully!"
+          echo "✅ Release $TAG recreated on commit $COMMIT"
       
       - name: Release summary
         if: steps.check-release.outputs.exists == 'false' || steps.check-release.outputs.should_update == 'true'
