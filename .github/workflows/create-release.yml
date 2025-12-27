@@ -60,17 +60,27 @@ jobs:
           TAG="v${{ steps.version.outputs.version }}"
           BRANCH="${{ github.ref_name }}"
           
+          # Get all tags sorted by version
+          ALL_TAGS=$(git tag -l --sort=-v:refname)
+          
           # If updating existing release (promotion to main), get the tag before current
           if [ "${{ steps.check-release.outputs.should_update }}" = "true" ]; then
-            # Get all tags sorted, find the one before current tag
-            PREVIOUS_TAG=$(git tag -l --sort=-v:refname | grep -A1 "^${TAG}$" | tail -1)
+            # Find the tag that comes after current tag in the sorted list
+            # (which means it's the previous version)
+            PREVIOUS_TAG=$(echo "$ALL_TAGS" | grep -A1 "^${TAG}$" | tail -1)
+            
+            # If grep returned the same tag or nothing, no previous tag exists
             if [ "$PREVIOUS_TAG" = "$TAG" ] || [ -z "$PREVIOUS_TAG" ]; then
-              # No previous tag found, use initial commit
               PREVIOUS_TAG=""
             fi
           else
-            # Creating new release, get latest existing tag
-            PREVIOUS_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+            # Creating new release, get the most recent tag (first in sorted list)
+            PREVIOUS_TAG=$(echo "$ALL_TAGS" | head -1)
+            
+            # If it's the same as current tag, no previous tag
+            if [ "$PREVIOUS_TAG" = "$TAG" ]; then
+              PREVIOUS_TAG=""
+            fi
           fi
           
           if [ -z "$PREVIOUS_TAG" ]; then
