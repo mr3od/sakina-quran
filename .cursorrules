@@ -1,0 +1,130 @@
+# Sakina Quran - AI Agent Rules (Cursor/Windsurf/etc.)
+
+You are contributing to **Sakina Quran**, an Expo-based Quran reading application.
+
+## 🚨 CRITICAL RULES (NEVER VIOLATE)
+
+### Branch Strategy
+- ALWAYS branch from `development`, NEVER from `main`
+- ALWAYS fetch latest changes before creating a branch:
+  ```bash
+  git fetch upstream && git checkout development && git merge upstream/development
+  ```
+- NEVER merge feature branches directly to `main`
+
+### Version Management
+- Version is in `app.json` → `expo.version`
+- ALWAYS bump version before creating PR
+- Use semantic versioning: MAJOR.MINOR.PATCH
+- Commit: `chore: bump version to X.Y.Z`
+
+### Commit Format
+- ALWAYS use conventional commits: `type(scope): subject`
+- Types: feat, fix, docs, chore, refactor, test, perf, style
+- Examples:
+  - `feat: add bookmark functionality`
+  - `fix: resolve audio playback issue`
+  - `docs: update README`
+
+## 📋 Standard Workflow
+
+1. **Fetch latest development**:
+   ```bash
+   git fetch upstream
+   git checkout development
+   git merge upstream/development
+   ```
+
+2. **Create feature branch**:
+   ```bash
+   git checkout -b feat/feature-name      # New features
+   git checkout -b fix/bug-description    # Bug fixes
+   git checkout -b docs/what-documenting  # Documentation
+   ```
+
+3. **Make changes with conventional commits**:
+   ```bash
+   git commit -m "feat: add bookmark sync"
+   git commit -m "fix: resolve crash on navigation"
+   ```
+
+4. **Bump version in app.json**:
+   - Edit `expo.version` field
+   - Commit: `git commit -m "chore: bump version to X.Y.Z"`
+
+5. **Test locally**:
+   ```bash
+   npx expo export --platform web  # Must succeed
+   pnpm lint                       # Must pass
+   ```
+
+6. **Push and create PR to development**:
+   ```bash
+   git push origin feat/feature-name
+   # Create PR targeting 'development' branch
+   ```
+
+## 🌳 Branch Flow
+
+- ✅ Any branch → development
+- ✅ development → main (production)
+- ✅ hotfix/* → main (exception, must backport to development)
+- ❌ feature/fix → main (forbidden)
+
+## 🔢 Versioning
+
+- **MAJOR** (X.0.0): Breaking changes
+- **MINOR** (0.X.0): New features
+- **PATCH** (0.0.X): Bug fixes
+
+## 🧪 Testing Requirements
+
+Before creating PR:
+- Run `npx expo export --platform web` (must succeed)
+- Run `pnpm lint` (must pass)
+- Test on device/simulator
+
+## 🎯 Code Style
+
+- Use TypeScript for type safety
+- Follow existing code patterns
+- Keep components small and focused
+- Use React hooks appropriately
+- Follow Feature-Sliced Design architecture
+
+## 📁 Project Structure
+
+```
+src/
+├── app/              # Expo Router screens
+├── features/         # Feature modules
+├── entities/         # Domain entities
+└── shared/           # Shared utilities
+```
+
+## 🚫 Common Mistakes
+
+❌ Branching from main
+❌ Forgetting to bump version
+❌ Non-conventional commits
+❌ Creating PR to main
+❌ Not testing before PR
+
+## ✅ PR Checklist
+
+- [ ] Branch from development
+- [ ] Version bumped in app.json
+- [ ] Conventional commits used
+- [ ] Build succeeds
+- [ ] Linter passes
+- [ ] PR targets development
+
+## 📚 Resources
+
+- Full guidelines: `CONTRIBUTING.md`
+- AI steering: `.kiro/steering/sakina-development.md`
+- Issue templates: `.github/ISSUE_TEMPLATE/`
+
+---
+
+**Remember**: Quality over speed. Follow the rules, test thoroughly, and write clean code.
