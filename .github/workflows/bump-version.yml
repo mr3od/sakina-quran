@@ -1,0 +1,124 @@
+name: Bump Version
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump_type:
+        description: "Version bump type"
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+permissions:
+  contents: write
+
+jobs:
+  bump-version:
+    name: Bump Version
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout selected branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Read current version from app.json
+        id: current-version
+        run: |
+          CURRENT_VERSION=$(jq -r '.expo.version' app.json)
+          echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          echo "Current version: $CURRENT_VERSION"
+
+      - name: Calculate new version
+        id: new-version
+        run: |
+          CURRENT_VERSION="${{ steps.current-version.outputs.version }}"
+          BUMP_TYPE="${{ github.event.inputs.bump_type }}"
+
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
+
+          case $BUMP_TYPE in
+            major)
+              MAJOR=$((MAJOR + 1))
+              MINOR=0
+              PATCH=0
+              ;;
+            minor)
+              MINOR=$((MINOR + 1))
+              PATCH=0
+              ;;
+            patch)
+              PATCH=$((PATCH + 1))
+              ;;
+          esac
+
+          NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
+          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "New version: $NEW_VERSION (bumped $BUMP_TYPE)"
+
+      - name: Update version in app.json
+        run: |
+          NEW_VERSION="${{ steps.new-version.outputs.version }}"
+          jq --arg version "$NEW_VERSION" '.expo.version = $version' app.json > app.json.tmp
+          mv app.json.tmp app.json
+          echo "✅ app.json version updated to $NEW_VERSION"
+
+      - name: Commit and push
+        run: |
+          NEW_VERSION="${{ steps.new-version.outputs.version }}"
+          BUMP_TYPE="${{ github.event.inputs.bump_type }}"
+          BRANCH="${{ github.ref_name }}"
+
+          git add app.json
+          git commit -m "chore: bump version to $NEW_VERSION ($BUMP_TYPE)"
+          git push origin $BRANCH
+
+          echo "✅ Version bumped and pushed to $BRANCH branch"
+          echo "📝 Commit message: chore: bump version to $NEW_VERSION ($BUMP_TYPE)"
+
+      - name: Calculate PR URL
+        id: pr_url
+        run: |
+          BRANCH="${{ github.ref_name }}"
+          REPO="${{ github.repository }}"
+
+          if [ "$BRANCH" == "development" ]; then
+            TARGET="main"
+          else
+            TARGET="development"
+          fi
+
+          echo "url=https://github.com/$REPO/compare/$TARGET...$BRANCH?expand=1" >> $GITHUB_OUTPUT
+
+      - name: Summary
+        run: |
+          CURRENT_VERSION="${{ steps.current-version.outputs.version }}"
+          NEW_VERSION="${{ steps.new-version.outputs.version }}"
+          BUMP_TYPE="${{ github.event.inputs.bump_type }}"
+          BRANCH="${{ github.ref_name }}"
+          PR_URL="${{ steps.pr_url.outputs.url }}"
+
+          echo "## Version Bump Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: $BRANCH" >> $GITHUB_STEP_SUMMARY
+          echo "- **Bump Type**: $BUMP_TYPE" >> $GITHUB_STEP_SUMMARY
+          echo "- **Previous Version**: $CURRENT_VERSION" >> $GITHUB_STEP_SUMMARY
+          echo "- **New Version**: $NEW_VERSION" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Version has been updated and pushed to the $BRANCH branch" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔗 Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "[**Create Pull Request**]($PR_URL)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "A new release will be created automatically when this commit is pushed." >> $GITHUB_STEP_SUMMARY

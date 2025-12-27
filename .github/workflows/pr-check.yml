@@ -1,0 +1,173 @@
+name: PR Check
+
+on:
+  pull_request:
+    branches:
+      - main
+      - development
+
+permissions:
+  contents: read
+
+jobs:
+  build-check:
+    name: Build Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Enable pnpm
+        run: corepack enable && corepack prepare pnpm@latest --activate
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+      
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      
+      - name: Build Expo web bundle
+        run: npx expo export --platform web
+      
+      - name: Build summary
+        run: |
+          echo "## ✅ Build Check Passed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The Expo web bundle was built successfully." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Platform**: Web" >> $GITHUB_STEP_SUMMARY
+          echo "- **Build tool**: Expo" >> $GITHUB_STEP_SUMMARY
+          echo "- **Output**: ./dist" >> $GITHUB_STEP_SUMMARY
+  
+  version-check:
+    name: Version Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Get version from PR branch
+        id: pr-version
+        run: |
+          PR_VERSION=$(jq -r '.expo.version' app.json)
+          echo "version=$PR_VERSION" >> $GITHUB_OUTPUT
+          echo "PR branch version: $PR_VERSION"
+      
+      - name: Get version from target branch
+        id: target-version
+        run: |
+          git fetch origin ${{ github.base_ref }}
+          git checkout origin/${{ github.base_ref }} -- app.json
+          TARGET_VERSION=$(jq -r '.expo.version' app.json)
+          echo "version=$TARGET_VERSION" >> $GITHUB_OUTPUT
+          echo "Target branch version: $TARGET_VERSION"
+          # Restore PR branch app.json
+          git checkout HEAD -- app.json
+      
+      - name: Compare versions
+        run: |
+          PR_VERSION="${{ steps.pr-version.outputs.version }}"
+          TARGET_VERSION="${{ steps.target-version.outputs.version }}"
+          
+          echo "Comparing versions:"
+          echo "  PR branch: $PR_VERSION"
+          echo "  Target branch (${{ github.base_ref }}): $TARGET_VERSION"
+          
+          if [ "$PR_VERSION" = "$TARGET_VERSION" ]; then
+            echo "❌ ERROR: Version in app.json has not been updated!"
+            echo "Please update the version in app.json before merging this PR."
+            echo "You can use the 'Bump Version' workflow or update it manually."
+            exit 1
+          else
+            echo "✅ SUCCESS: Version has been updated from $TARGET_VERSION to $PR_VERSION"
+          fi
+  
+  branch-flow-check:
+    name: Branch Flow Enforcement
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Validate branch merge flow
+        run: |
+          SOURCE_BRANCH="${{ github.head_ref }}"
+          TARGET_BRANCH="${{ github.base_ref }}"
+          
+          echo "================================================"
+          echo "Branch Flow Validation"
+          echo "================================================"
+          echo "Source branch: $SOURCE_BRANCH"
+          echo "Target branch: $TARGET_BRANCH"
+          echo ""
+          
+          # Define allowed merge patterns
+          ALLOWED=false
+          ERROR_MESSAGE=""
+          
+          # Rule 0: Hotfix exception - hotfix branches can merge into any branch
+          if [[ "$SOURCE_BRANCH" == hotfix/* ]]; then
+            echo "✅ Hotfix Exception: Hotfix branch can merge into $TARGET_BRANCH"
+            echo "⚠️  WARNING: This is a hotfix. Ensure you backport changes to other branches!"
+            ALLOWED=true
+          
+          # Rule 1: Any branch can merge into development
+          elif [ "$TARGET_BRANCH" = "development" ]; then
+            echo "✅ Rule 1: Any branch can merge into development"
+            ALLOWED=true
+          
+          # Rule 2: Only development can merge into main
+          elif [ "$TARGET_BRANCH" = "main" ]; then
+            if [ "$SOURCE_BRANCH" = "development" ]; then
+              echo "✅ Rule 2: Development branch merging into main (production)"
+              ALLOWED=true
+            else
+              echo "❌ Rule 2 VIOLATION: Only 'development' branch can merge into 'main'"
+              ERROR_MESSAGE="Only the 'development' branch can be merged into 'main' (production).\nYour branch: $SOURCE_BRANCH\n\nCorrect flow: feature → development → main"
+            fi
+          
+          # Unknown target branch
+          else
+            echo "⚠️  Unknown target branch: $TARGET_BRANCH"
+            echo "✅ Allowing merge (not a protected branch)"
+            ALLOWED=true
+          fi
+          
+          echo ""
+          echo "================================================"
+          
+          # Final decision
+          if [ "$ALLOWED" = true ]; then
+            echo "✅ BRANCH FLOW CHECK PASSED"
+            echo ""
+            echo "Merge flow is valid according to project guidelines."
+            exit 0
+          else
+            echo "❌ BRANCH FLOW CHECK FAILED"
+            echo ""
+            echo "================================================"
+            echo "ERROR: Invalid merge flow detected!"
+            echo "================================================"
+            echo -e "$ERROR_MESSAGE"
+            echo ""
+            echo "Required Flow:"
+            echo "  1. Feature/fix branches → development"
+            echo "  2. development → main (production)"
+            echo ""
+            echo "Exception:"
+            echo "  - hotfix/* branches can merge into any branch"
+            echo ""
+            echo "Please follow the correct branching strategy."
+            echo "================================================"
+            exit 1
+          fi

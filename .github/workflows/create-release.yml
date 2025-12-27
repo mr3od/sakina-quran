@@ -1,0 +1,199 @@
+name: Create Release
+
+on:
+  push:
+    branches:
+      - main
+      - development
+
+permissions:
+  contents: write
+
+jobs:
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Read version from app.json
+        id: version
+        run: |
+          VERSION=$(jq -r '.expo.version' app.json)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=v$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+          echo "Tag: v$VERSION"
+      
+      - name: Check if release exists
+        id: check-release
+        run: |
+          TAG="v${{ steps.version.outputs.version }}"
+          BRANCH="${{ github.ref_name }}"
+          
+          # Check if tag exists
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            
+            # Check if we should update (main promotion)
+            if [ "$BRANCH" = "main" ]; then
+              echo "should_update=true" >> $GITHUB_OUTPUT
+              echo "🔄 Release $TAG exists, will update for production deployment"
+            else
+              echo "should_update=false" >> $GITHUB_OUTPUT
+              echo "⚠️  Release $TAG already exists on development, skipping"
+            fi
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "should_update=false" >> $GITHUB_OUTPUT
+            echo "✅ Release $TAG does not exist, will create"
+          fi
+      
+      - name: Get previous release tag
+        id: previous-tag
+        if: steps.check-release.outputs.exists == 'false' || steps.check-release.outputs.should_update == 'true'
+        run: |
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          if [ -z "$PREVIOUS_TAG" ]; then
+            echo "tag=" >> $GITHUB_OUTPUT
+            echo "No previous release found"
+          else
+            echo "tag=$PREVIOUS_TAG" >> $GITHUB_OUTPUT
+            echo "Previous release: $PREVIOUS_TAG"
+          fi
+      
+      - name: Generate changelog
+        id: changelog
+        if: steps.check-release.outputs.exists == 'false' || steps.check-release.outputs.should_update == 'true'
+        run: |
+          TAG="v${{ steps.version.outputs.version }}"
+          PREVIOUS_TAG="${{ steps.previous-tag.outputs.tag }}"
+          
+          echo "Generating changelog..."
+          
+          # Get commits since last release (or all commits if no previous release)
+          if [ -z "$PREVIOUS_TAG" ]; then
+            COMMITS=$(git log --pretty=format:"%s|%an|%h" --no-merges)
+          else
+            COMMITS=$(git log ${PREVIOUS_TAG}..HEAD --pretty=format:"%s|%an|%h" --no-merges)
+          fi
+          
+          # Initialize changelog sections
+          FEATURES=""
+          FIXES=""
+          CHORES=""
+          DOCS=""
+          OTHER=""
+          
+          # Parse commits and group by type
+          while IFS='|' read -r message author hash; do
+            # Extract type from conventional commit format
+            if [[ $message =~ ^feat(\(.+\))?:\ (.+)$ ]]; then
+              FEATURES="${FEATURES}- ${BASH_REMATCH[2]} (${hash}) by @${author}\n"
+            elif [[ $message =~ ^fix(\(.+\))?:\ (.+)$ ]]; then
+              FIXES="${FIXES}- ${BASH_REMATCH[2]} (${hash}) by @${author}\n"
+            elif [[ $message =~ ^chore(\(.+\))?:\ (.+)$ ]]; then
+              CHORES="${CHORES}- ${BASH_REMATCH[2]} (${hash}) by @${author}\n"
+            elif [[ $message =~ ^docs(\(.+\))?:\ (.+)$ ]]; then
+              DOCS="${DOCS}- ${BASH_REMATCH[2]} (${hash}) by @${author}\n"
+            else
+              OTHER="${OTHER}- ${message} (${hash}) by @${author}\n"
+            fi
+          done <<< "$COMMITS"
+          
+          # Build changelog
+          CHANGELOG="## Changes\n\n"
+          
+          if [ -n "$FEATURES" ]; then
+            CHANGELOG="${CHANGELOG}### ✨ Features\n${FEATURES}\n"
+          fi
+          
+          if [ -n "$FIXES" ]; then
+            CHANGELOG="${CHANGELOG}### 🐛 Bug Fixes\n${FIXES}\n"
+          fi
+          
+          if [ -n "$CHORES" ]; then
+            CHANGELOG="${CHANGELOG}### 🔧 Chores\n${CHORES}\n"
+          fi
+          
+          if [ -n "$DOCS" ]; then
+            CHANGELOG="${CHANGELOG}### 📚 Documentation\n${DOCS}\n"
+          fi
+          
+          if [ -n "$OTHER" ]; then
+            CHANGELOG="${CHANGELOG}### 📦 Other Changes\n${OTHER}\n"
+          fi
+          
+          # Save to file
+          echo -e "$CHANGELOG" > changelog.md
+          echo "Changelog generated successfully"
+      
+      - name: Determine release type
+        id: release-type
+        if: steps.check-release.outputs.exists == 'false' || steps.check-release.outputs.should_update == 'true'
+        run: |
+          BRANCH="${{ github.ref_name }}"
+          if [ "$BRANCH" = "main" ]; then
+            echo "prerelease=false" >> $GITHUB_OUTPUT
+            echo "📦 Creating full release (production branch)"
+          else
+            echo "prerelease=true" >> $GITHUB_OUTPUT
+            echo "🚧 Creating pre-release (development branch)"
+          fi
+      
+      - name: Create GitHub Release
+        if: steps.check-release.outputs.exists == 'false'
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          release_name: Release ${{ steps.version.outputs.version }}
+          body_path: changelog.md
+          draft: false
+          prerelease: ${{ steps.release-type.outputs.prerelease }}
+      
+      - name: Update existing release
+        if: steps.check-release.outputs.should_update == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="v${{ steps.version.outputs.version }}"
+          IS_PRERELEASE="${{ steps.release-type.outputs.prerelease }}"
+          CHANGELOG=$(cat changelog.md)
+          
+          # Get release ID
+          RELEASE_ID=$(gh api repos/${{ github.repository }}/releases/tags/$TAG --jq '.id')
+          
+          # Update the release
+          gh api repos/${{ github.repository }}/releases/$RELEASE_ID \
+            -X PATCH \
+            -f body="$CHANGELOG" \
+            -F prerelease=$IS_PRERELEASE
+          
+          echo "✅ Release $TAG updated successfully!"
+      
+      - name: Release summary
+        if: steps.check-release.outputs.exists == 'false' || steps.check-release.outputs.should_update == 'true'
+        run: |
+          BRANCH="${{ github.ref_name }}"
+          IS_PRERELEASE="${{ steps.release-type.outputs.prerelease }}"
+          TAG="v${{ steps.version.outputs.version }}"
+          
+          if [ "${{ steps.check-release.outputs.exists }}" = "true" ]; then
+            echo "🔄 Release $TAG updated for $BRANCH deployment"
+          else
+            echo "✅ Release $TAG created successfully!"
+          fi
+          
+          echo "📝 Changelog has been generated and included in the release notes"
+          
+          if [ "$IS_PRERELEASE" = "true" ]; then
+            echo "🚧 Release is marked as pre-release (deployed to development)"
+          else
+            echo "📦 Release is marked as full release (deployed to production)"
+          fi

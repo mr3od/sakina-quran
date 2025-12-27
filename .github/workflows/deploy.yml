@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - development
 
 permissions:
   contents: read
@@ -14,6 +15,20 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Determine environment
+        id: env
+        run: |
+          BRANCH="${{ github.ref_name }}"
+          if [ "$BRANCH" = "main" ]; then
+            echo "environment=production" >> $GITHUB_OUTPUT
+            echo "deployment=sakina-deployment" >> $GITHUB_OUTPUT
+            echo "📦 Deploying to PRODUCTION"
+          else
+            echo "environment=development" >> $GITHUB_OUTPUT
+            echo "deployment=sakina-deployment-dev" >> $GITHUB_OUTPUT
+            echo "🚧 Deploying to DEVELOPMENT"
+          fi
 
       # --- Build & Push Steps ---
 
@@ -27,13 +42,17 @@ jobs:
 
       - name: Build and Push Docker image
         run: |
+          ENV="${{ steps.env.outputs.environment }}"
+          
           # Build using the Expo Dockerfile
-          docker build -t sakina-quran .
+          docker build -t sakina-quran:$ENV .
 
           # Tag for your private registry
-          docker tag sakina-quran ${{ secrets.REGISTRY_URL }}/abdulrahman/sakina-quran:latest
+          docker tag sakina-quran:$ENV ${{ secrets.REGISTRY_URL }}/abdulrahman/sakina-quran:$ENV
+          docker tag sakina-quran:$ENV ${{ secrets.REGISTRY_URL }}/abdulrahman/sakina-quran:latest
 
           # Push to registry
+          docker push ${{ secrets.REGISTRY_URL }}/abdulrahman/sakina-quran:$ENV
           docker push ${{ secrets.REGISTRY_URL }}/abdulrahman/sakina-quran:latest
 
       # --- Deploy to VPS (MicroK8s) ---
@@ -47,8 +66,25 @@ jobs:
 
       - name: Restart Deployment on VPS
         run: |
-          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_IP }} << 'EOF'
-          # Force MicroK8s to restart the pod and pull the new image
-          # Ensure a deployment named 'sakina-deployment' exists on the server!
-          microk8s kubectl rollout restart deployment sakina-deployment
+          DEPLOYMENT="${{ steps.env.outputs.deployment }}"
+          ENV="${{ steps.env.outputs.environment }}"
+          
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_IP }} << EOF
+          echo "🔄 Restarting $DEPLOYMENT ($ENV environment)..."
+          microk8s kubectl rollout restart deployment $DEPLOYMENT
+          echo "✅ Deployment restarted successfully"
           EOF
+
+      - name: Deployment summary
+        run: |
+          ENV="${{ steps.env.outputs.environment }}"
+          BRANCH="${{ github.ref_name }}"
+          
+          echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: $BRANCH" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment**: $ENV" >> $GITHUB_STEP_SUMMARY
+          echo "- **Deployment**: ${{ steps.env.outputs.deployment }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Triggered by**: @${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Image built, pushed, and deployment restarted successfully." >> $GITHUB_STEP_SUMMARY
