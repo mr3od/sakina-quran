@@ -215,15 +215,18 @@ jobs:
           IS_PRERELEASE="${{ steps.release-type.outputs.prerelease }}"
           
           # Update release using GitHub CLI
+          # When promoting to production, we need to explicitly set --prerelease=false
           if [ "$IS_PRERELEASE" = "true" ]; then
             gh release edit "$TAG" \
               --title "Release $VERSION" \
               --notes-file changelog.md \
               --prerelease
           else
+            # Promoting to production: remove prerelease flag and mark as latest
             gh release edit "$TAG" \
               --title "Release $VERSION" \
               --notes-file changelog.md \
+              --prerelease=false \
               --latest
           fi
           
