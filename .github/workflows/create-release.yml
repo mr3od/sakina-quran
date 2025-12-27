@@ -60,12 +60,22 @@ jobs:
           TAG="v${{ steps.version.outputs.version }}"
           BRANCH="${{ github.ref_name }}"
           
+          echo "=== Debug: Tag Detection ==="
+          echo "Current TAG: $TAG"
+          echo "Branch: $BRANCH"
+          echo "Should update: ${{ steps.check-release.outputs.should_update }}"
+          
+          # Get all tags sorted by version (newest first)
+          ALL_TAGS=$(git tag -l --sort=-v:refname)
+          echo "All tags (sorted):"
+          echo "$ALL_TAGS"
+          
           # If updating existing release (promotion to main), get the tag before current
           if [ "${{ steps.check-release.outputs.should_update }}" = "true" ]; then
             # Get all tags sorted, find the one before current tag
             PREVIOUS_TAG=$(git tag -l --sort=-v:refname | grep -A1 "^${TAG}$" | tail -1)
             if [ "$PREVIOUS_TAG" = "$TAG" ] || [ -z "$PREVIOUS_TAG" ]; then
-              # No previous tag found, use initial commit
+              # No previous tag found
               PREVIOUS_TAG=""
             fi
           else
