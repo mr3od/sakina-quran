@@ -100,7 +100,7 @@ src/
    pnpm run android
 
    # For Web
-   pnpm run web
+   npx expo start --web
    ```
 
 ## 🧪 Database & Schema
