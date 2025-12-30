@@ -9,9 +9,14 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: deploy-${{ github.ref_name }}
+  cancel-in-progress: true
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -23,39 +28,45 @@ jobs:
           if [ "$BRANCH" = "main" ]; then
             echo "environment=production" >> $GITHUB_OUTPUT
             echo "deployment=sakina-deployment" >> $GITHUB_OUTPUT
-            echo "📦 Deploying to PRODUCTION"
+            echo "is_prod=true" >> $GITHUB_OUTPUT
           else
             echo "environment=development" >> $GITHUB_OUTPUT
             echo "deployment=sakina-deployment-dev" >> $GITHUB_OUTPUT
-            echo "🚧 Deploying to DEVELOPMENT"
+            echo "is_prod=false" >> $GITHUB_OUTPUT
           fi
-
-      # --- Build & Push Steps ---
-
-      - name: Allow insecure registry
-        run: |
-          echo '{ "insecure-registries": ["${{ secrets.REGISTRY_URL }}"] }' | sudo tee /etc/docker/daemon.json
-          sudo systemctl restart docker
 
       - name: Log in to Docker Registry
         run: echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login ${{ secrets.REGISTRY_URL }} -u ${{ secrets.REGISTRY_USER }} --password-stdin
 
       - name: Build and Push Docker image
+        id: image
         run: |
           ENV="${{ steps.env.outputs.environment }}"
-          
-          # Build using the Expo Dockerfile
+          IS_PROD="${{ steps.env.outputs.is_prod }}"
+          SHA="${GITHUB_SHA::7}"
+
+          IMAGE_BASE="${{ secrets.REGISTRY_URL }}/abdulrahman/sakina-quran"
+          IMMUTABLE_TAG="${ENV}-${SHA}"
+          IMMUTABLE_IMAGE="${IMAGE_BASE}:${IMMUTABLE_TAG}"
+
+          echo "immutable_image=$IMMUTABLE_IMAGE" >> $GITHUB_OUTPUT
+          echo "immutable_tag=$IMMUTABLE_TAG" >> $GITHUB_OUTPUT
+
           docker build -t sakina-quran:$ENV .
 
-          # Tag for your private registry
-          docker tag sakina-quran:$ENV ${{ secrets.REGISTRY_URL }}/abdulrahman/sakina-quran:$ENV
-          docker tag sakina-quran:$ENV ${{ secrets.REGISTRY_URL }}/abdulrahman/sakina-quran:latest
+          # Immutable tag (the one we will deploy)
+          docker tag sakina-quran:$ENV "$IMMUTABLE_IMAGE"
+          docker push "$IMMUTABLE_IMAGE"
 
-          # Push to registry
-          docker push ${{ secrets.REGISTRY_URL }}/abdulrahman/sakina-quran:$ENV
-          docker push ${{ secrets.REGISTRY_URL }}/abdulrahman/sakina-quran:latest
+          # Environment tag (optional channel tag)
+          docker tag sakina-quran:$ENV "${IMAGE_BASE}:$ENV"
+          docker push "${IMAGE_BASE}:$ENV"
 
-      # --- Deploy to VPS (MicroK8s) ---
+          # Only main updates latest
+          if [ "$IS_PROD" = "true" ]; then
+            docker tag sakina-quran:$ENV "${IMAGE_BASE}:latest"
+            docker push "${IMAGE_BASE}:latest"
+          fi
 
       - name: Set up SSH Key
         run: |
@@ -64,27 +75,40 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.VPS_IP }} >> ~/.ssh/known_hosts
 
-      - name: Restart Deployment on VPS
+      - name: Deploy immutable image to MicroK8s
         run: |
           DEPLOYMENT="${{ steps.env.outputs.deployment }}"
-          ENV="${{ steps.env.outputs.environment }}"
-          
+          IMAGE="${{ steps.image.outputs.immutable_image }}"
+
+          # Adjust if your container name differs
+          CONTAINER_NAME="sakina-quran"
+
           ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_IP }} << EOF
-          echo "🔄 Restarting $DEPLOYMENT ($ENV environment)..."
-          microk8s kubectl rollout restart deployment $DEPLOYMENT
-          echo "✅ Deployment restarted successfully"
+          set -e
+
+          echo "🚀 Deploying immutable image:"
+          echo "   Deployment: ${DEPLOYMENT}"
+          echo "   Container:  ${CONTAINER_NAME}"
+          echo "   Image:      ${IMAGE}"
+
+          microk8s kubectl set image deployment/${DEPLOYMENT} ${CONTAINER_NAME}=${IMAGE} --record
+          microk8s kubectl rollout status deployment/${DEPLOYMENT} --timeout=300s
+
+          echo "✅ Deployment updated to ${IMAGE}"
           EOF
 
       - name: Deployment summary
         run: |
           ENV="${{ steps.env.outputs.environment }}"
           BRANCH="${{ github.ref_name }}"
-          
+          IMAGE="${{ steps.image.outputs.immutable_image }}"
+
           echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "- **Branch**: $BRANCH" >> $GITHUB_STEP_SUMMARY
           echo "- **Environment**: $ENV" >> $GITHUB_STEP_SUMMARY
           echo "- **Deployment**: ${{ steps.env.outputs.deployment }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image**: $IMAGE" >> $GITHUB_STEP_SUMMARY
           echo "- **Triggered by**: @${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Image built, pushed, and deployment restarted successfully." >> $GITHUB_STEP_SUMMARY
+          echo "✅ Built, pushed, and updated MicroK8s deployment to immutable tag." >> $GITHUB_STEP_SUMMARY

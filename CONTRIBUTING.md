@@ -231,10 +231,13 @@ improper state cleanup. This commit adds proper cleanup logic."
 
 3. **Test your changes**:
    ```bash
-   # Test web build
+   # 1. Run Prebuild Smoke Test (Crucial for CI)
+   npx expo prebuild --no-install
+
+   # 2. Test web build
    npx expo export --platform web
    
-   # Test on device/simulator
+   # 3. Test on device/simulator
    pnpm start
    ```
 
