@@ -57,6 +57,8 @@ jobs:
   version-check:
     name: Version Check
     runs-on: ubuntu-latest
+    # 🚨 ONLY check versions when merging to MAIN (Release Candidates)
+    if: github.base_ref == 'main'
 
     steps:
       - name: Checkout PR branch
@@ -76,10 +78,10 @@ jobs:
           # Regex matches code files. If these change, version must bump.
           if echo "$CHANGED" | grep -Eq '^(app\.json|package\.json|pnpm-lock\.yaml|src/|app/|ios/|android/|assets/)'; then
             echo "required=true" >> $GITHUB_OUTPUT
-            echo "Version bump is REQUIRED for these changes."
+            echo "::notice::Release-impacting files changed. Version bump required."
           else
             echo "required=false" >> $GITHUB_OUTPUT
-            echo "Version bump is NOT required (docs/assets/ci-only)."
+            echo "::notice::Only docs/CI changed. No version bump needed."
           fi
 
       - name: Get versions
@@ -96,9 +98,13 @@ jobs:
           git checkout HEAD -- app.json
 
           echo "PR: $PR_VER | Target: $TARGET_VER"
+
           if [ "$PR_VER" = "$TARGET_VER" ]; then
-            echo "::error::Version bump required for code changes."
+            echo "::error::You are merging to MAIN but the version has not changed ($PR_VER)."
+            echo "::error::Please bump the version in app.json to trigger a release."
             exit 1
+          else
+             echo "✅ Version bumped from $TARGET_VER to $PR_VER"
           fi
 
   branch-flow-check:

@@ -81,7 +81,6 @@ jobs:
       - name: Commit and push
         run: |
           NEW_VERSION="${{ steps.new-version.outputs.version }}"
-          BUMP_TYPE="${{ github.event.inputs.bump_type }}"
           BRANCH="${{ github.ref_name }}"
 
           git add app.json
@@ -93,7 +92,15 @@ jobs:
         run: |
           BRANCH="${{ github.ref_name }}"
           REPO="${{ github.repository }}"
-          echo "url=https://github.com/$REPO/compare/development...$BRANCH?expand=1" >> $GITHUB_OUTPUT
+
+          # Smart Target Selection
+          if [ "$BRANCH" = "development" ]; then
+            TARGET="main"
+          else
+            TARGET="development"
+          fi
+
+          echo "url=https://github.com/$REPO/compare/$TARGET...$BRANCH?expand=1" >> $GITHUB_OUTPUT
 
       - name: Summary
         run: |
