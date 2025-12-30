@@ -2,269 +2,119 @@ name: Create Release
 
 on:
   push:
-    branches:
-      - main
-      - development
+    tags:
+      - "v*"
 
 permissions:
   contents: write
+
+concurrency:
+  group: create-release-${{ github.ref_name }}
+  cancel-in-progress: false
 
 jobs:
   create-release:
     name: Create GitHub Release
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      
-      - name: Read version from app.json
+
+      - name: Fetch tags
+        run: git fetch --tags --force
+
+      - name: Determine version/tag
         id: version
         run: |
-          VERSION=$(jq -r '.expo.version' app.json)
+          TAG="${{ github.ref_name }}"
+          VERSION="${TAG#v}"
+
+          APP_VERSION=$(jq -r '.expo.version' app.json)
+
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "tag=v$VERSION" >> $GITHUB_OUTPUT
-          echo "Version: $VERSION"
-          echo "Tag: v$VERSION"
-      
-      - name: Check if release exists
-        id: check-release
+          echo "app_version=$APP_VERSION" >> $GITHUB_OUTPUT
+
+          echo "Tag: $TAG"
+          echo "Version from tag: $VERSION"
+          echo "Version from app.json: $APP_VERSION"
+
+          if [ "$APP_VERSION" != "$VERSION" ]; then
+            echo "❌ app.json version ($APP_VERSION) does not match tag version ($VERSION)"
+            exit 1
+          fi
+
+      - name: Get previous tag
+        id: previous
         run: |
-          TAG="v${{ steps.version.outputs.version }}"
-          BRANCH="${{ github.ref_name }}"
-          
-          # Check if tag exists
-          if git rev-parse "$TAG" >/dev/null 2>&1; then
-            echo "exists=true" >> $GITHUB_OUTPUT
-            
-            # Check if we should update (main promotion)
-            if [ "$BRANCH" = "main" ]; then
-              echo "should_update=true" >> $GITHUB_OUTPUT
-              echo "🔄 Release $TAG exists, will update for production deployment"
-            else
-              echo "should_update=false" >> $GITHUB_OUTPUT
-              echo "⚠️  Release $TAG already exists on development, skipping"
-            fi
-          else
-            echo "exists=false" >> $GITHUB_OUTPUT
-            echo "should_update=false" >> $GITHUB_OUTPUT
-            echo "✅ Release $TAG does not exist, will create"
+          TAG="${{ steps.version.outputs.tag }}"
+          PREV=$(git tag -l "v*" --sort=-v:refname | grep -A1 "^${TAG}$" | tail -1)
+          if [ "$PREV" = "$TAG" ] || [ -z "$PREV" ]; then
+            PREV=""
           fi
-      
-      - name: Get previous release tag
-        id: previous-tag
-        if: steps.check-release.outputs.exists == 'false' || steps.check-release.outputs.should_update == 'true'
-        run: |
-          TAG="v${{ steps.version.outputs.version }}"
-          BRANCH="${{ github.ref_name }}"
-          
-          echo "=== Debug: Tag Detection ==="
-          echo "Current TAG: $TAG"
-          echo "Branch: $BRANCH"
-          echo "Should update: ${{ steps.check-release.outputs.should_update }}"
-          
-          # Get all tags sorted by version (newest first)
-          ALL_TAGS=$(git tag -l --sort=-v:refname)
-          echo "All tags (sorted):"
-          echo "$ALL_TAGS"
-          
-          # If updating existing release (promotion to main), get the tag before current
-          if [ "${{ steps.check-release.outputs.should_update }}" = "true" ]; then
-            # Get all tags sorted, find the one before current tag
-            PREVIOUS_TAG=$(git tag -l --sort=-v:refname | grep -A1 "^${TAG}$" | tail -1)
-            if [ "$PREVIOUS_TAG" = "$TAG" ] || [ -z "$PREVIOUS_TAG" ]; then
-              # No previous tag found
-              PREVIOUS_TAG=""
-            fi
-          else
-            # Creating new release, get latest existing tag
-            PREVIOUS_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
-          fi
-          
-          if [ -z "$PREVIOUS_TAG" ]; then
-            echo "tag=" >> $GITHUB_OUTPUT
-            echo "No previous release found"
-          else
-            echo "tag=$PREVIOUS_TAG" >> $GITHUB_OUTPUT
-            echo "Previous release: $PREVIOUS_TAG"
-          fi
-      
+          echo "tag=$PREV" >> $GITHUB_OUTPUT
+          echo "Previous tag: ${PREV:-<none>}"
+
       - name: Generate changelog
-        id: changelog
-        if: steps.check-release.outputs.exists == 'false' || steps.check-release.outputs.should_update == 'true'
         run: |
-          TAG="v${{ steps.version.outputs.version }}"
-          PREVIOUS_TAG="${{ steps.previous-tag.outputs.tag }}"
-          BRANCH="${{ github.ref_name }}"
-          
-          echo "Generating changelog..."
-          echo "Current tag: $TAG"
-          echo "Previous tag: $PREVIOUS_TAG"
-          echo "Branch: $BRANCH"
-          
-          # Get commits for changelog
-          if [ "${{ steps.check-release.outputs.should_update }}" = "true" ]; then
-            # Updating existing release (promotion to main)
-            # Get commits since previous tag (not current tag)
-            if [ -z "$PREVIOUS_TAG" ]; then
-              COMMITS=$(git log --pretty=format:"%s|%an|%h" --no-merges)
-            else
-              COMMITS=$(git log ${PREVIOUS_TAG}..${TAG} --pretty=format:"%s|%an|%h" --no-merges)
-            fi
+          TAG="${{ steps.version.outputs.tag }}"
+          PREV="${{ steps.previous.outputs.tag }}"
+
+          if [ -z "$PREV" ]; then
+            RANGE=""
           else
-            # Creating new release
-            if [ -z "$PREVIOUS_TAG" ]; then
-              COMMITS=$(git log --pretty=format:"%s|%an|%h" --no-merges)
-            else
-              COMMITS=$(git log ${PREVIOUS_TAG}..HEAD --pretty=format:"%s|%an|%h" --no-merges)
-            fi
+            RANGE="${PREV}..${TAG}"
           fi
-          
-          # Initialize changelog sections
+
+          echo "Generating changelog for range: ${RANGE:-<all commits>}"
+
+          COMMITS=$(git log ${RANGE} --pretty=format:"%s|%an|%h" --no-merges)
+
           FEATURES=""
           FIXES=""
           CHORES=""
           DOCS=""
           OTHER=""
-          
-          # Parse commits and group by type
+
           while IFS='|' read -r message author hash; do
             [ -z "$message" ] && continue
-            
-            # Extract type from conventional commit format
+
             if [[ $message =~ ^feat(\(.+\))?:\ (.+)$ ]]; then
-              FEATURES="${FEATURES}- ${BASH_REMATCH[2]} (${hash}) by @${author}\n"
+              FEATURES="${FEATURES}- ${BASH_REMATCH[2]} (${hash}) — ${author}\n"
             elif [[ $message =~ ^fix(\(.+\))?:\ (.+)$ ]]; then
-              FIXES="${FIXES}- ${BASH_REMATCH[2]} (${hash}) by @${author}\n"
+              FIXES="${FIXES}- ${BASH_REMATCH[2]} (${hash}) — ${author}\n"
             elif [[ $message =~ ^chore(\(.+\))?:\ (.+)$ ]]; then
-              CHORES="${CHORES}- ${BASH_REMATCH[2]} (${hash}) by @${author}\n"
+              CHORES="${CHORES}- ${BASH_REMATCH[2]} (${hash}) — ${author}\n"
             elif [[ $message =~ ^docs(\(.+\))?:\ (.+)$ ]]; then
-              DOCS="${DOCS}- ${BASH_REMATCH[2]} (${hash}) by @${author}\n"
+              DOCS="${DOCS}- ${BASH_REMATCH[2]} (${hash}) — ${author}\n"
             else
-              OTHER="${OTHER}- ${message} (${hash}) by @${author}\n"
+              OTHER="${OTHER}- ${message} (${hash}) — ${author}\n"
             fi
           done <<< "$COMMITS"
-          
-          # Build changelog
+
           CHANGELOG="## Changes\n\n"
-          
-          if [ -n "$FEATURES" ]; then
-            CHANGELOG="${CHANGELOG}### ✨ Features\n${FEATURES}\n"
-          fi
-          
-          if [ -n "$FIXES" ]; then
-            CHANGELOG="${CHANGELOG}### 🐛 Bug Fixes\n${FIXES}\n"
-          fi
-          
-          if [ -n "$CHORES" ]; then
-            CHANGELOG="${CHANGELOG}### 🔧 Chores\n${CHORES}\n"
-          fi
-          
-          if [ -n "$DOCS" ]; then
-            CHANGELOG="${CHANGELOG}### 📚 Documentation\n${DOCS}\n"
-          fi
-          
-          if [ -n "$OTHER" ]; then
-            CHANGELOG="${CHANGELOG}### 📦 Other Changes\n${OTHER}\n"
-          fi
-          
-          # Save to file
+
+          [ -n "$FEATURES" ] && CHANGELOG="${CHANGELOG}### ✨ Features\n${FEATURES}\n"
+          [ -n "$FIXES" ] && CHANGELOG="${CHANGELOG}### 🐛 Bug Fixes\n${FIXES}\n"
+          [ -n "$CHORES" ] && CHANGELOG="${CHANGELOG}### 🔧 Chores\n${CHORES}\n"
+          [ -n "$DOCS" ] && CHANGELOG="${CHANGELOG}### 📚 Documentation\n${DOCS}\n"
+          [ -n "$OTHER" ] && CHANGELOG="${CHANGELOG}### 📦 Other Changes\n${OTHER}\n"
+
           echo -e "$CHANGELOG" > changelog.md
-          echo "Changelog generated successfully"
-          echo "--- Changelog Preview ---"
+          echo "--- Changelog ---"
           cat changelog.md
-          echo "--- End Preview ---"
-      
-      - name: Determine release type
-        id: release-type
-        if: steps.check-release.outputs.exists == 'false' || steps.check-release.outputs.should_update == 'true'
-        run: |
-          BRANCH="${{ github.ref_name }}"
-          if [ "$BRANCH" = "main" ]; then
-            echo "prerelease=false" >> $GITHUB_OUTPUT
-            echo "📦 Creating full release (production branch)"
-          else
-            echo "prerelease=true" >> $GITHUB_OUTPUT
-            echo "🚧 Creating pre-release (development branch)"
-          fi
-      
+
       - name: Create GitHub Release
-        if: steps.check-release.outputs.exists == 'false'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          TAG="v${{ steps.version.outputs.version }}"
+          TAG="${{ steps.version.outputs.tag }}"
           VERSION="${{ steps.version.outputs.version }}"
-          IS_PRERELEASE="${{ steps.release-type.outputs.prerelease }}"
-          BRANCH="${{ github.ref_name }}"
-          COMMIT="${{ github.sha }}"
-          
-          echo "Creating release on commit: $COMMIT"
-          
-          # Create release using GitHub CLI
-          # --target ensures the tag is created on the triggering commit, not default branch
-          if [ "$IS_PRERELEASE" = "true" ]; then
-            gh release create "$TAG" \
-              --title "Release $VERSION" \
-              --notes-file changelog.md \
-              --target "$COMMIT" \
-              --prerelease
-          else
-            gh release create "$TAG" \
-              --title "Release $VERSION" \
-              --notes-file changelog.md \
-              --target "$COMMIT" \
-              --latest
-          fi
-          
-          echo "✅ Release $TAG created on commit $COMMIT"
-      
-      - name: Update existing release
-        if: steps.check-release.outputs.should_update == 'true'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          TAG="v${{ steps.version.outputs.version }}"
-          VERSION="${{ steps.version.outputs.version }}"
-          IS_PRERELEASE="${{ steps.release-type.outputs.prerelease }}"
-          
-          # Update release using GitHub CLI
-          # When promoting to production, we need to explicitly set --prerelease=false
-          if [ "$IS_PRERELEASE" = "true" ]; then
-            gh release edit "$TAG" \
-              --title "Release $VERSION" \
-              --notes-file changelog.md \
-              --prerelease
-          else
-            # Promoting to production: remove prerelease flag and mark as latest
-            gh release edit "$TAG" \
-              --title "Release $VERSION" \
-              --notes-file changelog.md \
-              --prerelease=false \
-              --latest
-          fi
-          
-          echo "✅ Release $TAG updated successfully!"
-      
-      - name: Release summary
-        if: steps.check-release.outputs.exists == 'false' || steps.check-release.outputs.should_update == 'true'
-        run: |
-          BRANCH="${{ github.ref_name }}"
-          IS_PRERELEASE="${{ steps.release-type.outputs.prerelease }}"
-          TAG="v${{ steps.version.outputs.version }}"
-          
-          if [ "${{ steps.check-release.outputs.exists }}" = "true" ]; then
-            echo "🔄 Release $TAG updated for $BRANCH deployment"
-          else
-            echo "✅ Release $TAG created successfully!"
-          fi
-          
-          echo "📝 Changelog has been generated and included in the release notes"
-          
-          if [ "$IS_PRERELEASE" = "true" ]; then
-            echo "🚧 Release is marked as pre-release (deployed to development)"
-          else
-            echo "📦 Release is marked as full release (deployed to production)"
-          fi
+
+          gh release create "$TAG" \
+            --title "Release $VERSION" \
+            --notes-file changelog.md \
+            --latest
