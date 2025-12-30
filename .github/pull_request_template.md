@@ -25,7 +25,8 @@ Fixes #(issue number)
 - [ ] Tested on Web
 - [ ] Tested on iOS
 - [ ] Tested on Android
-- [ ] Build succeeds (`npx expo export --platform web`)
+- [ ] Native config valid (`npx expo prebuild --no-install`)
+- [ ] Web build succeeds (`npx expo export --platform web`)
 - [ ] Linter passes (`pnpm lint`)
 
 ## 📸 Screenshots/Videos

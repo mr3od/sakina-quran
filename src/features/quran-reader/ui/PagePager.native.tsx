@@ -1,7 +1,9 @@
 import { TOTAL_PAGES } from "@/shared/constants/quran";
 import React, { useEffect, useRef, useState } from "react";
 import { View } from "react-native";
-import PagerView from "react-native-pager-view";
+import PagerView, {
+  PagerViewOnPageSelectedEvent,
+} from "react-native-pager-view";
 
 type Props = {
   page: number; // The current page from URL/Props
@@ -11,15 +13,25 @@ type Props = {
 
 export function PagePager({ page, onPageChange, renderPage }: Props) {
   const pagerRef = useRef<PagerView>(null);
-  // Internal state to track what the user is currently looking at
-  // We initialize with page - 1 because PagerView is 0-indexed
+  // PagerView is 0-indexed, but our domain (Quran pages) is 1-indexed
   const [activeIndex, setActiveIndex] = useState(page - 1);
 
-  // Sync prop changes (e.g. Header "Next" button click) to PagerView
+  // We use a ref to track activeIndex so we can access the latest value inside useEffect
+  // without adding it to the dependency array (which would cause conflicts with swipe gestures).
+  const activeIndexRef = useRef(activeIndex);
+
   useEffect(() => {
-    if (pagerRef.current && activeIndex !== page - 1) {
-      // Use setPageWithoutAnimation for large jumps, or setPage for neighbor
-      const diff = Math.abs(activeIndex - (page - 1));
+    activeIndexRef.current = activeIndex;
+  }, [activeIndex]);
+
+  // Sync external page prop changes to the internal PagerView state
+  useEffect(() => {
+    const currentIndex = activeIndexRef.current;
+
+    if (pagerRef.current && currentIndex !== page - 1) {
+      const diff = Math.abs(currentIndex - (page - 1));
+
+      // Skip animation for large jumps (e.g. from search or index) for better UX
       if (diff > 1) {
         pagerRef.current.setPageWithoutAnimation(page - 1);
       } else {
@@ -30,7 +42,7 @@ export function PagePager({ page, onPageChange, renderPage }: Props) {
   }, [page]);
 
   // Handle user swiping
-  const handlePageSelected = (e: any) => {
+  const handlePageSelected = (e: PagerViewOnPageSelectedEvent) => {
     const newIndex = e.nativeEvent.position;
     setActiveIndex(newIndex);
 

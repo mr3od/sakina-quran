@@ -97,13 +97,16 @@ git commit -m "chore: bump version to 1.1.0"
 ### Step 6: Test Locally
 
 ```bash
-# Test web build (this is what CI runs)
+# 1. Native Config Check (Crucial - CI will fail if this fails)
+npx expo prebuild --no-install
+
+# 2. Test web build
 npx expo export --platform web
 
-# Run linter
+# 3. Run linter
 pnpm lint
 
-# Test on device/simulator
+# 4. Test on device/simulator
 pnpm start
 ```
 

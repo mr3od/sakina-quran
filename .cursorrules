@@ -79,10 +79,20 @@ You are contributing to **Sakina Quran**, an Expo-based Quran reading applicatio
 
 ## 🧪 Testing Requirements
 
+
 Before creating PR:
-- Run `npx expo export --platform web` (must succeed)
-- Run `pnpm lint` (must pass)
-- Test on device/simulator
+1. **Prebuild Smoke Test** (CRITICAL):
+   ```bash
+   npx expo prebuild --no-install
+   ```
+2. **Web Build**:
+   ```bash
+   npx expo export --platform web
+   ```
+3. **Lint**:
+   ```bash
+   pnpm lint
+   ```
 
 ## 🎯 Code Style
 
