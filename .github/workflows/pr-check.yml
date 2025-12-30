@@ -22,14 +22,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # 1. Enable pnpm FIRST
+      - name: Enable pnpm
+        run: corepack enable && corepack prepare pnpm@latest --activate
+
+      # 2. THEN Setup Node (now it can find pnpm for caching)
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: "pnpm"
-
-      - name: Enable pnpm
-        run: corepack enable && corepack prepare pnpm@latest --activate
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -37,7 +39,7 @@ jobs:
       - name: Lint
         run: pnpm lint
 
-      # Optional but high-signal: catches config/plugin issues without full native build
+      # Critical: ensures app.json and native plugins are valid
       - name: Expo prebuild smoke test
         run: npx expo prebuild --no-install
 
@@ -66,14 +68,13 @@ jobs:
         id: need-bump
         run: |
           git fetch origin ${{ github.base_ref }} --depth=1
-
           CHANGED="$(git diff --name-only origin/${{ github.base_ref }}...HEAD)"
+
           echo "Changed files:"
           echo "$CHANGED"
 
-          # Require bump only for "release-impacting" changes
-          # (adjust paths to your repo layout if needed)
-          if echo "$CHANGED" | grep -Eq '^(app\.json|package\.json|pnpm-lock\.yaml|src/|app/|ios/|android/)'; then
+          # Regex matches code files. If these change, version must bump.
+          if echo "$CHANGED" | grep -Eq '^(app\.json|package\.json|pnpm-lock\.yaml|src/|app/|ios/|android/|assets/)'; then
             echo "required=true" >> $GITHUB_OUTPUT
             echo "Version bump is REQUIRED for these changes."
           else
@@ -81,50 +82,24 @@ jobs:
             echo "Version bump is NOT required (docs/assets/ci-only)."
           fi
 
-      - name: Get version from PR branch
-        id: pr-version
+      - name: Get versions
         if: steps.need-bump.outputs.required == 'true'
+        id: check
         run: |
-          PR_VERSION=$(jq -r '.expo.version' app.json)
-          echo "version=$PR_VERSION" >> $GITHUB_OUTPUT
-          echo "PR branch version: $PR_VERSION"
+          PR_VER=$(jq -r '.expo.version' app.json)
 
-      - name: Get version from target branch
-        id: target-version
-        if: steps.need-bump.outputs.required == 'true'
-        run: |
           git fetch origin ${{ github.base_ref }}
           git checkout origin/${{ github.base_ref }} -- app.json
-          TARGET_VERSION=$(jq -r '.expo.version' app.json)
-          echo "version=$TARGET_VERSION" >> $GITHUB_OUTPUT
-          echo "Target branch version: $TARGET_VERSION"
+          TARGET_VER=$(jq -r '.expo.version' app.json)
+
+          # Restore
           git checkout HEAD -- app.json
 
-      - name: Compare versions
-        if: steps.need-bump.outputs.required == 'true'
-        run: |
-          PR_VERSION="${{ steps.pr-version.outputs.version }}"
-          TARGET_VERSION="${{ steps.target-version.outputs.version }}"
-
-          echo "Comparing versions:"
-          echo "  PR branch: $PR_VERSION"
-          echo "  Target branch (${{ github.base_ref }}): $TARGET_VERSION"
-
-          if [ "$PR_VERSION" = "$TARGET_VERSION" ]; then
-            echo "❌ ERROR: Version in app.json has not been updated!"
-            echo "Please update the version in app.json before merging this PR."
-            echo "You can use the 'Bump Version' workflow or update it manually."
+          echo "PR: $PR_VER | Target: $TARGET_VER"
+          if [ "$PR_VER" = "$TARGET_VER" ]; then
+            echo "::error::Version bump required for code changes."
             exit 1
-          else
-            echo "✅ SUCCESS: Version updated from $TARGET_VERSION to $PR_VERSION"
           fi
-
-      - name: Skip summary
-        if: steps.need-bump.outputs.required != 'true'
-        run: |
-          echo "## ℹ️ Version Check Skipped" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "This PR only changes non-release-impacting files (docs/assets/ci)." >> $GITHUB_STEP_SUMMARY
 
   branch-flow-check:
     name: Branch Flow Enforcement
@@ -133,44 +108,25 @@ jobs:
     steps:
       - name: Validate branch merge flow
         run: |
-          SOURCE_BRANCH="${{ github.head_ref }}"
-          TARGET_BRANCH="${{ github.base_ref }}"
+          SOURCE="${{ github.head_ref }}"
+          TARGET="${{ github.base_ref }}"
 
-          echo "Source branch: $SOURCE_BRANCH"
-          echo "Target branch: $TARGET_BRANCH"
-          echo ""
-
-          ALLOWED=false
-          ERROR_MESSAGE=""
-
-          # Hotfix exception
-          if [[ "$SOURCE_BRANCH" == hotfix/* ]]; then
-            echo "✅ Hotfix Exception: hotfix/* can merge into $TARGET_BRANCH"
-            ALLOWED=true
-
-          # Any branch can merge into development
-          elif [ "$TARGET_BRANCH" = "development" ]; then
-            echo "✅ Rule: Any branch can merge into development"
-            ALLOWED=true
-
-          # Only development (or release/*) can merge into main
-          elif [ "$TARGET_BRANCH" = "main" ]; then
-            if [ "$SOURCE_BRANCH" = "development" ] || [[ "$SOURCE_BRANCH" == release/* ]]; then
-              echo "✅ Rule: development/release/* can merge into main"
-              ALLOWED=true
-            else
-              echo "❌ Rule violation: Only development (or release/*) can merge into main"
-              ERROR_MESSAGE="Only 'development' (or 'release/*') can be merged into 'main'.\nYour branch: $SOURCE_BRANCH\n\nCorrect flow: feature → development → main"
-            fi
-
-          else
-            echo "✅ Non-protected target branch; allowing merge"
-            ALLOWED=true
+          if [[ "$SOURCE" == hotfix/* ]]; then
+            echo "✅ Hotfix exception allowed."
+            exit 0
           fi
 
-          if [ "$ALLOWED" = true ]; then
-            exit 0
-          else
-            echo -e "$ERROR_MESSAGE"
-            exit 1
+          if [ "$TARGET" = "development" ]; then
+             echo "✅ Merge to development allowed."
+             exit 0
+          fi
+
+          if [ "$TARGET" = "main" ]; then
+            if [ "$SOURCE" = "development" ] || [[ "$SOURCE" == release/* ]]; then
+              echo "✅ Promotion to main allowed."
+              exit 0
+            else
+              echo "::error::Only 'development' can merge into 'main'."
+              exit 1
+            fi
           fi
