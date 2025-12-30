@@ -5,6 +5,7 @@ You are contributing to **Sakina Quran**, an Expo-based Quran reading applicatio
 ## 🚨 CRITICAL RULES (NEVER VIOLATE)
 
 ### Branch Strategy
+
 - ALWAYS branch from `development`, NEVER from `main`
 - ALWAYS fetch latest changes before creating a branch:
   ```bash
@@ -13,12 +14,14 @@ You are contributing to **Sakina Quran**, an Expo-based Quran reading applicatio
 - NEVER merge feature branches directly to `main`
 
 ### Version Management
+
 - Version is in `app.json` → `expo.version`
-- ALWAYS bump version before creating PR
+- **DO NOT** bump version for standard feature/fix PRs
+- **ONLY** bump version when explicitly instructed to prepare a release to `main`
 - Use semantic versioning: MAJOR.MINOR.PATCH
-- Commit: `chore: bump version to X.Y.Z`
 
 ### Commit Format
+
 - ALWAYS use conventional commits: `type(scope): subject`
 - Types: feat, fix, docs, chore, refactor, test, perf, style
 - Examples:
@@ -29,6 +32,7 @@ You are contributing to **Sakina Quran**, an Expo-based Quran reading applicatio
 ## 📋 Standard Workflow
 
 1. **Fetch latest development**:
+
    ```bash
    git fetch upstream
    git checkout development
@@ -36,6 +40,7 @@ You are contributing to **Sakina Quran**, an Expo-based Quran reading applicatio
    ```
 
 2. **Create feature branch**:
+
    ```bash
    git checkout -b feat/feature-name      # New features
    git checkout -b fix/bug-description    # Bug fixes
@@ -43,22 +48,21 @@ You are contributing to **Sakina Quran**, an Expo-based Quran reading applicatio
    ```
 
 3. **Make changes with conventional commits**:
+
    ```bash
    git commit -m "feat: add bookmark sync"
    git commit -m "fix: resolve crash on navigation"
    ```
 
-4. **Bump version in app.json**:
-   - Edit `expo.version` field
-   - Commit: `git commit -m "chore: bump version to X.Y.Z"`
+4. **Test locally** (MANDATORY):
 
-5. **Test locally**:
    ```bash
-   npx expo export --platform web  # Must succeed
-   pnpm lint                       # Must pass
+   npx expo prebuild --no-install  # Smoke test native config
+   npx expo export --platform web  # Build test
+   pnpm lint                       # Style test
    ```
 
-6. **Push and create PR to development**:
+5. **Push and create PR to development**:
    ```bash
    git push origin feat/feature-name
    # Create PR targeting 'development' branch
@@ -68,7 +72,7 @@ You are contributing to **Sakina Quran**, an Expo-based Quran reading applicatio
 
 - ✅ Any branch → development
 - ✅ development → main (production)
-- ✅ hotfix/* → main (exception, must backport to development)
+- ✅ hotfix/\* → main (exception, must backport to development)
 - ❌ feature/fix → main (forbidden)
 
 ## 🔢 Versioning
@@ -79,8 +83,8 @@ You are contributing to **Sakina Quran**, an Expo-based Quran reading applicatio
 
 ## 🧪 Testing Requirements
 
-
 Before creating PR:
+
 1. **Prebuild Smoke Test** (CRITICAL):
    ```bash
    npx expo prebuild --no-install
@@ -115,7 +119,7 @@ src/
 ## 🚫 Common Mistakes
 
 ❌ Branching from main
-❌ Forgetting to bump version
+❌ Bumping version on feature branches (Wait for release)
 ❌ Non-conventional commits
 ❌ Creating PR to main
 ❌ Not testing before PR
@@ -123,9 +127,9 @@ src/
 ## ✅ PR Checklist
 
 - [ ] Branch from development
-- [ ] Version bumped in app.json
 - [ ] Conventional commits used
-- [ ] Build succeeds
+- [ ] Prebuild check passed (`npx expo prebuild --no-install`)
+- [ ] Web Build succeeds
 - [ ] Linter passes
 - [ ] PR targets development
 
