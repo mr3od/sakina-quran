@@ -11,7 +11,7 @@ Sakina Quran is a modern, open-source, offline-first Quran reading application b
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-iOS%20%7C%20Android%20%7C%20Web-lightgrey.svg)
 ![Stack](https://img.shields.io/badge/stack-Expo%20%7C%20React%20Native%20%7C%20SQLite-4630EB.svg)
-![Version](https://img.shields.io/badge/version-1.1.5-green.svg)
+![Version](https://img.shields.io/badge/version-1.1.6-green.svg)
 ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)
 
 <!-- Add screenshots here later -->
