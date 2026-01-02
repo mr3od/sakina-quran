@@ -6,7 +6,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { SQLiteProvider } from "expo-sqlite";
 import KVStore from "expo-sqlite/kv-store";
 import React, { useEffect, useState } from "react";
-import { View, useColorScheme } from "react-native";
+import { Platform, View, useColorScheme } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import {
   SafeAreaProvider,
@@ -28,11 +28,13 @@ function RootLayoutContent() {
         paddingTop: insets.top,
       }}
     >
-      <Stack
-        screenOptions={{
-          headerShown: false,
-        }}
-      />
+      <View className="flex-1 w-full max-w-lg mx-auto bg-background web:shadow-2xl h-full web:border-x web:border-border-subtle">
+        <Stack
+          screenOptions={{
+            headerShown: false,
+          }}
+        />
+      </View>
     </View>
   );
 }
@@ -92,15 +94,21 @@ export default function RootLayout() {
     <GestureHandlerRootView className="flex-1">
       <SafeAreaProvider>
         <QueryProvider>
-          <SQLiteProvider
-            databaseName="quran.db"
-            assetSource={{ assetId: require("../../assets/quran.db") }}
-            onError={(error) => {
-              console.error("Database initialization error:", error);
-            }}
-          >
-            <RootLayoutContent />
-          </SQLiteProvider>
+          <QueryProvider>
+            {Platform.OS === "web" ? (
+              <RootLayoutContent />
+            ) : (
+              <SQLiteProvider
+                databaseName="quran.db"
+                assetSource={{ assetId: require("../../assets/quran.db") }}
+                onError={(error) => {
+                  console.error("Database initialization error:", error);
+                }}
+              >
+                <RootLayoutContent />
+              </SQLiteProvider>
+            )}
+          </QueryProvider>
         </QueryProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

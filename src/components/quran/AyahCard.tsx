@@ -15,7 +15,7 @@ interface AyahCardProps {
 export function AyahCard({ ayah, page, onPress, highlighted }: AyahCardProps) {
   const { isBookmarked, handleToggleBookmark, isPending } = useAyahCardLogic(
     ayah,
-    page
+    page,
   );
 
   return (
@@ -41,7 +41,11 @@ export function AyahCard({ ayah, page, onPress, highlighted }: AyahCardProps) {
         <Pressable
           onPress={handleToggleBookmark}
           disabled={isPending}
-          className="p-2 rounded-md active:opacity-50"
+          className="
+            p-2 rounded-md 
+            active:opacity-50
+            hover:bg-surface-elevated
+          "
           style={{ minWidth: 44, minHeight: 44 }}
           accessible
           accessibilityRole="button"

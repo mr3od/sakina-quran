@@ -33,8 +33,26 @@ function useDebouncedValue(value: string, delayMs = 300): string {
 
 export default function SearchScreen() {
   const [input, setInput] = useState("");
-  const query = useDebouncedValue(input, 300);
-  const state = useSearchController(query);
+  // The actual term used for searching
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Debounce logic
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchTerm(input);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [input]);
+
+  // Force update on Enter
+  function handleSearch() {
+    setSearchTerm(input);
+  }
+
+  const state = useSearchController(searchTerm);
+
+  // For display in results list
+  const query = searchTerm;
 
   const accentColor = useCSSVariable("--color-accent");
 
@@ -68,6 +86,7 @@ export default function SearchScreen() {
             autoCapitalize="none"
             autoCorrect={false}
             returnKeyType="search"
+            onSubmitEditing={handleSearch}
           />
           {!!input && (
             <Pressable

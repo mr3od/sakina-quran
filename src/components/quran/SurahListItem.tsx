@@ -23,6 +23,7 @@ export function SurahListItem({ surah }: SurahListItemProps) {
           bg-surface 
           border-border-subtle
           active:bg-surface-elevated active:border-border-base
+          hover:bg-surface-elevated
         "
         style={{ minHeight: 80 }}
         accessibilityRole="button"
