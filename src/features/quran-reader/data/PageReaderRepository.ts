@@ -8,9 +8,8 @@ import type { Ayah, PageSegment } from "@/types/quran.types";
 export class PageReaderRepository {
   private repo: QuranRepository;
 
-  // db is null on web
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  constructor(private db: null) {
+  // Accepts any db object to satisfy shared hooks (null on web, SQLiteDatabase on native)
+  constructor(_db: any) {
     this.repo = new QuranRepository(null);
   }
 

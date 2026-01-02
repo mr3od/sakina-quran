@@ -1,8 +1,8 @@
 import type { SearchRow, Searcher } from "../../domain/search-contract";
 
 export class TextSearcher implements Searcher {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  constructor(private readonly db: any) {}
+  // eslint-disable-next-line @typescript-eslint/no-useless-constructor
+  constructor(_db: any) {}
 
   async search(query: string, limit = 50): Promise<SearchRow[]> {
     if (!query || !query.trim()) return [];

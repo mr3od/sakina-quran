@@ -7,8 +7,8 @@ import type { SearchRow, Searcher } from "../../domain/search-contract";
  * Uses the Search API for specific Ayah lookups and localized logic for others.
  */
 export class StructuralSearcher implements Searcher {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  constructor(private readonly db: any) {}
+  // eslint-disable-next-line @typescript-eslint/no-useless-constructor
+  constructor(_db: any) {}
 
   async search(query: string): Promise<SearchRow[]> {
     const q = query.trim();

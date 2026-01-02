@@ -21,15 +21,6 @@ import { useCSSVariable } from "uniwind";
 
 import { useSearchController } from "@/features/search/app";
 import { SearchListItem } from "@/features/search/ui/SearchListItem";
-/** Simple debounce hook; no callbacks, no memoization. */
-function useDebouncedValue(value: string, delayMs = 300): string {
-  const [debounced, setDebounced] = useState(value);
-  useEffect(() => {
-    const id = setTimeout(() => setDebounced(value), delayMs);
-    return () => clearTimeout(id);
-  }, [value, delayMs]);
-  return debounced;
-}
 
 export default function SearchScreen() {
   const [input, setInput] = useState("");
