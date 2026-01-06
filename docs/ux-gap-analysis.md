@@ -23,7 +23,7 @@
 
 1. **Web Search UX**: Dropdown instead of navigation, wider input
 2. **Continue Reading Layout**: Better positioning, real bookmark data
-3. **Browse Tabs**: Language-aware alignment (RTL/LTR)
+3. **Browse Tabs**: Better alignment and positioning
 4. **Desktop Navigation**: Drawer system for desktop
 5. **Reading Context Header**: Sticky header with Surah context
 6. **Microanimations**: Polish and smooth transitions
@@ -72,7 +72,7 @@
 
 **Browse Tabs:**
 
-- Currently centered, should be language-aware aligned (RTL right, LTR left)
+- Currently centered, should be left-aligned for better visual hierarchy
 
 ---
 
@@ -237,7 +237,7 @@
 
 1. **Better Continue Reading Layout** (not centered, proper positioning)
 2. **Real Bookmark Data** in "Latest Bookmarks" section
-3. **Language-Aware Tab Alignment** (RTL right, LTR left)
+3. **Better Tab Alignment** (left-aligned instead of centered)
 
 ### Priority 3: Desktop Navigation
 
