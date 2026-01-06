@@ -1,5 +1,5 @@
 ---
-inclusion: manual
+trigger: always_on
 ---
 
 # Sakina Quran - Unified Development Guidelines
