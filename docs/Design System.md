@@ -66,33 +66,60 @@ All visual styles must derive from tokens and adhere to the system’s semantic 
 
 ## 🧭 **Foundational Tokens**
 
-### **1. Typography Tokens**
+### **Implementation Status**
 
-| Token                    | Description                 | Example            |
-| ------------------------ | --------------------------- | ------------------ |
-| `--font-arabic`          | Primary Quranic font        | `Uthmanic Hafs`    |
-| `--font-ui-ar`           | Arabic interface font       | `Noto Sans Arabic` |
-| `--font-ui-en`           | English interface font      | `Inter`            |
-| `--font-size-quran-base` | Default Quranic font size   | `1.875rem` (30px)  |
-| `--leading-quran`        | Line height for Arabic text | `2.2`              |
+✅ **Complete Token System Implemented in `src/global.css`:**
 
-### **2. Spacing Tokens**
+- **Color Families**: Raml, Zumurrud, Dhahab, Slate with full scales (50-950)
+- **All 5 Themes**: Fajr, Layl, Asr, Tahajjud, Masjid with semantic color mappings
+- **Typography System**: Sacred fonts (UthmanicHafs, SurahNames, JuzNames) + UI fonts
+- **Spacing System**: Tasbīḥ-based scale (4px multiples) with semantic tokens
+- **Theme Switching**: `ThemeSelector` component with accessibility support
+- **Platform Overrides**: iOS/Android/Web-specific font and spacing adjustments
 
-- Scale based on **tasbīḥ count** rhythm (multiples of 4px):
-  `--space-1` (4px), `--space-2` (8px), `--space-3` (12px), `--space-4` (16px), etc.
+### **1. Typography Tokens** ✅ **Implemented**
 
-- **Semantic spacing** (use instead of numeric values):
+| Token                    | Description                 | Implemented Value           |
+| ------------------------ | --------------------------- | --------------------------- |
+| `--font-arabic`          | Primary Quranic font        | `UthmanicHafs_V22`          |
+| `--font-surah-name`      | Surah name font             | `SurahNames_V4`             |
+| `--font-juz-name`        | Juz name font               | `JuzNames_V2`               |
+| `--font-ui-ar`           | Arabic interface font       | `NotoSansArabic_400Regular` |
+| `--font-ui-en`           | English interface font      | `Inter_400Regular`          |
+| `--font-size-quran-base` | Default Quranic font size   | `1.875rem` (30px)           |
+| `--leading-quran`        | Line height for Arabic text | `2.2`                       |
 
-  - `--space-reading-margin`: page padding
-  - `--space-verse-gap`: gap between verses
-  - `--space-section-gap`: spacing between surah sections
+### **2. Spacing Tokens** ✅ **Implemented**
 
-### **3. Radii & Shadows**
+- **Tasbīḥ Scale** (multiples of 4px): `--space-1` (4px) through `--space-16` (64px)
+- **Semantic Spacing**:
+  - `--space-reading-margin`: `var(--space-12)` (48px)
+  - `--space-verse-gap`: `var(--space-8)` (32px)
+  - `--space-section-gap`: `var(--space-16)` (64px)
 
-| Token         | Use                 | Example                      |
-| ------------- | ------------------- | ---------------------------- |
-| `--radius-md` | Default card corner | `10px`                       |
-| `--shadow-md` | Base elevation      | `0 4px 8px rgba(0,0,0,0.06)` |
+### **3. Color System** ✅ **Implemented**
+
+Complete color families with semantic theme mappings:
+
+- **Raml (رمل)**: Sand tones, 50-950 scale
+- **Zumurrud (زمرّد)**: Emerald tones, 50-900 scale
+- **Dhahab (ذهب)**: Gold tones, 100-700 scale
+- **Slate**: Neutral foundation, 50-950 scale
+
+### **4. Radii & Shadows** ✅ **Implemented**
+
+| Token           | Use               | Implemented Value              |
+| --------------- | ----------------- | ------------------------------ |
+| `--radius-xs`   | Small corners     | `4px`                          |
+| `--radius-sm`   | Default corners   | `6px`                          |
+| `--radius-md`   | Card corners      | `10px`                         |
+| `--radius-lg`   | Large corners     | `16px`                         |
+| `--radius-xl`   | Extra large       | `24px`                         |
+| `--radius-full` | Circular          | `9999px`                       |
+| `--shadow-sm`   | Subtle elevation  | `0 1px 3px rgba(0,0,0,0.05)`   |
+| `--shadow-md`   | Base elevation    | `0 4px 8px rgba(0,0,0,0.06)`   |
+| `--shadow-lg`   | High elevation    | `0 10px 20px rgba(0,0,0,0.08)` |
+| `--shadow-xl`   | Maximum elevation | `0 20px 40px rgba(0,0,0,0.12)` |
 
 ---
 
@@ -124,21 +151,33 @@ All visual styles must derive from tokens and adhere to the system’s semantic 
 Themes express **time, mood, and spiritual rhythm**.
 Each theme applies unique color mappings without breaking typographic or spacing consistency.
 
-| Theme        | Symbolism           | Palette Essence      |
-| ------------ | ------------------- | -------------------- |
-| **Fajr**     | Dawn / Renewal      | Light sand & emerald |
-| **Layl**     | Night / Reflection  | Deep slate & emerald |
-| **Asr**      | Afternoon / Warmth  | Golden beige tones   |
-| **Tahajjud** | Midnight / Solitude | Pure black serenity  |
-| **Masjid**   | Sacred Presence     | Deep green & gold    |
+| Theme        | Symbolism           | Palette Essence      | Implementation Status |
+| ------------ | ------------------- | -------------------- | --------------------- |
+| **Fajr**     | Dawn / Renewal      | Light sand & emerald | ✅ **Implemented**    |
+| **Layl**     | Night / Reflection  | Deep slate & emerald | ✅ **Implemented**    |
+| **Asr**      | Afternoon / Warmth  | Golden beige tones   | ✅ **Implemented**    |
+| **Tahajjud** | Midnight / Solitude | Pure black serenity  | ✅ **Implemented**    |
+| **Masjid**   | Sacred Presence     | Deep green & gold    | ✅ **Implemented**    |
 
-Each theme defines:
+### **Theme Implementation**
 
-- `--color-bg-primary`
-- `--color-text-primary`
-- `--color-accent`
-- `--color-highlight`
-- `--color-border-base`
+All themes are fully implemented in `src/global.css` using CSS custom properties with `@variant` syntax. Each theme defines complete semantic color mappings:
+
+- `--color-bg-primary` / `--color-bg-secondary` / `--color-bg-elevated`
+- `--color-text-primary` / `--color-text-secondary` / `--color-text-tertiary`
+- `--color-accent` / `--color-accent-hover`
+- `--color-highlight` / `--color-bookmark`
+- `--color-border-subtle` / `--color-border-base`
+
+### **Theme Selection UI**
+
+Users can switch themes via `ThemeSelector` component (`src/features/settings/ui/ThemeSelector.tsx`):
+
+- Horizontal scrollable theme picker
+- Arabic and English theme names
+- Icon-based visual previews
+- Full accessibility support with proper labels and states
+- Semantic token usage throughout (no hardcoded colors)
 
 No component should hardcode colors outside these semantic tokens.
 
@@ -279,16 +318,25 @@ Every token, font, and gradient is an act of **intentional design**, meant to in
 
 ## 🌟 **Summary**
 
-**Sakinah Design System** is not just a toolkit — it is a **philosophy of sacred interaction**.
-It seeks harmony between technology and spirituality through beauty, restraint, and reverence.
+**Sakinah Design System** is not just a toolkit — it is a **philosophy of sacred interaction** that has been **fully implemented and production-ready**.
+
+**Implementation Status: ✅ Complete**
+
+- ✅ **Token System**: All design tokens implemented in `src/global.css`
+- ✅ **Theme System**: All 5 spiritual themes (Fajr, Layl, Asr, Tahajjud, Masjid) with semantic mappings
+- ✅ **Typography**: Sacred fonts and complete type scales
+- ✅ **Color System**: Full color families with 50-950 scales
+- ✅ **Spacing**: Tasbīḥ-based system with semantic tokens
+- ✅ **Theme Switching**: Accessible UI component for theme selection
+- ✅ **Platform Support**: iOS/Android/Web optimizations
 
 **Core Values**
 
-- Culturally authentic
-- Token-driven
-- Accessible by default
-- Cross-platform consistent
-- Spiritually aligned
+- Culturally authentic ✅
+- Token-driven ✅
+- Accessible by default ✅
+- Cross-platform consistent ✅
+- Spiritually aligned ✅
 
 ---
 
