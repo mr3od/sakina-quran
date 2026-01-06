@@ -1,11 +1,12 @@
 /**
  * ThemeSelector - Theme Selection Component
- * Displays all available themes with preview and selection
+ * Clean horizontal button design matching quran.com style with scrolling
  */
 
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
-import { Pressable, ScrollView, Text } from "react-native";
+import { Pressable, ScrollView, Text, View } from "react-native";
+import { useCSSVariable } from "uniwind";
 import type { ThemeId } from "../domain/settings-contract";
 import { THEMES_ARRAY } from "../domain/theme-metadata";
 
@@ -18,58 +19,75 @@ export function ThemeSelector({
   activeTheme,
   onSelectTheme,
 }: ThemeSelectorProps) {
+  const borderColor = useCSSVariable("--color-border-subtle");
+
   return (
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
-      contentContainerClassName="gap-3 px-1"
-      className="flex-row"
+      contentContainerClassName="flex-row"
+      className="flex-1"
     >
-      {THEMES_ARRAY.map((theme) => {
+      {THEMES_ARRAY.map((theme, index) => {
         const isActive = theme.id === activeTheme;
+        const isLast = index === THEMES_ARRAY.length - 1;
 
         return (
-          <Pressable
-            key={theme.id}
-            onPress={() => onSelectTheme(theme.id)}
-            accessibilityRole="button"
-            accessibilityState={{ selected: isActive }}
-            accessibilityLabel={`${theme.nameAr} (${theme.nameEn})`}
-            className={`
-              items-center justify-center p-4 rounded-xl border-2
-              ${
-                isActive
-                  ? "border-accent bg-surface-elevated"
-                  : "border-border bg-surface"
-              }
-              active:opacity-80
-            `}
-            style={{
-              minWidth: 100,
-            }}
-          >
-            <Ionicons
-              name={theme.icon as any}
-              size={28}
-              className={`mb-2 ${isActive ? "text-accent" : "text-text-tertiary"}`}
-            />
-            <Text
-              className={`font-ui-ar text-base mb-0.5 ${
-                isActive
-                  ? "text-text-primary font-medium"
-                  : "text-text-secondary"
-              }`}
+          <View key={theme.id} className="flex-row items-center">
+            <Pressable
+              onPress={() => onSelectTheme(theme.id)}
+              accessibilityRole="button"
+              accessibilityState={{ selected: isActive }}
+              accessibilityLabel={theme.nameEn}
+              className={`
+                flex-row items-center px-4 py-3 rounded-full
+                ${
+                  isActive
+                    ? "bg-surface-elevated border border-border"
+                    : "bg-transparent hover:bg-surface-elevated"
+                }
+                active:opacity-80
+              `}
             >
-              {theme.nameAr}
-            </Text>
-            <Text
-              className={`font-ui-en text-xs ${
-                isActive ? "text-text-secondary" : "text-text-tertiary"
-              }`}
-            >
-              {theme.nameEn}
-            </Text>
-          </Pressable>
+              {/* Icon for specific themes */}
+              {theme.id === "fajr" && (
+                <Ionicons
+                  name="sunny-outline"
+                  size={16}
+                  className={`mr-2 ${
+                    isActive ? "text-text-primary" : "text-text-secondary"
+                  }`}
+                />
+              )}
+              {theme.id === "layl" && (
+                <Ionicons
+                  name="moon-outline"
+                  size={16}
+                  className={`mr-2 ${
+                    isActive ? "text-text-primary" : "text-text-secondary"
+                  }`}
+                />
+              )}
+
+              <Text
+                className={`font-ui-en text-sm ${
+                  isActive
+                    ? "text-text-primary font-medium"
+                    : "text-text-secondary"
+                }`}
+              >
+                {theme.nameEn}
+              </Text>
+            </Pressable>
+
+            {/* Separator line (except for last item) */}
+            {!isLast && (
+              <View
+                className="w-px h-6 bg-border-subtle mx-3"
+                style={{ backgroundColor: borderColor as string }}
+              />
+            )}
+          </View>
         );
       })}
     </ScrollView>

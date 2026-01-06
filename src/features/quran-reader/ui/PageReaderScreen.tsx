@@ -1,6 +1,7 @@
+import { useUpdateReadingProgress } from "@/hooks/useUpdateReadingProgress";
 import { TOTAL_PAGES } from "@/shared/constants/quran";
 import { Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
-import React from "react";
+import React, { useEffect } from "react";
 import { Text, View } from "react-native";
 import { toPageRoute } from "../app/quran-reader-route";
 import { usePrefetchPageAyahs } from "../app/usePageData";
@@ -11,9 +12,15 @@ export function PageReaderScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ number?: string }>();
   const prefetchPage = usePrefetchPageAyahs();
+  const updateProgress = useUpdateReadingProgress();
 
   // Fallback to 1 if undefined
   const currentPage = params.number ? parseInt(params.number, 10) : 1;
+
+  // Update reading progress when page changes
+  useEffect(() => {
+    updateProgress(currentPage);
+  }, [currentPage, updateProgress]);
 
   // Handle Swipe Navigation
   const handlePageChange = (newPage: number) => {
@@ -34,8 +41,8 @@ export function PageReaderScreen() {
     <View className="flex-1 bg-background">
       <Stack.Screen options={{ headerShown: false }} />
 
-      <View className="px-4 py-3 border-b border-border-subtle bg-surface">
-        <View className="flex-row items-center justify-between">
+      <View className="px-4 sm:px-8 py-3 border-b border-border-subtle bg-surface">
+        <View className="flex-row items-center justify-between max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl xl:max-w-5xl mx-auto">
           {/* Previous Page Link - Controlled by URL */}
           <Link
             href={toPageRoute(Math.max(1, currentPage - 1))}

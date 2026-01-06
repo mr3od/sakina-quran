@@ -52,13 +52,13 @@ export function BookmarkListItem({
             </Text>
           </View>
 
-          {/* Remove button */}
+          {/* Remove button - faded until hover */}
           <Pressable
             onPress={() => handleRemove(bookmark)}
             accessibilityRole="button"
             accessibilityLabel="Remove bookmark"
             accessibilityHint="Double tap to delete this bookmark"
-            className="p-2 active:opacity-50 -mr-2"
+            className="p-2 active:opacity-50 -mr-2 opacity-30 hover:opacity-100 transition-opacity duration-200"
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
             <Ionicons

@@ -1,5 +1,6 @@
 // src/app/_layout.tsx
 
+import { WebHeader } from "@/components/layout";
 import * as Font from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
@@ -28,7 +29,8 @@ function RootLayoutContent() {
         paddingTop: insets.top,
       }}
     >
-      <View className="flex-1 w-full max-w-lg mx-auto bg-background web:shadow-2xl h-full web:border-x web:border-border-subtle">
+      <View className="flex-1 w-full bg-background h-full">
+        <WebHeader />
         <Stack
           screenOptions={{
             headerShown: false,

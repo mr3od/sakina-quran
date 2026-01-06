@@ -1,4 +1,5 @@
 import { TOTAL_PAGES } from "@/shared/constants/quran";
+import KVStore from "expo-sqlite/kv-store";
 
 const LAST_READ_PAGE_KEY = "last_read_page";
 
@@ -8,8 +9,8 @@ export interface ReadingPosition {
 }
 
 /**
- * ProgressRepository (Web Implementation)
- * Handles persistence of reading progress using localStorage.
+ * ProgressRepository
+ * Handles persistence of reading progress using KV Store.
  */
 export class ProgressRepository {
   /**
@@ -17,7 +18,7 @@ export class ProgressRepository {
    */
   async getLastReadPosition(): Promise<ReadingPosition | null> {
     try {
-      const pageValue = localStorage.getItem(LAST_READ_PAGE_KEY);
+      const pageValue = await KVStore.getItem(LAST_READ_PAGE_KEY);
       if (!pageValue) return null;
 
       const pageNumber = parseInt(pageValue, 10);
@@ -38,13 +39,13 @@ export class ProgressRepository {
     if (pageNumber < 1 || pageNumber > TOTAL_PAGES) {
       throw new Error(`Invalid page number: ${pageNumber}`);
     }
-    localStorage.setItem(LAST_READ_PAGE_KEY, pageNumber.toString());
+    await KVStore.setItem(LAST_READ_PAGE_KEY, pageNumber.toString());
   }
 
   /**
    * Clear the last read position.
    */
   async clearLastReadPosition(): Promise<void> {
-    localStorage.removeItem(LAST_READ_PAGE_KEY);
+    await KVStore.removeItem(LAST_READ_PAGE_KEY);
   }
 }

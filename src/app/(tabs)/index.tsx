@@ -1,8 +1,9 @@
 // src/app/(tabs)/index.tsx
 
+import { ContinueReadingCard, SearchHero } from "@/components/home";
 import { JuzListScreen, SurahListScreen } from "@/components/quran";
 import React, { useState } from "react";
-import { Text, View } from "react-native";
+import { Platform, ScrollView, Text, View } from "react-native";
 import { NavigationSegments } from "../../components/ui";
 
 const BROWSE_MODES = [
@@ -13,31 +14,73 @@ const BROWSE_MODES = [
 export default function HomeScreen() {
   const [activeMode, setActiveMode] = useState<"surah" | "juz">("surah");
 
-  return (
-    <View className="flex-1 bg-background">
-      <View className="px-4 pt-4 pb-2">
-        <Text
-          className="font-ui-ar text-3xl font-bold text-text-primary text-center mb-2"
-          accessible
-          accessibilityRole="header"
-          accessibilityLabel="Al Quran Al Kareem"
-        >
-          القرآن الكريم
-        </Text>
-        <Text className="font-ui-en text-sm text-text-secondary text-center mb-4">
-          The Holy Quran
-        </Text>
-      </View>
-      <View className="px-4 pb-4">
-        <NavigationSegments
-          segments={BROWSE_MODES}
-          activeSegment={activeMode}
-          onSelect={(id) => setActiveMode(id as "surah" | "juz")}
-        />
+  const content = (
+    <>
+      {/* Hero Section - Prominent title and search */}
+      <View className="bg-surface-elevated px-4 sm:px-8 pt-8 pb-6">
+        <View className="max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl xl:max-w-5xl mx-auto">
+          <Text
+            className="font-ui-ar text-5xl font-bold text-text-primary text-center mb-6"
+            accessible
+            accessibilityRole="header"
+            accessibilityLabel="Al Quran Al Kareem"
+          >
+            القرآن الكريم
+          </Text>
+          <SearchHero />
+        </View>
       </View>
 
+      {/* Continue Reading + Bookmarks Section */}
+      <View className="px-4 sm:px-8 py-6">
+        <View className="max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl xl:max-w-5xl mx-auto">
+          <View className="flex-row gap-6">
+            {/* Continue Reading - Left Column */}
+            <View className="flex-1">
+              <Text className="font-ui-en text-xl font-semibold text-text-primary mb-4">
+                Continue Reading
+              </Text>
+              <ContinueReadingCard />
+            </View>
+
+            {/* Latest Bookmarks - Right Column (hidden on mobile) */}
+            <View className="hidden md:flex flex-1">
+              <Text className="font-ui-en text-xl font-semibold text-text-primary mb-4">
+                Latest Bookmarks
+              </Text>
+              <View className="bg-surface border border-border rounded-xl p-6">
+                <Text className="font-ui-en text-sm text-text-secondary text-center">
+                  Your bookmarked verses will appear here
+                </Text>
+              </View>
+            </View>
+          </View>
+        </View>
+      </View>
+
+      {/* Browse Section */}
+      <View className="px-4 sm:px-8 pt-2 pb-4">
+        <View className="max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl xl:max-w-5xl mx-auto">
+          <View className="flex-row items-center gap-2 mb-4">
+            <NavigationSegments
+              segments={BROWSE_MODES}
+              activeSegment={activeMode}
+              onSelect={(id) => setActiveMode(id as "surah" | "juz")}
+            />
+          </View>
+        </View>
+      </View>
+
+      {/* List Section */}
       {activeMode === "surah" && <SurahListScreen />}
       {activeMode === "juz" && <JuzListScreen />}
-    </View>
+    </>
   );
+
+  // On web, wrap in ScrollView for natural page scrolling
+  if (Platform.OS === "web") {
+    return <ScrollView className="flex-1 bg-background">{content}</ScrollView>;
+  }
+
+  return <View className="flex-1 bg-background">{content}</View>;
 }

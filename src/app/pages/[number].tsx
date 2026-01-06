@@ -4,9 +4,22 @@
  */
 
 import { PageReaderScreen } from "@/features/quran-reader/ui";
+import { Stack } from "expo-router";
+import { Platform } from "react-native";
 
 export default function PageRoute() {
-  return <PageReaderScreen />;
+  return (
+    <>
+      <Stack.Screen
+        options={{
+          headerShown: Platform.OS === "web",
+          title: "Quran",
+          headerBackTitle: "Home",
+        }}
+      />
+      <PageReaderScreen />
+    </>
+  );
 }
 
 export async function generateStaticParams(): Promise<{ number: string }[]> {

@@ -2,6 +2,7 @@
 
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
+import { Platform } from "react-native";
 import { useCSSVariable } from "uniwind";
 
 /**
@@ -44,6 +45,7 @@ export default function TabLayout() {
           paddingTop: 8,
           elevation: 0,
           shadowOpacity: 0,
+          display: Platform.select({ web: "none", default: "flex" }),
         },
         tabBarActiveTintColor: accentColor as string,
         tabBarInactiveTintColor: inactiveColor as string,
