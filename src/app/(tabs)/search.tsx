@@ -8,6 +8,7 @@
  */
 
 import { Ionicons } from "@expo/vector-icons";
+import { useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -23,9 +24,11 @@ import { useSearchController } from "@/features/search/app";
 import { SearchListItem } from "@/features/search/ui/SearchListItem";
 
 export default function SearchScreen() {
-  const [input, setInput] = useState("");
+  const params = useLocalSearchParams<{ q: string }>();
+  // Initialize with URL param q if it exists
+  const [input, setInput] = useState(params.q || "");
   // The actual term used for searching
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(params.q || "");
 
   // Debounce logic
   useEffect(() => {
