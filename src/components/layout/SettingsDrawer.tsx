@@ -17,8 +17,6 @@ export function SettingsDrawer() {
   const { data: settings } = useSettings();
   const setTheme = useSetTheme();
   const textColor = useCSSVariable("--color-text-primary");
-  const backgroundColor = useCSSVariable("--color-background");
-  const surfaceColor = useCSSVariable("--color-surface");
 
   // Only render on web
   if (Platform.OS !== "web") return null;

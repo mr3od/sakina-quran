@@ -81,6 +81,7 @@ export default function SearchScreen() {
             autoCorrect={false}
             returnKeyType="search"
             onSubmitEditing={handleSearch}
+            style={{ outline: "none" }}
           />
           {!!input && (
             <Pressable
@@ -146,7 +147,7 @@ export default function SearchScreen() {
         {state.kind === "results" && (
           <FlatList
             data={state.items}
-            keyExtractor={(it) => `${it.type}:${it.sura}:${it.ayah}`}
+            keyExtractor={(it) => `${it.type}:${it.page}:${it.sura}:${it.ayah}`}
             renderItem={({ item }) => (
               <SearchListItem item={item} searchTerm={query} />
             )}
