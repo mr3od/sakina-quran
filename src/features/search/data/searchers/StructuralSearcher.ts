@@ -14,38 +14,16 @@ export class StructuralSearcher implements Searcher {
     const q = query.trim();
     if (!q) return [];
 
-    // 1. Handle "Sura:Ayah" e.g., "7:7"
-    const pairMatch = q.match(/^(\d+)\s*[:：]\s*(\d+)$/);
-    if (pairMatch) {
-      const sura = parseInt(pairMatch[1], 10);
-      const ayah = parseInt(pairMatch[2], 10);
-
-      try {
-        const res = await fetch(`/api/search?sura=${sura}&ayah=${ayah}`);
-        if (!res.ok) return [];
-        const data = await res.json();
-
-        // Use the format expected by SearchRow
-        if (data.length > 0) {
-          const row = data[0];
-          return [
-            {
-              type: "surahAyah",
-              sura: row.sura_number,
-              ayah: row.ayah_number,
-              surahName: "Surah " + row.sura_number, // Full name lookup would need surahs.json
-              simple: `${row.sura_number}:${row.ayah_number}`,
-              page: 1, // Simplified for now, real page lookup inside the API or static segments
-            },
-          ];
-        }
-      } catch (e) {
-        console.error("Structural search failed", e);
-      }
+    try {
+      const res = await fetch(
+        `/api/search?type=structural&q=${encodeURIComponent(q)}`,
+      );
+      if (!res.ok) return [];
+      const data = await res.json();
+      return data as SearchRow[];
+    } catch (e) {
+      console.error("Structural search failed", e);
+      return [];
     }
-
-    // TODO: Implement other structural lookups (Juz, Hizb, Page) for Web
-    // This is part of the "Composite Search Parity" goal.
-    return [];
   }
 }
