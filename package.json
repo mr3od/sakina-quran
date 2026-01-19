@@ -7,7 +7,12 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "generate:static": "node scripts/generate-static-data.mjs",
+    "generate:sitemap": "node scripts/generate-sitemap.js",
+    "export": "expo export --platform web",
+    "export:full": "pnpm run generate:static && pnpm run export && pnpm run generate:sitemap && node scripts/post-export.js",
+    "validate:seo": "node scripts/validate-seo.js"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",

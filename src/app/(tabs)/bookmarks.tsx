@@ -8,6 +8,7 @@ import { BookmarkListItem } from "@/features/bookmarks/ui/BookmarkListItem";
 import { useSurahs } from "@/hooks/useSurahs";
 import { ErrorState } from "@/shared/ui/ErrorState";
 import { LoadingState } from "@/shared/ui/LoadingState";
+import Head from "expo-router/head";
 import { FlatList, Text, View } from "react-native";
 
 export default function BookmarksScreen() {
@@ -52,6 +53,28 @@ export default function BookmarksScreen() {
   // Loaded state
   return (
     <View className="flex-1 bg-background">
+      <Head>
+        <title>Bookmarks - Sakina Quran</title>
+        <meta
+          name="description"
+          content="Access your saved Quran verses and bookmarks. Quickly navigate to your favorite Ayahs and continue reading from where you left off."
+        />
+        <meta
+          name="keywords"
+          content="Quran bookmarks, saved verses, favorite Ayahs, reading progress"
+        />
+
+        {/* Open Graph */}
+        <meta property="og:title" content="Bookmarks - Sakina Quran" />
+        <meta
+          property="og:description"
+          content="Access your saved Quran verses and bookmarks."
+        />
+        <meta property="og:url" content="https://quran.mr3od.dev/bookmarks" />
+
+        {/* Canonical URL */}
+        <link rel="canonical" href="https://quran.mr3od.dev/bookmarks" />
+      </Head>
       {/* Header */}
       <View className="p-4 border-b border-border">
         <Text className="text-text-primary font-ui-ar text-2xl mb-1">

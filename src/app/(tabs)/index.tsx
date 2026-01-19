@@ -2,6 +2,7 @@
 
 import { ContinueReadingCard, SearchHero } from "@/components/home";
 import { JuzListScreen, SurahListScreen } from "@/components/quran";
+import Head from "expo-router/head";
 import React, { useState } from "react";
 import { Platform, ScrollView, Text, View } from "react-native";
 import { NavigationSegments } from "../../components/ui";
@@ -23,6 +24,48 @@ export default function HomeScreen() {
   };
   const content = (
     <>
+      <Head>
+        <title>Sakina Quran - Read the Holy Quran Online</title>
+        <meta
+          name="description"
+          content="Read the Holy Quran with beautiful Arabic text. Browse by Surah or Juz with verse-by-verse navigation."
+        />
+        <meta
+          name="keywords"
+          content="Quran, Holy Quran, Islamic, Arabic, Surah, Juz, Ayah, Muslim, Islam, القرآن الكريم"
+        />
+
+        {/* Open Graph */}
+        <meta
+          property="og:title"
+          content="Sakina Quran - Read the Holy Quran Online"
+        />
+        <meta
+          property="og:description"
+          content="Read the Holy Quran with beautiful Arabic text."
+        />
+        <meta property="og:url" content="https://quran.mr3od.dev/" />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://quran.mr3od.dev/icon.png" />
+
+        {/* Twitter */}
+        <meta
+          property="twitter:title"
+          content="Sakina Quran - Read the Holy Quran Online"
+        />
+        <meta
+          property="twitter:description"
+          content="Read the Holy Quran with beautiful Arabic text."
+        />
+        <meta property="twitter:url" content="https://quran.mr3od.dev/" />
+        <meta
+          property="twitter:image"
+          content="https://quran.mr3od.dev/icon.png"
+        />
+
+        {/* Canonical URL */}
+        <link rel="canonical" href="https://quran.mr3od.dev/" />
+      </Head>
       {/* Hero Section - Prominent title and search */}
       <View className="bg-surface-elevated px-4 sm:px-8 pt-8 pb-6 z-10">
         <View className="max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl xl:max-w-5xl mx-auto w-full">

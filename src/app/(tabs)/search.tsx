@@ -9,6 +9,7 @@
 
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
+import Head from "expo-router/head";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -56,6 +57,29 @@ export default function SearchScreen() {
 
   return (
     <View className="flex-1 bg-background">
+      <Head>
+        <title>Search Quran - Sakina Quran</title>
+        <meta
+          name="description"
+          content="Search the Holy Quran by words, verses, or references. Find specific Ayahs, Surahs, Juz, or page numbers with instant results."
+        />
+        <meta
+          name="keywords"
+          content="Quran search, Islamic search, Arabic search, verse finder, Ayah search, Surah search, Juz search"
+        />
+
+        {/* Open Graph */}
+        <meta property="og:title" content="Search Quran - Sakina Quran" />
+        <meta
+          property="og:description"
+          content="Search the Holy Quran by words, verses, or references."
+        />
+        <meta property="og:url" content="https://quran.mr3od.dev/search" />
+        <meta property="og:type" content="website" />
+
+        {/* Canonical URL */}
+        <link rel="canonical" href="https://quran.mr3od.dev/search" />
+      </Head>
       {/* Header */}
       <View className="px-4 pt-4 pb-2">
         <Text className="font-ui-ar text-3xl font-bold text-text-primary text-center mb-2">

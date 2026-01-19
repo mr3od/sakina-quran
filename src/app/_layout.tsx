@@ -3,6 +3,7 @@
 import { WebHeader } from "@/components/layout";
 import * as Font from "expo-font";
 import { Stack } from "expo-router";
+import Head from "expo-router/head";
 import * as SplashScreen from "expo-splash-screen";
 import { SQLiteProvider } from "expo-sqlite";
 import KVStore from "expo-sqlite/kv-store";
@@ -94,6 +95,80 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView className="flex-1">
+      <Head>
+        <title>Sakina Quran - Read the Holy Quran Online</title>
+        <meta
+          name="description"
+          content="Read the Holy Quran with beautiful Arabic text. Access all 114 Surahs with verse-by-verse navigation and search functionality."
+        />
+        <meta
+          name="keywords"
+          content="Quran, Holy Quran, Islamic, Arabic, Surah, Ayah, Muslim, Islam"
+        />
+        <meta name="author" content="Sakina Quran" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://quran.mr3od.dev/" />
+        <meta
+          property="og:title"
+          content="Sakina Quran - Read the Holy Quran Online"
+        />
+        <meta
+          property="og:description"
+          content="Read the Holy Quran with beautiful Arabic text."
+        />
+        <meta property="og:image" content="https://quran.mr3od.dev/icon.png" />
+        <meta property="og:site_name" content="Sakina Quran" />
+        <meta property="og:locale" content="en_US" />
+
+        {/* Twitter */}
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:url" content="https://quran.mr3od.dev/" />
+        <meta
+          property="twitter:title"
+          content="Sakina Quran - Read the Holy Quran Online"
+        />
+        <meta
+          property="twitter:description"
+          content="Read the Holy Quran with beautiful Arabic text."
+        />
+        <meta
+          property="twitter:image"
+          content="https://quran.mr3od.dev/icon.png"
+        />
+
+        {/* Canonical URL */}
+        <link rel="canonical" href="https://quran.mr3od.dev/" />
+
+        {/* Additional SEO */}
+        <meta name="robots" content="index, follow" />
+        <meta name="language" content="English" />
+        <meta name="revisit-after" content="7 days" />
+
+        {/* Schema.org structured data */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebApplication",
+            name: "Sakina Quran",
+            description: "Read the Holy Quran with beautiful Arabic text",
+            url: "https://quran.mr3od.dev",
+            applicationCategory: "EducationalApplication",
+            operatingSystem: "Web, iOS, Android",
+            offers: {
+              "@type": "Offer",
+              price: "0",
+              priceCurrency: "USD",
+            },
+            author: {
+              "@type": "Organization",
+              name: "Sakina Quran",
+            },
+          })}
+        </script>
+      </Head>
       <SafeAreaProvider>
         <QueryProvider>
           <QueryProvider>

@@ -9,6 +9,7 @@ import {
   useSettings,
 } from "@/features/settings/app";
 import { Ionicons } from "@expo/vector-icons";
+import Head from "expo-router/head";
 import React from "react";
 import { ActivityIndicator, ScrollView, Text, View } from "react-native";
 import { useCSSVariable } from "uniwind";
@@ -53,6 +54,28 @@ export default function SettingsScreen() {
 
   return (
     <ScrollView className="flex-1 bg-background">
+      <Head>
+        <title>Settings - Sakina Quran</title>
+        <meta
+          name="description"
+          content="Customize your Quran reading experience. Change themes, adjust font sizes, and configure app preferences."
+        />
+        <meta
+          name="keywords"
+          content="Quran settings, app preferences, theme selection, customization"
+        />
+
+        {/* Open Graph */}
+        <meta property="og:title" content="Settings - Sakina Quran" />
+        <meta
+          property="og:description"
+          content="Customize your Quran reading experience."
+        />
+        <meta property="og:url" content="https://quran.mr3od.dev/settings" />
+
+        {/* Canonical URL */}
+        <link rel="canonical" href="https://quran.mr3od.dev/settings" />
+      </Head>
       <View className="p-4">
         {/* Header */}
         <View className="mb-6">
