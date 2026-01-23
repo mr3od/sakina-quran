@@ -12,10 +12,14 @@
     "generate:sitemap": "node scripts/generate-sitemap.js",
     "export": "expo export --platform web",
     "export:full": "pnpm run generate:static && pnpm run export && pnpm run generate:sitemap && node scripts/post-export.js",
-    "validate:seo": "node scripts/validate-seo.js"
+    "validate:seo": "node scripts/validate-seo.js",
+    "i18n:extract": "lingui extract",
+    "i18n": "pnpm run i18n:extract"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
+    "@lingui/core": "^5.8.0",
+    "@lingui/react": "^5.8.0",
     "@react-navigation/bottom-tabs": "^7.4.0",
     "@react-navigation/elements": "^2.9.3",
     "@react-navigation/native": "^7.1.8",
@@ -27,6 +31,7 @@
     "expo-haptics": "~15.0.8",
     "expo-image": "~3.0.11",
     "expo-linking": "~8.0.11",
+    "expo-localization": "~17.0.8",
     "expo-router": "~6.0.21",
     "expo-splash-screen": "~31.0.13",
     "expo-sqlite": "~16.0.10",
@@ -50,6 +55,9 @@
   },
   "devDependencies": {
     "@babel/plugin-transform-export-namespace-from": "^7.27.1",
+    "@lingui/babel-plugin-lingui-macro": "^5.8.0",
+    "@lingui/cli": "^5.8.0",
+    "@lingui/metro-transformer": "^5.9.0",
     "@tanstack/eslint-plugin-query": "^5.91.2",
     "@types/react": "~19.1.17",
     "@types/sql.js": "^1.4.9",

@@ -1,25 +1,28 @@
 /**
- * ThemeSelector - Theme Selection Component
- * Clean horizontal button design matching quran.com style with scrolling
+ * LanguageSelector UI Component
+ * Unified language switching with RTL awareness
  */
 
-import { Ionicons } from "@expo/vector-icons";
 import { Trans, useLingui } from "@lingui/react/macro";
 import React from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { useCSSVariable } from "uniwind";
-import type { ThemeId } from "../domain/settings-contract";
-import { THEMES_ARRAY } from "../domain/theme-metadata";
+import type { LanguageId } from "../domain/settings-contract";
 
-interface ThemeSelectorProps {
-  activeTheme: ThemeId;
-  onSelectTheme: (theme: ThemeId) => void;
+const LANGUAGES: { id: LanguageId; nameEn: string; nameAr: string }[] = [
+  { id: "en", nameEn: "English", nameAr: "English" },
+  { id: "ar", nameEn: "Arabic", nameAr: "العربية" },
+];
+
+interface LanguageSelectorProps {
+  activeLanguage: LanguageId;
+  onSelectLanguage: (id: LanguageId) => void;
 }
 
-export function ThemeSelector({
-  activeTheme,
-  onSelectTheme,
-}: ThemeSelectorProps) {
+export function LanguageSelector({
+  activeLanguage,
+  onSelectLanguage,
+}: LanguageSelectorProps) {
   const { i18n } = useLingui();
   const isAr = i18n.locale === "ar";
   const borderColor = useCSSVariable("--color-border-subtle");
@@ -31,17 +34,17 @@ export function ThemeSelector({
       contentContainerClassName="flex-row"
       className="flex-1"
     >
-      {THEMES_ARRAY.map((theme, index) => {
-        const isActive = theme.id === activeTheme;
-        const isLast = index === THEMES_ARRAY.length - 1;
+      {LANGUAGES.map((lang, index) => {
+        const isActive = activeLanguage === lang.id;
+        const isLast = index === LANGUAGES.length - 1;
 
         return (
-          <View key={theme.id} className="flex-row items-center">
+          <View key={lang.id} className="flex-row items-center">
             <Pressable
-              onPress={() => onSelectTheme(theme.id)}
+              onPress={() => onSelectLanguage(lang.id)}
               accessibilityRole="button"
               accessibilityState={{ selected: isActive }}
-              accessibilityLabel={isAr ? theme.nameAr : theme.nameEn}
+              accessibilityLabel={isAr ? lang.nameAr : lang.nameEn}
               className={`
                 flex-row items-center px-4 py-3 rounded-full
                 ${
@@ -52,34 +55,14 @@ export function ThemeSelector({
                 active:opacity-80
               `}
             >
-              {/* Icon for specific themes */}
-              {theme.id === "fajr" && (
-                <Ionicons
-                  name="sunny-outline"
-                  size={16}
-                  className={`mr-2 ${
-                    isActive ? "text-text-primary" : "text-text-secondary"
-                  }`}
-                />
-              )}
-              {theme.id === "layl" && (
-                <Ionicons
-                  name="moon-outline"
-                  size={16}
-                  className={`mr-2 ${
-                    isActive ? "text-text-primary" : "text-text-secondary"
-                  }`}
-                />
-              )}
-
               <Text
                 className={`text-sm ${
                   isActive
                     ? "text-text-primary font-medium"
                     : "text-text-secondary"
-                }`}
+                } ${lang.id === "ar" ? "font-ui-ar" : "font-ui-en"}`}
               >
-                <Trans>{isAr ? theme.nameAr : theme.nameEn}</Trans>
+                <Trans>{isAr ? lang.nameAr : lang.nameEn}</Trans>
               </Text>
             </Pressable>
 

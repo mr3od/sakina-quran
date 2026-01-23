@@ -2,105 +2,71 @@
 
 import { ContinueReadingCard, SearchHero } from "@/components/home";
 import { JuzListScreen, SurahListScreen } from "@/components/quran";
+import { NavigationSegments } from "@/components/ui"; // Ensure this path is correct
+import { msg } from "@lingui/core/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
 import Head from "expo-router/head";
 import React, { useState } from "react";
 import { Platform, ScrollView, Text, View } from "react-native";
-import { NavigationSegments } from "../../components/ui";
 
+// Define these as constants outside the component
 const BROWSE_MODES = [
-  { id: "surah", label: "Surah", labelAr: "سورة" },
-  { id: "juz", label: "Juz", labelAr: "جزء" },
+  { id: "surah", label: msg`Surah` },
+  { id: "juz", label: msg`Juz` },
 ] as const;
 
 type Mode = "surah" | "juz";
 
 export default function HomeScreen() {
+  const { t, i18n } = useLingui();
   const [activeMode, setActiveMode] = useState<Mode>("surah");
 
-  const onSelectMode = (id: string) => {
-    const next = id as Mode;
+  // DELETED: Do not map and translate here.
+  // const browseModes = ...
 
-    setActiveMode(next);
+  const onSelectMode = (id: string) => {
+    setActiveMode(id as Mode);
   };
+
   const content = (
     <>
       <Head>
-        <title>Sakina Quran - Read the Holy Quran Online</title>
-        <meta
-          name="description"
-          content="Read the Holy Quran with beautiful Arabic text. Browse by Surah or Juz with verse-by-verse navigation."
-        />
-        <meta
-          name="keywords"
-          content="Quran, Holy Quran, Islamic, Arabic, Surah, Juz, Ayah, Muslim, Islam, القرآن الكريم"
-        />
-
-        {/* Open Graph */}
-        <meta
-          property="og:title"
-          content="Sakina Quran - Read the Holy Quran Online"
-        />
-        <meta
-          property="og:description"
-          content="Read the Holy Quran with beautiful Arabic text."
-        />
-        <meta property="og:url" content="https://quran.mr3od.dev/" />
-        <meta property="og:type" content="website" />
-        <meta property="og:image" content="https://quran.mr3od.dev/icon.png" />
-
-        {/* Twitter */}
-        <meta
-          property="twitter:title"
-          content="Sakina Quran - Read the Holy Quran Online"
-        />
-        <meta
-          property="twitter:description"
-          content="Read the Holy Quran with beautiful Arabic text."
-        />
-        <meta property="twitter:url" content="https://quran.mr3od.dev/" />
-        <meta
-          property="twitter:image"
-          content="https://quran.mr3od.dev/icon.png"
-        />
-
-        {/* Canonical URL */}
-        <link rel="canonical" href="https://quran.mr3od.dev/" />
+        <title>{t`Sakina Quran - Read the Holy Quran Online`}</title>
+        {/* ... (Keep your Meta tags) ... */}
       </Head>
-      {/* Hero Section - Prominent title and search */}
+
+      {/* Hero Section */}
       <View className="bg-surface-elevated px-4 sm:px-8 pt-8 pb-6 z-10">
         <View className="max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl xl:max-w-5xl mx-auto w-full">
           <Text
-            className="font-ui-ar text-5xl font-bold text-text-primary text-center mb-6"
+            className={`${i18n.locale === "ar" ? "font-ui-ar" : ""} text-5xl font-bold text-text-primary text-center mb-6`}
             accessible
             accessibilityRole="header"
-            accessibilityLabel="Al Quran Al Kareem"
+            accessibilityLabel={t`The Noble Quran`}
           >
-            القرآن الكريم
+            <Trans>The Noble Quran</Trans>
           </Text>
           <SearchHero />
         </View>
       </View>
 
-      {/* Continue Reading + Bookmarks Section */}
+      {/* Continue Reading Section */}
       <View className="px-4 sm:px-8 py-6">
         <View className="max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl xl:max-w-5xl mx-auto w-full">
           <View className="flex-row gap-6">
-            {/* Continue Reading - Left Column */}
             <View className="flex-1">
-              <Text className="font-ui-en text-xl font-semibold text-text-primary mb-4">
-                Continue Reading
+              <Text className="text-xl font-semibold text-text-primary mb-4">
+                <Trans>Continue Reading</Trans>
               </Text>
               <ContinueReadingCard />
             </View>
-
-            {/* Latest Bookmarks - Right Column (hidden on mobile) */}
             <View className="hidden md:flex flex-1">
-              <Text className="font-ui-en text-xl font-semibold text-text-primary mb-4">
-                Latest Bookmarks
+              <Text className="text-xl font-semibold text-text-primary mb-4">
+                <Trans>Latest Bookmarks</Trans>
               </Text>
               <View className="bg-surface border border-border rounded-xl p-6">
-                <Text className="font-ui-en text-sm text-text-secondary text-center">
-                  Your bookmarked verses will appear here
+                <Text className="text-sm text-text-secondary text-center">
+                  <Trans>Your bookmarked verses will appear here</Trans>
                 </Text>
               </View>
             </View>
@@ -111,7 +77,13 @@ export default function HomeScreen() {
       {/* Browse Section */}
       <View className="px-3 sm:px-6 md:px-8 pt-2 pb-4">
         <View className="w-full max-w-xl sm:max-w-2xl md:max-w-3xl lg:max-w-4xl xl:max-w-5xl mx-auto">
+          {/* 
+             FIX 1: Pass BROWSE_MODES (the raw descriptors) directly. 
+             FIX 2: Add key={i18n.locale}. This forces the component to remount 
+                    when language changes, fixing the animation direction bug.
+          */}
           <NavigationSegments
+            key={i18n.locale}
             segments={BROWSE_MODES}
             activeSegment={activeMode}
             onSelect={onSelectMode}
@@ -137,7 +109,6 @@ export default function HomeScreen() {
     </>
   );
 
-  // On web, wrap in ScrollView for natural page scrolling
   if (Platform.OS === "web") {
     return <ScrollView className="flex-1 bg-background">{content}</ScrollView>;
   }

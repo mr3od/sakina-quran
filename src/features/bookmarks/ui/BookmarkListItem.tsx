@@ -6,6 +6,7 @@
 import { useAyah } from "@/hooks/useAyah";
 import { formatRelativeTime } from "@/shared/lib/formatters";
 import { Ionicons } from "@expo/vector-icons";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { Link } from "expo-router";
 import { ActivityIndicator, Pressable, Text, View } from "react-native";
 import { useRemoveBookmark } from "../app";
@@ -20,6 +21,7 @@ export function BookmarkListItem({
   bookmark,
   surahName,
 }: BookmarkListItemProps) {
+  const { t, i18n } = useLingui();
   // Fetch verse text from DB
   const { data: ayah, isLoading } = useAyah(bookmark.sura, bookmark.ayah);
 
@@ -40,15 +42,17 @@ export function BookmarkListItem({
     >
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={`Bookmark: Surah ${surahName}, Ayah ${bookmark.ayah}`}
-        accessibilityHint="Double tap to navigate to verse"
+        accessibilityLabel={t`Bookmark: Surah ${surahName}, Ayah ${bookmark.ayah}`}
+        accessibilityHint={t`Double tap to navigate to verse`}
         className="bg-bookmark border-border rounded-xl p-4 mb-2 active:bg-surface-elevated active:scale-99"
       >
         {/* Header: Metadata + Remove button */}
         <View className="flex-row items-center justify-between mb-3">
           <View className="flex-1">
-            <Text className="text-text-secondary font-ui-en text-xs">
-              {surahName} • {bookmark.sura}:{bookmark.ayah}
+            <Text className="text-text-secondary text-xs">
+              <Trans>
+                {surahName} • {bookmark.sura}:{bookmark.ayah}
+              </Trans>
             </Text>
           </View>
 
@@ -56,8 +60,8 @@ export function BookmarkListItem({
           <Pressable
             onPress={() => handleRemove(bookmark)}
             accessibilityRole="button"
-            accessibilityLabel="Remove bookmark"
-            accessibilityHint="Double tap to delete this bookmark"
+            accessibilityLabel={t`Remove bookmark`}
+            accessibilityHint={t`Double tap to delete this bookmark`}
             className="p-2 active:opacity-50 -mr-2 opacity-30 hover:opacity-100 transition-opacity duration-200"
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
@@ -88,16 +92,16 @@ export function BookmarkListItem({
 
         {/* Footer: Timestamp + Optional note */}
         <View className="flex-row items-center justify-between">
-          <Text className="text-text-tertiary font-ui-en text-xs">
-            {formatRelativeTime(bookmark.timestamp)}
+          <Text className="text-text-tertiary text-xs">
+            <Trans>{formatRelativeTime(bookmark.timestamp, i18n.locale)}</Trans>
           </Text>
 
           {bookmark.note && (
             <Text
-              className="text-text-secondary font-ui-en text-xs italic"
+              className="text-text-secondary text-xs italic"
               numberOfLines={1}
             >
-              {bookmark.note}
+              <Trans>{bookmark.note}</Trans>
             </Text>
           )}
         </View>

@@ -5,6 +5,7 @@ module.exports = function (api) {
     plugins: [
       "@babel/plugin-transform-export-namespace-from",
       "react-native-worklets/plugin",
+      "@lingui/babel-plugin-lingui-macro",
     ],
   };
 };

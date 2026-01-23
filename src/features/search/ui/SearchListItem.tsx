@@ -8,7 +8,9 @@
  
  */
 
+import { useLocaleFont } from "@/hooks/useLocaleFont";
 import { escapeRegExp } from "@/shared/lib/text-utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { Link } from "expo-router";
 import React from "react";
 import { Pressable, Text, View } from "react-native";
@@ -39,13 +41,17 @@ function renderHighlightedText(text: string, term: string | undefined) {
           </Text>
         ) : (
           <Text key={i}>{seg}</Text>
-        )
+        ),
       )}
     </>
   );
 }
 
+
+
 export function SearchListItem({ item, searchTerm }: SearchListItemProps) {
+  const { t } = useLingui();
+  const fontClass = useLocaleFont();
   const isAyahResult = item.type === "ayah";
 
   return (
@@ -58,15 +64,15 @@ export function SearchListItem({ item, searchTerm }: SearchListItemProps) {
         accessibilityRole="button"
         accessibilityLabel={
           isAyahResult
-            ? `Verse ${item.sura}:${item.ayah} in ${item.surahName}`
-            : `Navigate to ${item.simple}`
+            ? t`Verse ${item.sura}:${item.ayah} in ${item.surahName}`
+            : t`Navigate to ${item.simple}`
         }
-        accessibilityHint="Double tap to open"
+        accessibilityHint={t`Double tap to open`}
       >
         {/* Simple with literal highlight */}
         <View>
           <Text
-            className="font-ui-ar leading-quran text-text-primary mb-2"
+            className={`${fontClass} leading-quran text-text-primary mb-2`}
             accessibilityLanguage="ar"
             selectable
           >
@@ -77,12 +83,14 @@ export function SearchListItem({ item, searchTerm }: SearchListItemProps) {
           {/* Header */}
           <View className="flex-row items-center">
             <View className="bg-surface-elevated px-2 py-1 rounded-md">
-              <Text className="font-ui-en text-2xs text-text-secondary">
-                {item.sura}:{item.ayah}
+              <Text className="text-2xs text-text-secondary">
+                <Trans>
+                  {item.sura}:{item.ayah}
+                </Trans>
               </Text>
             </View>
-            <Text className="font-ui-en text-xs font-semibold text-text-primary">
-              {item.surahName}
+            <Text className="text-xs font-semibold text-text-primary">
+              <Trans>{item.surahName}</Trans>
             </Text>
           </View>
         </View>

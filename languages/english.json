@@ -1,0 +1,8 @@
+{
+    "ios": {
+        "CFBundleDisplayName": "Sakina Quran"
+    },
+    "android": {
+        "app_name": "Sakina Quran"
+    }
+}

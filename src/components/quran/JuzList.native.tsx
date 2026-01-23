@@ -1,12 +1,12 @@
-// src/components/quran/JuzList.tsx
-
 import { ErrorState } from "@/shared/ui/ErrorState";
 import { LoadingState } from "@/shared/ui/LoadingState";
+import { useLingui } from "@lingui/react/macro";
 import { FlatList, View } from "react-native";
 import { useJuzList } from "../../hooks/useJuzList";
 import { JuzListItem } from "./JuzListItem";
 
 export function JuzListScreen() {
+  const { t } = useLingui();
   const { data: juzList, isLoading, isError, error } = useJuzList();
 
   if (isLoading) {
@@ -14,7 +14,9 @@ export function JuzListScreen() {
   }
 
   if (isError) {
-    return <ErrorState message={error?.message || "Failed to load Juz list"} />;
+    return (
+      <ErrorState message={error?.message || t`Failed to load Juz list`} />
+    );
   }
 
   return (
@@ -34,7 +36,7 @@ export function JuzListScreen() {
           windowSize={5}
           accessible
           accessibilityRole="list"
-          accessibilityLabel="List of Quran parts (Juz)"
+          accessibilityLabel={t`List of Quran parts (Juz)`}
         />
       </View>
     </View>

@@ -1,4 +1,7 @@
+import { useLocaleFont } from "@/hooks/useLocaleFont";
 import { Ionicons } from "@expo/vector-icons";
+import { msg } from "@lingui/core/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { Link, router } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
@@ -42,7 +45,7 @@ function renderHighlightedText(text: string, rx: RegExp | null) {
           </Text>
         ) : (
           <Text key={i}>{seg}</Text>
-        )
+        ),
       )}
     </>
   );
@@ -59,6 +62,8 @@ function WebSearchResultItem({
   onSelect: () => void;
   isSelected: boolean;
 }) {
+  const { t } = useLingui();
+  const fontClass = useLocaleFont();
   const isAyahResult = item.type === "ayah";
 
   return (
@@ -74,8 +79,8 @@ function WebSearchResultItem({
         accessibilityRole="button"
         accessibilityLabel={
           isAyahResult
-            ? `Verse ${item.sura}:${item.ayah} in ${item.surahName}`
-            : `Navigate to ${item.simple}`
+            ? t`Verse ${item.sura}:${item.ayah} in ${item.surahName}`
+            : t`Navigate to ${item.simple}`
         }
       >
         <Ionicons
@@ -87,7 +92,7 @@ function WebSearchResultItem({
 
         <View className="flex-1">
           <Text
-            className="font-ui-ar text-base text-text-primary mb-1 leading-relaxed"
+            className={`${fontClass} text-base text-text-primary mb-1 leading-relaxed`}
             accessibilityLanguage="ar"
           >
             {renderHighlightedText(item.simple, highlightRx)}
@@ -95,12 +100,14 @@ function WebSearchResultItem({
 
           <View className="flex-row items-center">
             <View className="bg-surface px-2 py-0.5 rounded mr-2">
-              <Text className="font-ui-en text-xs text-text-secondary">
-                {item.sura}:{item.ayah}
+              <Text className="text-xs text-text-secondary">
+                <Trans>
+                  {item.sura}:{item.ayah}
+                </Trans>
               </Text>
             </View>
-            <Text className="font-ui-en text-xs text-text-secondary">
-              {item.surahName}
+            <Text className="text-xs text-text-secondary">
+              <Trans>{item.surahName}</Trans>
             </Text>
           </View>
         </View>
@@ -110,6 +117,8 @@ function WebSearchResultItem({
 }
 
 export function WebSearchOverlay({ isOpen, onClose }: WebSearchOverlayProps) {
+  const { t, i18n } = useLingui();
+  const fontClass = useLocaleFont();
   const [input, setInput] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
 
@@ -130,10 +139,10 @@ export function WebSearchOverlay({ isOpen, onClose }: WebSearchOverlayProps) {
   const resultsLength = results.length;
 
   const defaultSuggestions = [
-    { label: "Juz 1", query: "juz 1" },
-    { label: "Page 1", query: "page 1" },
-    { label: "Surah Ya-Sin", query: "يس" },
-    { label: "Ayat al-Kursi", query: "2:255" },
+    { label: msg`Juz 1`, query: "juz 1" },
+    { label: msg`Page 1`, query: "page 1" },
+    { label: msg`Surah Ya-Sin`, query: "يس" },
+    { label: msg`Ayat al-Kursi`, query: "2:255" },
   ];
 
   const goToSearchPage = () => {
@@ -259,10 +268,10 @@ export function WebSearchOverlay({ isOpen, onClose }: WebSearchOverlayProps) {
           ref={inputRef}
           value={input}
           onChangeText={setInput}
-          placeholder="Search the Quran..."
+          placeholder={t`Search the Quran...`}
           placeholderTextColor="#94A3B8"
-          className="flex-1 mx-4 font-ui-en text-lg text-text-primary"
-          accessibilityLabel="Search input"
+          className={`flex-1 mx-4 ${fontClass} text-lg text-text-primary`}
+          accessibilityLabel={t`Search input`}
           autoCapitalize="none"
           autoCorrect={false}
           returnKeyType="search"
@@ -275,12 +284,14 @@ export function WebSearchOverlay({ isOpen, onClose }: WebSearchOverlayProps) {
           <Pressable
             onPress={() => setInput("")}
             className="p-1"
-            accessibilityLabel="Clear search"
+            accessibilityLabel={t`Clear search`}
           >
             <Ionicons name="close-circle" size={20} color="#94A3B8" />
           </Pressable>
         ) : (
-          <Text className="font-ui-en text-sm text-text-tertiary">⌘K</Text>
+          <Text className="text-sm text-text-tertiary">
+            <Trans>⌘K</Trans>
+          </Text>
         )}
       </View>
 
@@ -293,8 +304,8 @@ export function WebSearchOverlay({ isOpen, onClose }: WebSearchOverlayProps) {
           {/* Suggestions */}
           {showSuggestions && (
             <View>
-              <Text className="px-4 py-2 font-ui-en text-xs text-text-secondary uppercase tracking-wide">
-                Try searching for
+              <Text className="px-4 py-2 text-xs text-text-secondary uppercase tracking-wide">
+                <Trans>Try searching for</Trans>
               </Text>
               {defaultSuggestions.map((s) => (
                 <Pressable
@@ -308,8 +319,8 @@ export function WebSearchOverlay({ isOpen, onClose }: WebSearchOverlayProps) {
                     color="#94A3B8"
                     className="mr-3"
                   />
-                  <Text className="font-ui-en text-sm text-text-primary">
-                    {s.label}
+                  <Text className="text-sm text-text-primary">
+                    {i18n._(s.label)}
                   </Text>
                 </Pressable>
               ))}
@@ -320,8 +331,8 @@ export function WebSearchOverlay({ isOpen, onClose }: WebSearchOverlayProps) {
           {showLoading && (
             <View className="px-4 py-6 items-center">
               <ActivityIndicator size="small" color={accentColor as string} />
-              <Text className="font-ui-en text-sm text-text-secondary mt-2">
-                Searching...
+              <Text className="text-sm text-text-secondary mt-2">
+                <Trans>Searching...</Trans>
               </Text>
             </View>
           )}
@@ -334,8 +345,8 @@ export function WebSearchOverlay({ isOpen, onClose }: WebSearchOverlayProps) {
                 size={32}
                 color="#94A3B8"
               />
-              <Text className="font-ui-en text-sm text-text-secondary mt-2">
-                No results found
+              <Text className="text-sm text-text-secondary mt-2">
+                <Trans>No results found</Trans>
               </Text>
             </View>
           )}
@@ -365,10 +376,10 @@ export function WebSearchOverlay({ isOpen, onClose }: WebSearchOverlayProps) {
                 className="px-4 py-3 border-t border-border flex-row items-center justify-center hover:bg-surface-elevated transition-colors"
                 onPress={goToSearchPage}
                 accessibilityRole="button"
-                accessibilityLabel={`View all results for ${query}`}
+                accessibilityLabel={t`View all results for ${query}`}
               >
-                <Text className="font-ui-en text-sm text-accent font-medium">
-                  View all results
+                <Text className="text-sm text-accent font-medium">
+                  <Trans>View all results</Trans>
                 </Text>
                 <Ionicons
                   name="arrow-forward"

@@ -32,6 +32,13 @@
       "output": "server",
       "favicon": "./assets/images/favicon.png"
     },
+    "extra": {
+      "supportsRTL": true
+    },
+    "locales": {
+      "en": "./languages/english.json",
+      "ar": "./languages/arabic.json"
+    },
     "plugins": [
       "expo-router",
       [
@@ -65,7 +72,16 @@
           ]
         }
       ],
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "expo-localization",
+        {
+          "supportedLocales": {
+            "ios": ["en", "ar"],
+            "android": ["en", "ar"]
+          }
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

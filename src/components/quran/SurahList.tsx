@@ -1,10 +1,12 @@
 import { ErrorState } from "@/shared/ui/ErrorState";
 import { LoadingState } from "@/shared/ui/LoadingState";
+import { useLingui } from "@lingui/react/macro";
 import { View } from "react-native";
 import { useSurahs } from "../../hooks/useSurahs";
 import { SurahListItem } from "./SurahListItem";
 
 export function SurahListScreen() {
+  const { t } = useLingui();
   const { data: surahs, isLoading, isError, error } = useSurahs();
 
   if (isLoading) {
@@ -12,7 +14,7 @@ export function SurahListScreen() {
   }
 
   if (isError) {
-    return <ErrorState message={error?.message || "Failed to load Surahs"} />;
+    return <ErrorState message={error?.message || t`Failed to load Surahs`} />;
   }
 
   return (

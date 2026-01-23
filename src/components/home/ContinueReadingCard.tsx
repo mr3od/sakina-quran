@@ -1,10 +1,12 @@
 import { useLastReadPosition } from "@/hooks/useLastReadPosition";
 import { Ionicons } from "@expo/vector-icons";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { Link } from "expo-router";
 import { Text, View } from "react-native";
 import { useCSSVariable } from "uniwind";
 
 export function ContinueReadingCard() {
+  const { t } = useLingui();
   const accentColor = useCSSVariable("--color-accent");
   const { lastRead, surahName, isLoading } = useLastReadPosition();
 
@@ -16,8 +18,8 @@ export function ContinueReadingCard() {
       <Link
         href="/pages/1"
         asChild
-        accessibilityLabel="Start reading from page 1"
-        accessibilityHint="Begin reading the Quran from the first page"
+        accessibilityLabel={t`Start reading from page 1`}
+        accessibilityHint={t`Begin reading the Quran from the first page`}
       >
         <View
           className="bg-surface border border-border rounded-xl p-6 active:bg-surface-elevated"
@@ -32,16 +34,16 @@ export function ContinueReadingCard() {
               />
             </View>
             <View className="flex-1">
-              <Text className="font-ui-en text-base font-semibold text-text-primary mb-1">
-                Start Reading
+              <Text className="text-base font-semibold text-text-primary mb-1">
+                <Trans>Start Reading</Trans>
               </Text>
-              <Text className="font-ui-en text-sm text-text-secondary">
-                Begin from Page 1
+              <Text className="text-sm text-text-secondary">
+                <Trans>Begin from Page 1</Trans>
               </Text>
             </View>
           </View>
-          <Text className="font-ui-ar text-2xl text-text-primary text-center">
-            ابدأ القراءة
+          <Text className="text-2xl text-text-primary text-center">
+            <Trans>Start Reading</Trans>
           </Text>
         </View>
       </Link>
@@ -53,8 +55,8 @@ export function ContinueReadingCard() {
     <Link
       href={`/pages/${lastRead.page_number}` as any}
       asChild
-      accessibilityLabel={`Continue reading ${surahName}, page ${lastRead.page_number}`}
-      accessibilityHint="Navigate to your last read position"
+      accessibilityLabel={t`Continue reading ${surahName}, page ${lastRead.page_number}`}
+      accessibilityHint={t`Navigate to your last read position`}
     >
       <View
         className="bg-accent/10 border border-accent rounded-xl p-6 active:bg-accent/20"
@@ -69,11 +71,11 @@ export function ContinueReadingCard() {
             />
           </View>
           <View className="flex-1">
-            <Text className="font-ui-en text-base font-semibold text-accent mb-1">
-              Continue Reading
+            <Text className="text-base font-semibold text-accent mb-1">
+              <Trans>Continue Reading</Trans>
             </Text>
-            <Text className="font-ui-en text-sm text-text-secondary">
-              Page {lastRead.page_number}
+            <Text className="text-sm text-text-secondary">
+              <Trans>Page {lastRead.page_number}</Trans>
             </Text>
           </View>
         </View>

@@ -1,3 +1,5 @@
+import { getSurahNameGlyph } from "@/shared/lib/quran-fonts";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { Link } from "expo-router";
 import React from "react";
 import { Pressable, Text, View } from "react-native";
@@ -8,9 +10,13 @@ interface SurahListItemProps {
 }
 
 export function SurahListItem({ surah }: SurahListItemProps) {
-  const revelationPlace =
-    surah.revelation_place.charAt(0).toUpperCase() +
-    surah.revelation_place.slice(1);
+  const { t, i18n } = useLingui();
+  const isAr = i18n.locale === "ar";
+  const revelationPlaceRaw = surah.revelation_place.toLowerCase();
+
+  // Pick localized revelation text
+  const revelationText =
+    revelationPlaceRaw === "makkah" ? t`Makki` : t`Madani`;
 
   const firstPage = parseInt(surah.pages_range.split("-")[0]);
 
@@ -19,63 +25,59 @@ export function SurahListItem({ surah }: SurahListItemProps) {
       <Pressable
         className="
           p-4 
-          border rounded-lg 
+          border rounded-xl 
           bg-surface 
           border-border-subtle
           active:bg-surface-elevated active:border-border-base
           hover:bg-surface-elevated
+          transition-colors
         "
-        style={{ minHeight: 80 }}
+        style={{ minHeight: 88 }}
         accessibilityRole="button"
-        accessibilityLabel={`Surah ${surah.id}, ${surah.name_simple}, ${revelationPlace}, ${surah.verses_count} verses`}
-        accessibilityHint="Double tap to read this Surah"
+        accessibilityLabel={t`Surah ${surah.id}, ${surah.name_simple}, ${revelationText}, ${surah.verses_count} verses`}
+        accessibilityHint={t`Double tap to read this Surah`}
       >
-        <View
-          className="
-          flex-row
-          gap-4
-          "
-        >
+        <View className="flex-row items-center gap-4">
+          {/* Surah Number Box - At START (Right in AR, Left in EN) */}
           <View
-            className="w-12 h-12 rounded-lg bg-surface-elevated border border-border-base items-center justify-center self-center"
+            className="w-11 h-11 rounded-xl bg-surface-elevated border border-border-base items-center justify-center shrink-0"
             accessible
-            accessibilityLabel={`Surah number ${surah.id}`}
+            accessibilityLabel={t`Surah number ${surah.id}`}
           >
-            <Text className="font-ui-en text-base font-bold text-text-primary">
+            <Text className="text-base font-bold text-text-primary">
               {surah.id}
             </Text>
           </View>
+
+          {/* Main Content Area */}
           <View className="flex-1 min-w-0">
-            <Text
-              className="font-ui-ar text-xl font-bold text-text-primary mb-1"
-              numberOfLines={1}
-              accessible
-              accessibilityLanguage="ar"
-            >
-              {surah.name_arabic}
-            </Text>
-            <Text
-              className="font-ui-en text-sm text-text-secondary mb-1"
-              numberOfLines={1}
-            >
-              {surah.name_simple}
-            </Text>
-            <Text
-              className="font-ui-en text-xs text-text-tertiary"
-              numberOfLines={1}
-            >
-              {surah.name_complex}
-            </Text>
-          </View>
-          <View className="items-end shrink-0">
-            <View className="bg-surface-elevated px-3 py-1 rounded-full mb-2">
-              <Text className="font-ui-en text-xs font-medium text-text-secondary">
-                {revelationPlace}
+            {isAr ? (
+              <Text
+                className="font-surah-name text-4xl text-text-primary mb-1"
+                numberOfLines={1}
+                accessible
+                lang="ar"
+                accessibilityLabel={surah.name_simple}
+              >
+                {getSurahNameGlyph(surah.id)}
+              </Text>
+            ) : (
+              <Text
+                className="font-ui-en text-lg font-bold text-text-primary mb-1"
+                numberOfLines={1}
+              >
+                {surah.name_simple}
+              </Text>
+            )}
+
+            <View className="flex-col">
+              <Text className="text-xs text-text-tertiary mb-0.5">
+                <Trans>{revelationText}</Trans>
+              </Text>
+              <Text className="text-xs text-text-tertiary">
+                <Trans>Verses: {surah.verses_count}</Trans>
               </Text>
             </View>
-            <Text className="font-ui-en text-xs text-text-tertiary">
-              {surah.verses_count} verses
-            </Text>
           </View>
         </View>
       </Pressable>

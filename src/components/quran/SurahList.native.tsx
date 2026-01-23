@@ -1,5 +1,6 @@
 import { ErrorState } from "@/shared/ui/ErrorState";
 import { LoadingState } from "@/shared/ui/LoadingState";
+import { t } from "@lingui/core/macro";
 import { FlatList, View } from "react-native";
 import { useSurahs } from "../../hooks/useSurahs";
 import { SurahListItem } from "./SurahListItem";
@@ -12,7 +13,7 @@ export function SurahListScreen() {
   }
 
   if (isError) {
-    return <ErrorState message={error?.message || "Failed to load Surahs"} />;
+    return <ErrorState message={error?.message || t`Failed to load Surahs`} />;
   }
 
   return (
@@ -32,7 +33,7 @@ export function SurahListScreen() {
           windowSize={10}
           accessible
           accessibilityRole="list"
-          accessibilityLabel="List of Quran chapters"
+          accessibilityLabel={t`List of Quran chapters`}
         />
       </View>
     </View>

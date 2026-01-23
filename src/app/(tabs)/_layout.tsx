@@ -1,6 +1,7 @@
 // src/app/(tabs)/_layout.tsx
 
 import { Ionicons } from "@expo/vector-icons";
+import { useLingui } from "@lingui/react/macro";
 import { Tabs } from "expo-router";
 import { Platform } from "react-native";
 import { useCSSVariable } from "uniwind";
@@ -10,6 +11,7 @@ import { useCSSVariable } from "uniwind";
  * Explicitly styled per theme (no implicit adaptation).
  */
 export default function TabLayout() {
+  const { t } = useLingui();
   const [bgColor, textColor, borderColor, accentColor, inactiveColor] =
     useCSSVariable([
       "--color-background",
@@ -62,7 +64,7 @@ export default function TabLayout() {
         name="index"
         options={{
           headerShown: false,
-          tabBarLabel: "Home",
+          tabBarLabel: t`Home`,
           tabBarIcon: ({ color, size, focused }) => (
             <Ionicons
               name={focused ? "home" : "home-outline"}
@@ -79,7 +81,7 @@ export default function TabLayout() {
         name="search"
         options={{
           headerShown: false,
-          tabBarLabel: "Search",
+          tabBarLabel: t`Search`,
           tabBarIcon: ({ color, size, focused }) => (
             <Ionicons
               name={focused ? "search" : "search-outline"}
@@ -96,7 +98,7 @@ export default function TabLayout() {
         name="bookmarks"
         options={{
           headerShown: false,
-          tabBarLabel: "Bookmarks",
+          tabBarLabel: t`Bookmarks`,
           tabBarIcon: ({ color, size, focused }) => (
             <Ionicons
               name={focused ? "bookmark" : "bookmark-outline"}
@@ -113,7 +115,7 @@ export default function TabLayout() {
         name="settings"
         options={{
           headerShown: false,
-          tabBarLabel: "Settings",
+          tabBarLabel: t`Settings`,
           tabBarIcon: ({ color, size, focused }) => (
             <Ionicons
               name={focused ? "settings" : "settings-outline"}

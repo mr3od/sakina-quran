@@ -1,3 +1,6 @@
+import { useLocaleFont } from "@/hooks/useLocaleFont";
+import type { MessageDescriptor } from "@lingui/core";
+import { useLingui } from "@lingui/react/macro";
 import React, { useEffect, useRef, useState } from "react";
 import { LayoutChangeEvent, Pressable, Text, View } from "react-native";
 import Animated, {
@@ -7,7 +10,10 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
-type Segment = { id: string; label: string; labelAr?: string };
+type Segment = {
+  id: string;
+  label: string | MessageDescriptor;
+};
 
 interface NavigationSegmentsProps {
   segments: readonly Segment[];
@@ -25,6 +31,8 @@ export function NavigationSegments({
   activeSegment,
   onSelect,
 }: NavigationSegmentsProps) {
+  const { i18n } = useLingui();
+  const fontClass = useLocaleFont();
   const layoutsRef = useRef<LayoutMap>({});
   const [ready, setReady] = useState(false);
 
@@ -56,8 +64,8 @@ export function NavigationSegments({
   const onSegmentLayout = (id: string) => (e: LayoutChangeEvent) => {
     const { x, width } = e.nativeEvent.layout;
 
-    const prev = layoutsRef.current[id];
-    if (prev && prev.x === x && prev.width === width) return;
+    // We don't skip the update even if coordinates are the same,
+    // because React context (like RTL or locale) might have changed.
 
     layoutsRef.current[id] = { x, width };
 
@@ -67,6 +75,13 @@ export function NavigationSegments({
       if (!ready) setReady(true);
     }
   };
+
+  useEffect(() => {
+    setReady(false);
+    layoutsRef.current = {};
+    hasInit.value = false;
+    initRef.current = false;
+  }, [i18n.locale]);
 
   useEffect(() => {
     if (!ready) return;
@@ -101,43 +116,38 @@ export function NavigationSegments({
 
       {segments.map((segment) => {
         const isActive = activeSegment === segment.id;
+        const labelText =
+          typeof segment.label === "string"
+            ? segment.label
+            : i18n._(segment.label);
 
         return (
           <View
-            key={segment.id}
+            key={`${segment.id}-${i18n.locale}`}
             className="flex-1"
             onLayout={onSegmentLayout(segment.id)}
           >
             <Pressable
-              onPress={() => onSelect(segment.id)}
+              onPress={() => {
+                if (!isActive) onSelect(segment.id);
+              }}
               className="py-1 items-center justify-center rounded-md flex-col sm:flex-row sm:gap-2"
               style={{ minHeight: 40 }}
               accessible
               accessibilityRole="tab"
               accessibilityState={{ selected: isActive }}
-              accessibilityLabel={`${segment.label} tab${
+              accessibilityLabel={`${labelText} tab${
                 isActive ? ", selected" : ""
               }`}
             >
               <Text
                 className={`${
                   isActive ? "text-white" : "text-text-secondary"
-                } font-ui-en text-xs font-semibold text-center`}
+                } ${fontClass} text-xs font-semibold text-center`}
                 style={{ opacity: isActive ? 1 : 0.85 }}
               >
-                {segment.label}
+                {labelText}
               </Text>
-
-              {segment.labelAr && (
-                <Text
-                  className={`${
-                    isActive ? "text-white opacity-90" : "text-text-tertiary"
-                  } font-ui-ar text-xs text-center`}
-                  style={{ opacity: isActive ? 0.9 : 0.7 }}
-                >
-                  {segment.labelAr}
-                </Text>
-              )}
             </Pressable>
           </View>
         );

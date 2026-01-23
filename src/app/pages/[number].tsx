@@ -4,35 +4,36 @@
  */
 
 import { PageReaderScreen } from "@/features/quran-reader/ui";
-import { Stack, useLocalSearchParams } from "expo-router";
+import { useLingui } from "@lingui/react/macro";
+import { useLocalSearchParams } from "expo-router";
 import Head from "expo-router/head";
-import { Platform } from "react-native";
 
 export default function PageRoute() {
   const { number } = useLocalSearchParams<{ number: string }>();
   const pageNumber = parseInt(number || "1", 10);
+  const { t } = useLingui();
 
   return (
     <>
       <Head>
-        <title>Quran Page {pageNumber} - Sakina Quran</title>
+        <title>{t`Quran Page ${pageNumber} - Sakina Quran`}</title>
         <meta
           name="description"
-          content={`Read Quran page ${pageNumber} - Arabic text with English interface.`}
+          content={t`Read Page ${pageNumber} of the Holy Quran.`}
         />
         <meta
           name="keywords"
-          content={`Quran page ${pageNumber}, Islamic text, Arabic verses, Quran reading, Holy Quran`}
+          content={t`Quran page ${pageNumber}, Islamic text, Arabic verses, Quran reading, Holy Quran`}
         />
 
         {/* Open Graph */}
         <meta
           property="og:title"
-          content={`Quran Page ${pageNumber} - Sakina Quran`}
+          content={t`Quran Page ${pageNumber} - Sakina Quran`}
         />
         <meta
           property="og:description"
-          content={`Read Quran page ${pageNumber} - Arabic text with English interface.`}
+          content={t`Read Page ${pageNumber} of the Holy Quran.`}
         />
         <meta
           property="og:url"
@@ -44,11 +45,11 @@ export default function PageRoute() {
         {/* Twitter */}
         <meta
           property="twitter:title"
-          content={`Quran Page ${pageNumber} - Sakina Quran`}
+          content={t`Quran Page ${pageNumber} - Sakina Quran`}
         />
         <meta
           property="twitter:description"
-          content={`Read Quran page ${pageNumber} with beautiful Arabic text.`}
+          content={t`Read Page ${pageNumber} of the Holy Quran.`}
         />
         <meta
           property="twitter:url"
@@ -71,7 +72,7 @@ export default function PageRoute() {
             "@context": "https://schema.org",
             "@type": "Article",
             headline: `Quran Page ${pageNumber}`,
-            description: `Read Quran page ${pageNumber} with beautiful Arabic text`,
+            description: `Read Page ${pageNumber} of the Holy Quran`,
             url: `https://quran.mr3od.dev/pages/${pageNumber}`,
             author: {
               "@type": "Organization",
@@ -92,13 +93,7 @@ export default function PageRoute() {
           })}
         </script>
       </Head>
-      <Stack.Screen
-        options={{
-          headerShown: Platform.OS === "web",
-          title: `Quran Page ${pageNumber}`,
-          headerBackTitle: "Home",
-        }}
-      />
+
       <PageReaderScreen />
     </>
   );

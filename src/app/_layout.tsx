@@ -1,37 +1,159 @@
 // src/app/_layout.tsx
 
 import { WebHeader } from "@/components/layout";
+import i18nEngine, {
+    bootstrapLocale,
+    setupAndroidLocaleListener,
+} from "@/shared/i18n";
+import { I18nProvider, TransRenderProps, useLingui } from "@lingui/react";
 import * as Font from "expo-font";
-import { Stack } from "expo-router";
+import { Stack, useSegments } from "expo-router";
 import Head from "expo-router/head";
 import * as SplashScreen from "expo-splash-screen";
 import { SQLiteProvider } from "expo-sqlite";
 import KVStore from "expo-sqlite/kv-store";
 import React, { useEffect, useState } from "react";
-import { Platform, View, useColorScheme } from "react-native";
+import { Platform, Text, useColorScheme, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import {
-  SafeAreaProvider,
-  useSafeAreaInsets,
+    SafeAreaProvider,
+    useSafeAreaInsets,
 } from "react-native-safe-area-context";
 import { Uniwind } from "uniwind";
 import { QueryProvider } from "../contexts/QueryProvider";
 import "../global.css";
 
-SplashScreen.setOptions({ duration: 2000, fade: true });
+import { useLocaleFont } from "@/hooks/useLocaleFont";
 
+const DefaultI18nComponent = (props: TransRenderProps) => {
+  const fontClass = useLocaleFont();
+  return <Text className={fontClass}>{props.children}</Text>;
+};
+
+SplashScreen.setOptions({ duration: 2000, fade: true });
 function RootLayoutContent() {
   const insets = useSafeAreaInsets();
+  const { i18n } = useLingui();
+  const segments = useSegments();
+  const isAr = i18n.locale === "ar";
+  const dir = isAr ? "rtl" : "ltr";
+  const isReaderPage = segments[0] === "pages";
 
   return (
     <View
+      //@ts-ignore
+      dir={Platform.OS === "web" ? dir : undefined}
       className="flex-1 bg-background"
       style={{
         paddingTop: insets.top,
       }}
     >
+      <Head>
+        <title>
+          {isAr
+            ? "سكينة القرآن - اقرأ القرآن الكريم كاملاً"
+            : "Sakina Quran - Read the Holy Quran Online"}
+        </title>
+        <meta
+          name="description"
+          content={
+            isAr
+              ? "اقرأ القرآن الكريم بنص عربي جميل. تصفح جميع السور الـ 114 مع خاصية البحث والتنقل بين الآيات."
+              : "Read the Holy Quran with beautiful Arabic text. Access all 114 Surahs with verse-by-verse navigation and search functionality."
+          }
+        />
+        <meta
+          name="keywords"
+          content={
+            isAr
+              ? "القرآن، القرآن الكريم، إسلام، عربي، سورة، آية، مسلم، إسلام"
+              : "Quran, Holy Quran, Islamic, Arabic, Surah, Ayah, Muslim, Islam"
+          }
+        />
+        <meta name="author" content="Sakina Quran" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://quran.mr3od.dev/" />
+        <meta
+          property="og:title"
+          content={
+            isAr
+              ? "سكينة القرآن - اقرأ القرآن الكريم كاملاً"
+              : "Sakina Quran - Read the Holy Quran Online"
+          }
+        />
+        <meta
+          property="og:description"
+          content={
+            isAr
+              ? "اقرأ القرآن الكريم بنص عربي جميل."
+              : "Read the Holy Quran with beautiful Arabic text."
+          }
+        />
+        <meta property="og:image" content="https://quran.mr3od.dev/icon.png" />
+        <meta property="og:site_name" content="Sakina Quran" />
+        <meta property="og:locale" content={isAr ? "ar_SA" : "en_US"} />
+
+        {/* Twitter */}
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:url" content="https://quran.mr3od.dev/" />
+        <meta
+          property="twitter:title"
+          content={
+            isAr
+              ? "سكينة القرآن - اقرأ القرآن الكريم كاملاً"
+              : "Sakina Quran - Read the Holy Quran Online"
+          }
+        />
+        <meta
+          property="twitter:description"
+          content={
+            isAr
+              ? "اقرأ القرآن الكريم بنص عربي جميل."
+              : "Read the Holy Quran with beautiful Arabic text."
+          }
+        />
+        <meta
+          property="twitter:image"
+          content="https://quran.mr3od.dev/icon.png"
+        />
+
+        {/* Canonical URL */}
+        <link rel="canonical" href="https://quran.mr3od.dev/" />
+
+        {/* Additional SEO */}
+        <meta name="robots" content="index, follow" />
+        <meta name="language" content={isAr ? "Arabic" : "English"} />
+        <meta name="revisit-after" content="7 days" />
+
+        {/* Schema.org structured data */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebApplication",
+            name: "Sakina Quran",
+            description: isAr
+              ? "اقرأ القرآن الكريم بنص عربي جميل"
+              : "Read the Holy Quran with beautiful Arabic text",
+            url: "https://quran.mr3od.dev",
+            applicationCategory: "EducationalApplication",
+            operatingSystem: "Web, iOS, Android",
+            offers: {
+              "@type": "Offer",
+              price: "0",
+              priceCurrency: "USD",
+            },
+            author: {
+              "@type": "Organization",
+              name: "Sakina Quran",
+            },
+          })}
+        </script>
+      </Head>
       <View className="flex-1 w-full bg-background h-full">
-        <WebHeader />
+        {!isReaderPage && <WebHeader />}
         <Stack
           screenOptions={{
             headerShown: false,
@@ -45,11 +167,13 @@ function RootLayoutContent() {
 export default function RootLayout() {
   const [appIsReady, setAppIsReady] = useState(false);
   const systemColorScheme = useColorScheme();
+  const [, forceUpdate] = useState({});
 
   useEffect(() => {
     async function prepare() {
       try {
         await Promise.all([
+          bootstrapLocale(),
           // Task 1: Load and set theme
           (async () => {
             const savedTheme = await KVStore.getItem("theme");
@@ -87,6 +211,12 @@ export default function RootLayout() {
     }
 
     prepare();
+
+    const cleanup = setupAndroidLocaleListener(() => {
+      forceUpdate({});
+    });
+
+    return cleanup;
   }, [systemColorScheme]);
 
   if (!appIsReady) {
@@ -95,82 +225,8 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView className="flex-1">
-      <Head>
-        <title>Sakina Quran - Read the Holy Quran Online</title>
-        <meta
-          name="description"
-          content="Read the Holy Quran with beautiful Arabic text. Access all 114 Surahs with verse-by-verse navigation and search functionality."
-        />
-        <meta
-          name="keywords"
-          content="Quran, Holy Quran, Islamic, Arabic, Surah, Ayah, Muslim, Islam"
-        />
-        <meta name="author" content="Sakina Quran" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-        {/* Open Graph / Facebook */}
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://quran.mr3od.dev/" />
-        <meta
-          property="og:title"
-          content="Sakina Quran - Read the Holy Quran Online"
-        />
-        <meta
-          property="og:description"
-          content="Read the Holy Quran with beautiful Arabic text."
-        />
-        <meta property="og:image" content="https://quran.mr3od.dev/icon.png" />
-        <meta property="og:site_name" content="Sakina Quran" />
-        <meta property="og:locale" content="en_US" />
-
-        {/* Twitter */}
-        <meta property="twitter:card" content="summary_large_image" />
-        <meta property="twitter:url" content="https://quran.mr3od.dev/" />
-        <meta
-          property="twitter:title"
-          content="Sakina Quran - Read the Holy Quran Online"
-        />
-        <meta
-          property="twitter:description"
-          content="Read the Holy Quran with beautiful Arabic text."
-        />
-        <meta
-          property="twitter:image"
-          content="https://quran.mr3od.dev/icon.png"
-        />
-
-        {/* Canonical URL */}
-        <link rel="canonical" href="https://quran.mr3od.dev/" />
-
-        {/* Additional SEO */}
-        <meta name="robots" content="index, follow" />
-        <meta name="language" content="English" />
-        <meta name="revisit-after" content="7 days" />
-
-        {/* Schema.org structured data */}
-        <script type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "WebApplication",
-            name: "Sakina Quran",
-            description: "Read the Holy Quran with beautiful Arabic text",
-            url: "https://quran.mr3od.dev",
-            applicationCategory: "EducationalApplication",
-            operatingSystem: "Web, iOS, Android",
-            offers: {
-              "@type": "Offer",
-              price: "0",
-              priceCurrency: "USD",
-            },
-            author: {
-              "@type": "Organization",
-              name: "Sakina Quran",
-            },
-          })}
-        </script>
-      </Head>
       <SafeAreaProvider>
-        <QueryProvider>
+        <I18nProvider i18n={i18nEngine} defaultComponent={DefaultI18nComponent}>
           <QueryProvider>
             {Platform.OS === "web" ? (
               <RootLayoutContent />
@@ -186,7 +242,7 @@ export default function RootLayout() {
               </SQLiteProvider>
             )}
           </QueryProvider>
-        </QueryProvider>
+        </I18nProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

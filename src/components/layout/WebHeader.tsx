@@ -1,10 +1,12 @@
 import { Ionicons } from "@expo/vector-icons";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { Link } from "expo-router";
 import { Platform, Pressable, Text, View } from "react-native";
 import { useCSSVariable } from "uniwind";
 import { SettingsDrawer } from "./SettingsDrawer";
 
 export function WebHeader() {
+  const { t } = useLingui();
   const textColor = useCSSVariable("--color-text-primary");
   const borderColor = useCSSVariable("--color-border-subtle");
 
@@ -19,8 +21,8 @@ export function WebHeader() {
       {/* Logo / Home Link */}
       <Link href="/" asChild>
         <Pressable className="flex-row items-center">
-          <Text className="font-ui-ar text-xl font-medium text-text-primary">
-            القرآن الكريم
+          <Text className="text-xl font-medium text-text-primary">
+            <Trans>Sakina Quran</Trans>
           </Text>
         </Pressable>
       </Link>

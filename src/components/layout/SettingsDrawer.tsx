@@ -1,14 +1,20 @@
-import { useSetTheme, useSettings } from "@/features/settings/app";
-import { ThemeSelector } from "@/features/settings/ui/ThemeSelector";
+import {
+    LanguageSelector,
+    ThemeSelector,
+    useSetLanguage,
+    useSetTheme,
+    useSettings,
+} from "@/features/settings/app";
 import { Ionicons } from "@expo/vector-icons";
+import { Trans, useLingui } from "@lingui/react/macro";
 import React, { useState } from "react";
 import {
-  Modal,
-  Platform,
-  Pressable,
-  ScrollView,
-  Text,
-  View,
+    Modal,
+    Platform,
+    Pressable,
+    ScrollView,
+    Text,
+    View,
 } from "react-native";
 import { useCSSVariable } from "uniwind";
 
@@ -16,6 +22,8 @@ export function SettingsDrawer() {
   const [isOpen, setIsOpen] = useState(false);
   const { data: settings } = useSettings();
   const setTheme = useSetTheme();
+  const setLanguage = useSetLanguage();
+  const { t } = useLingui();
   const textColor = useCSSVariable("--color-text-primary");
 
   // Only render on web
@@ -55,8 +63,8 @@ export function SettingsDrawer() {
             <ScrollView className="flex-1">
               {/* Header */}
               <View className="flex-row items-center justify-between p-4 border-b border-border-subtle">
-                <Text className="text-xl font-ui-en font-medium text-text-primary">
-                  Settings
+                <Text className="text-xl font-medium text-text-primary">
+                  <Trans>Settings</Trans>
                 </Text>
                 <Pressable
                   className="p-1 rounded-lg hover:bg-surface-elevated"
@@ -70,14 +78,30 @@ export function SettingsDrawer() {
                 </Pressable>
               </View>
 
+              {/* Language Section */}
+              <View className="p-4 border-b border-border-subtle">
+                <View className="mb-4">
+                  <Text className="text-lg font-medium text-text-primary mb-1">
+                    <Trans>Language</Trans>
+                  </Text>
+                  <Text className="text-sm text-text-secondary">
+                    <Trans>Choose your preferred language</Trans>
+                  </Text>
+                </View>
+                <LanguageSelector
+                  activeLanguage={settings.language}
+                  onSelectLanguage={(lang) => setLanguage.mutate(lang)}
+                />
+              </View>
+
               {/* Theme Section */}
               <View className="p-4">
                 <View className="mb-4">
-                  <Text className="text-lg font-ui-en font-medium text-text-primary mb-1">
-                    Theme
+                  <Text className="text-lg font-medium text-text-primary mb-1">
+                    <Trans>Theme</Trans>
                   </Text>
-                  <Text className="text-sm font-ui-en text-text-secondary">
-                    Choose your preferred theme
+                  <Text className="text-sm text-text-secondary">
+                    <Trans>Choose your preferred theme</Trans>
                   </Text>
                 </View>
                 <ThemeSelector
