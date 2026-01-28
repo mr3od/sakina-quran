@@ -81,7 +81,7 @@ export function NavigationSegments({
     layoutsRef.current = {};
     hasInit.value = false;
     initRef.current = false;
-  }, [i18n.locale]);
+  }, [i18n.locale, hasInit]);
 
   useEffect(() => {
     if (!ready) return;

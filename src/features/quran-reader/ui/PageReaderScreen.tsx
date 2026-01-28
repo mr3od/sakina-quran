@@ -105,6 +105,37 @@ export function PageReaderScreen() {
     };
   });
 
+  const handlePageChange = React.useCallback(
+    (newPage: number) => {
+      router.setParams({ number: String(newPage) });
+
+      const direction = newPage > currentPageRef.current ? 1 : -1;
+      const nextPrefetch = newPage + direction;
+
+      if (nextPrefetch >= 1 && nextPrefetch <= TOTAL_PAGES)
+        prefetchPage(nextPrefetch);
+
+      currentPageRef.current = newPage;
+
+      // reset animations/state
+      lastScrollY.set(0);
+      headerTranslateY.set(withTiming(0, { duration: 250 }));
+      headerOpacity.set(withTiming(1, { duration: 200 }));
+
+      webCompact.set(withTiming(0, { duration: 200 }));
+      webProgress.set(0);
+    },
+    [
+      headerOpacity,
+      headerTranslateY,
+      lastScrollY,
+      prefetchPage,
+      router,
+      webCompact,
+      webProgress,
+    ],
+  );
+
   // Keyboard navigation for web
   React.useEffect(() => {
     if (Platform.OS !== "web") return;
@@ -154,27 +185,7 @@ export function PageReaderScreen() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [currentPage, isAr]);
-
-  const handlePageChange = (newPage: number) => {
-    router.setParams({ number: String(newPage) });
-
-    const direction = newPage > currentPageRef.current ? 1 : -1;
-    const nextPrefetch = newPage + direction;
-
-    if (nextPrefetch >= 1 && nextPrefetch <= TOTAL_PAGES)
-      prefetchPage(nextPrefetch);
-
-    currentPageRef.current = newPage;
-
-    // reset animations/state
-    lastScrollY.set(0);
-    headerTranslateY.set(withTiming(0, { duration: 250 }));
-    headerOpacity.set(withTiming(1, { duration: 200 }));
-
-    webCompact.set(withTiming(0, { duration: 200 }));
-    webProgress.set(0);
-  };
+  }, [currentPage, isAr, handlePageChange]);
 
   // Called by PagePage
   const onScroll = (m: ScrollMetrics) => {

@@ -9,7 +9,7 @@ import type { Surah } from "../../types/quran.types";
 import { JuzListItem } from "./JuzListItem";
 import { SurahListItem } from "./SurahListItem";
 
-type JuzListItem =
+type JuzListRow =
   | { type: "header"; juzNumber: number }
   | { type: "surah"; surah: Surah };
 
@@ -21,7 +21,7 @@ export function JuzListScreen() {
   const flatData = () => {
     if (!juzList) return [];
 
-    const items: JuzListItem[] = [];
+    const items: JuzListRow[] = [];
     juzList.forEach((juz) => {
       // Add header
       items.push({ type: "header", juzNumber: juz.juz_number });

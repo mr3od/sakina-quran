@@ -1,12 +1,11 @@
 import { Ionicons } from "@expo/vector-icons";
-import { Trans, useLingui } from "@lingui/react/macro";
+import { Trans } from "@lingui/react/macro";
 import { Link } from "expo-router";
 import { Platform, Pressable, Text, View } from "react-native";
 import { useCSSVariable } from "uniwind";
 import { SettingsDrawer } from "./SettingsDrawer";
 
 export function WebHeader() {
-  const { t } = useLingui();
   const textColor = useCSSVariable("--color-text-primary");
   const borderColor = useCSSVariable("--color-border-subtle");
 
