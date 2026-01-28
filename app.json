@@ -40,7 +40,12 @@
       "ar": "./languages/arabic.json"
     },
     "plugins": [
-      "expo-router",
+      [
+        "expo-router",
+        {
+          "origin": "https://quran.mr3od.dev"
+        }
+      ],
       [
         "expo-splash-screen",
         {

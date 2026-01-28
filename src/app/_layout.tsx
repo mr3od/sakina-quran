@@ -1,244 +1,110 @@
-// src/app/_layout.tsx
-
 import { WebHeader } from "@/components/layout";
-import i18nEngine, {
-    bootstrapLocale,
-    setupAndroidLocaleListener,
-} from "@/shared/i18n";
-import { I18nProvider, TransRenderProps, useLingui } from "@lingui/react";
+import { useLocaleFont } from "@/hooks/useLocaleFont";
+import { bootstrapLocale, i18n } from "@/shared/i18n";
+import { SEOHead } from "@/shared/ui/SEOHead";
+import { t } from "@lingui/core/macro";
+import { I18nProvider, type TransRenderProps } from "@lingui/react";
+
 import * as Font from "expo-font";
 import { Stack, useSegments } from "expo-router";
-import Head from "expo-router/head";
 import * as SplashScreen from "expo-splash-screen";
 import { SQLiteProvider } from "expo-sqlite";
 import KVStore from "expo-sqlite/kv-store";
+
 import React, { useEffect, useState } from "react";
-import { Platform, Text, useColorScheme, View } from "react-native";
+import { Platform, Text, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import {
-    SafeAreaProvider,
-    useSafeAreaInsets,
+  SafeAreaProvider,
+  useSafeAreaInsets,
 } from "react-native-safe-area-context";
 import { Uniwind } from "uniwind";
+
+import { useLingui } from "@lingui/react/macro";
 import { QueryProvider } from "../contexts/QueryProvider";
 import "../global.css";
 
-import { useLocaleFont } from "@/hooks/useLocaleFont";
+SplashScreen.setOptions({ duration: 2000, fade: true });
 
-const DefaultI18nComponent = (props: TransRenderProps) => {
+const DefaultI18nComponent = ({ children }: TransRenderProps) => {
   const fontClass = useLocaleFont();
-  return <Text className={fontClass}>{props.children}</Text>;
+  return <Text className={fontClass}>{children}</Text>;
 };
 
-SplashScreen.setOptions({ duration: 2000, fade: true });
 function RootLayoutContent() {
   const insets = useSafeAreaInsets();
   const { i18n } = useLingui();
   const segments = useSegments();
+  const isReaderPage = segments[0] === "pages";
   const isAr = i18n.locale === "ar";
   const dir = isAr ? "rtl" : "ltr";
-  const isReaderPage = segments[0] === "pages";
-
   return (
     <View
       //@ts-ignore
       dir={Platform.OS === "web" ? dir : undefined}
       className="flex-1 bg-background"
-      style={{
-        paddingTop: insets.top,
-      }}
+      style={{ paddingTop: insets.top }}
     >
-      <Head>
-        <title>
-          {isAr
-            ? "سكينة القرآن - اقرأ القرآن الكريم كاملاً"
-            : "Sakina Quran - Read the Holy Quran Online"}
-        </title>
-        <meta
-          name="description"
-          content={
-            isAr
-              ? "اقرأ القرآن الكريم بنص عربي جميل. تصفح جميع السور الـ 114 مع خاصية البحث والتنقل بين الآيات."
-              : "Read the Holy Quran with beautiful Arabic text. Access all 114 Surahs with verse-by-verse navigation and search functionality."
-          }
-        />
-        <meta
-          name="keywords"
-          content={
-            isAr
-              ? "القرآن، القرآن الكريم، إسلام، عربي، سورة، آية، مسلم، إسلام"
-              : "Quran, Holy Quran, Islamic, Arabic, Surah, Ayah, Muslim, Islam"
-          }
-        />
-        <meta name="author" content="Sakina Quran" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <SEOHead
+        title={t`Sakina Quran - Read the Holy Quran Online`}
+        description={t`Read the Holy Quran Online. Access all 114 Surahs with verse-by-verse navigation and search functionality.`}
+        keywords={t`Quran, Holy Quran, Islamic, Arabic, Surah, Ayah, Muslim, Islam`}
+      />
 
-        {/* Open Graph / Facebook */}
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://quran.mr3od.dev/" />
-        <meta
-          property="og:title"
-          content={
-            isAr
-              ? "سكينة القرآن - اقرأ القرآن الكريم كاملاً"
-              : "Sakina Quran - Read the Holy Quran Online"
-          }
-        />
-        <meta
-          property="og:description"
-          content={
-            isAr
-              ? "اقرأ القرآن الكريم بنص عربي جميل."
-              : "Read the Holy Quran with beautiful Arabic text."
-          }
-        />
-        <meta property="og:image" content="https://quran.mr3od.dev/icon.png" />
-        <meta property="og:site_name" content="Sakina Quran" />
-        <meta property="og:locale" content={isAr ? "ar_SA" : "en_US"} />
-
-        {/* Twitter */}
-        <meta property="twitter:card" content="summary_large_image" />
-        <meta property="twitter:url" content="https://quran.mr3od.dev/" />
-        <meta
-          property="twitter:title"
-          content={
-            isAr
-              ? "سكينة القرآن - اقرأ القرآن الكريم كاملاً"
-              : "Sakina Quran - Read the Holy Quran Online"
-          }
-        />
-        <meta
-          property="twitter:description"
-          content={
-            isAr
-              ? "اقرأ القرآن الكريم بنص عربي جميل."
-              : "Read the Holy Quran with beautiful Arabic text."
-          }
-        />
-        <meta
-          property="twitter:image"
-          content="https://quran.mr3od.dev/icon.png"
-        />
-
-        {/* Canonical URL */}
-        <link rel="canonical" href="https://quran.mr3od.dev/" />
-
-        {/* Additional SEO */}
-        <meta name="robots" content="index, follow" />
-        <meta name="language" content={isAr ? "Arabic" : "English"} />
-        <meta name="revisit-after" content="7 days" />
-
-        {/* Schema.org structured data */}
-        <script type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "WebApplication",
-            name: "Sakina Quran",
-            description: isAr
-              ? "اقرأ القرآن الكريم بنص عربي جميل"
-              : "Read the Holy Quran with beautiful Arabic text",
-            url: "https://quran.mr3od.dev",
-            applicationCategory: "EducationalApplication",
-            operatingSystem: "Web, iOS, Android",
-            offers: {
-              "@type": "Offer",
-              price: "0",
-              priceCurrency: "USD",
-            },
-            author: {
-              "@type": "Organization",
-              name: "Sakina Quran",
-            },
-          })}
-        </script>
-      </Head>
-      <View className="flex-1 w-full bg-background h-full">
+      <View className="flex-1 w-full bg-background">
         {!isReaderPage && <WebHeader />}
-        <Stack
-          screenOptions={{
-            headerShown: false,
-          }}
-        />
+
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="pages/[number]" />
+        </Stack>
       </View>
     </View>
   );
 }
 
+async function initApp() {
+  await bootstrapLocale();
+
+  const theme = (await KVStore.getItem("theme")) || "fajr";
+  Uniwind.setTheme(theme as any);
+  if (!(await KVStore.getItem("theme"))) await KVStore.setItem("theme", theme);
+
+  await Font.loadAsync({
+    UthmanicHafs_V22: require("../../assets/fonts/UthmanicHafs_V22.ttf"),
+    SurahNames_V4: require("../../assets/fonts/SurahNames_V4.ttf"),
+    JuzNames_V2: require("../../assets/fonts/JuzNames_V2.ttf"),
+    NotoSansArabic_400Regular: require("../../assets/fonts/NotoSansArabic_400Regular.ttf"),
+    Inter_400Regular: require("../../assets/fonts/Inter_400Regular.ttf"),
+  });
+}
+
 export default function RootLayout() {
-  const [appIsReady, setAppIsReady] = useState(false);
-  const systemColorScheme = useColorScheme();
-  const [, forceUpdate] = useState({});
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    async function prepare() {
-      try {
-        await Promise.all([
-          bootstrapLocale(),
-          // Task 1: Load and set theme
-          (async () => {
-            const savedTheme = await KVStore.getItem("theme");
+    initApp()
+      .catch((e) => console.warn("Init error:", e))
+      .finally(() => setReady(true));
+  }, []);
 
-            if (savedTheme) {
-              // User has a saved preference
-              //@ts-ignore
-              Uniwind.setTheme(savedTheme);
-            } else {
-              // First time - use system preference
+  if (!ready) return null;
 
-              Uniwind.setTheme("fajr");
-              // Save the initial choice
-              await KVStore.setItem("theme", "fajr");
-            }
-          })(),
-
-          // Task 2: Load all required fonts
-          Font.loadAsync({
-            // Quranic Script Font
-            UthmanicHafs_V22: require("../../assets/fonts/UthmanicHafs_V22.ttf"),
-            SurahNames_V4: require("../../assets/fonts/SurahNames_V4.ttf"),
-            JuzNames_V2: require("../../assets/fonts/JuzNames_V2.ttf"),
-            // Arabic UI Font
-            NotoSansArabic_400Regular: require("../../assets/fonts/NotoSansArabic_400Regular.ttf"),
-            // English UI Font
-            Inter_400Regular: require("../../assets/fonts/Inter_400Regular.ttf"),
-          }),
-        ]);
-      } catch (e) {
-        console.warn("Initialization error:", e);
-      } finally {
-        setAppIsReady(true);
-      }
-    }
-
-    prepare();
-
-    const cleanup = setupAndroidLocaleListener(() => {
-      forceUpdate({});
-    });
-
-    return cleanup;
-  }, [systemColorScheme]);
-
-  if (!appIsReady) {
-    return null;
-  }
+  const content = <RootLayoutContent />;
 
   return (
     <GestureHandlerRootView className="flex-1">
       <SafeAreaProvider>
-        <I18nProvider i18n={i18nEngine} defaultComponent={DefaultI18nComponent}>
+        <I18nProvider i18n={i18n} defaultComponent={DefaultI18nComponent}>
           <QueryProvider>
             {Platform.OS === "web" ? (
-              <RootLayoutContent />
+              content
             ) : (
               <SQLiteProvider
                 databaseName="quran.db"
                 assetSource={{ assetId: require("../../assets/quran.db") }}
-                onError={(error) => {
-                  console.error("Database initialization error:", error);
-                }}
               >
-                <RootLayoutContent />
+                {content}
               </SQLiteProvider>
             )}
           </QueryProvider>

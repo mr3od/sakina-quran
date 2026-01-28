@@ -1,6 +1,7 @@
 /**
  * Western Arabic -> Eastern Arabic-Indic numerals
  */
+
 export function toArabicIndic(num: number): string {
   const map = ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
   return num
@@ -10,29 +11,38 @@ export function toArabicIndic(num: number): string {
     .join("");
 }
 
-import { getActiveLocale } from "../i18n";
-
 /**
  * Format timestamp as relative time
  */
-export function formatRelativeTime(
-  timestamp: number,
-  locale: string = getActiveLocale(),
-): string {
+export function formatRelativeTime(date: Date, locale: string) {
   const now = Date.now();
-  const diffInMs = timestamp - now; // Negative for past
-  const diffInSeconds = Math.floor(diffInMs / 1000);
-  const diffInMinutes = Math.floor(diffInSeconds / 60);
-  const diffInHours = Math.floor(diffInMinutes / 60);
-  const diffInDays = Math.floor(diffInHours / 24);
+  const diffMs = date.getTime() - now;
 
-  // Fallback for very old dates or future-proofing
-  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: "auto" });
+  const diffSeconds = Math.round(diffMs / 1000);
+  const diffMinutes = Math.round(diffSeconds / 60);
+  const diffHours = Math.round(diffMinutes / 60);
+  const diffDays = Math.round(diffHours / 24);
 
-  if (Math.abs(diffInDays) > 0) return rtf.format(diffInDays, "day");
-  if (Math.abs(diffInHours) > 0) return rtf.format(diffInHours, "hour");
-  if (Math.abs(diffInMinutes) > 0) return rtf.format(diffInMinutes, "minute");
-  if (Math.abs(diffInSeconds) < -10) return rtf.format(diffInSeconds, "second");
+  const RTF = Intl?.RelativeTimeFormat;
 
-  return locale === "ar" ? "الآن" : "Just now";
+  // iOS/Hermes: RelativeTimeFormat may be missing -> fallback
+  if (!RTF) {
+    const absDays = Math.abs(diffDays);
+    if (absDays >= 1) return `${absDays}d`;
+
+    const absHours = Math.abs(diffHours);
+    if (absHours >= 1) return `${absHours}h`;
+
+    const absMinutes = Math.abs(diffMinutes);
+    if (absMinutes >= 1) return `${absMinutes}m`;
+
+    return "now";
+  }
+
+  const rtf = new RTF(locale, { numeric: "auto" });
+  if (Math.abs(diffDays) >= 1) return rtf.format(diffDays, "day");
+  if (Math.abs(diffHours) >= 1) return rtf.format(diffHours, "hour");
+  if (Math.abs(diffMinutes) >= 1) return rtf.format(diffMinutes, "minute");
+
+  return rtf.format(diffSeconds, "second");
 }

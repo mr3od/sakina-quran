@@ -57,7 +57,7 @@ export default function TabLayout() {
           fontWeight: "500",
           marginTop: 4,
         },
-        tabBarAccessibilityLabel: "Navigation tabs",
+        tabBarAccessibilityLabel: t`Navigation tabs`,
       }}
     >
       <Tabs.Screen
@@ -71,10 +71,10 @@ export default function TabLayout() {
               size={size}
               color={color}
               accessible
-              accessibilityLabel="Home tab icon"
+              accessibilityLabel={t`Home tab icon`}
             />
           ),
-          tabBarAccessibilityLabel: "Home tab, navigate to Quran reading",
+          tabBarAccessibilityLabel: t`Home tab, navigate to Quran reading`,
         }}
       />
       <Tabs.Screen
@@ -88,10 +88,10 @@ export default function TabLayout() {
               size={size}
               color={color}
               accessible
-              accessibilityLabel="Search tab icon"
+              accessibilityLabel={t`Search tab icon`}
             />
           ),
-          tabBarAccessibilityLabel: "Search tab, search Quran verses",
+          tabBarAccessibilityLabel: t`Search tab, search Quran verses`,
         }}
       />
       <Tabs.Screen
@@ -105,10 +105,10 @@ export default function TabLayout() {
               size={size}
               color={color}
               accessible
-              accessibilityLabel="Bookmarks tab icon"
+              accessibilityLabel={t`Bookmarks tab icon`}
             />
           ),
-          tabBarAccessibilityLabel: "Bookmarks tab, view your saved verses",
+          tabBarAccessibilityLabel: t`Bookmarks tab, view your saved verses`,
         }}
       />
       <Tabs.Screen
@@ -122,10 +122,10 @@ export default function TabLayout() {
               size={size}
               color={color}
               accessible
-              accessibilityLabel="Settings tab icon"
+              accessibilityLabel={t`Settings tab icon`}
             />
           ),
-          tabBarAccessibilityLabel: "Settings tab, manage app preferences",
+          tabBarAccessibilityLabel: t`Settings tab, manage app preferences`,
         }}
       />
     </Tabs>

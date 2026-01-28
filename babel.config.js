@@ -4,8 +4,9 @@ module.exports = function (api) {
     presets: ["babel-preset-expo"],
     plugins: [
       "@babel/plugin-transform-export-namespace-from",
-      "react-native-worklets/plugin",
       "@lingui/babel-plugin-lingui-macro",
+      // ✅ worklets LAST
+      "react-native-worklets/plugin",
     ],
   };
 };

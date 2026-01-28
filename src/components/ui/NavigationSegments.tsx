@@ -31,7 +31,7 @@ export function NavigationSegments({
   activeSegment,
   onSelect,
 }: NavigationSegmentsProps) {
-  const { i18n } = useLingui();
+  const { i18n, t } = useLingui();
   const fontClass = useLocaleFont();
   const layoutsRef = useRef<LayoutMap>({});
   const [ready, setReady] = useState(false);
@@ -136,9 +136,7 @@ export function NavigationSegments({
               accessible
               accessibilityRole="tab"
               accessibilityState={{ selected: isActive }}
-              accessibilityLabel={`${labelText} tab${
-                isActive ? ", selected" : ""
-              }`}
+              accessibilityLabel={t`${labelText} tab${isActive ? ", selected" : ""}`}
             >
               <Text
                 className={`${

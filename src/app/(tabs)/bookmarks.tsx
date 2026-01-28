@@ -8,8 +8,8 @@ import { BookmarkListItem } from "@/features/bookmarks/ui/BookmarkListItem";
 import { useSurahs } from "@/hooks/useSurahs";
 import { ErrorState } from "@/shared/ui/ErrorState";
 import { LoadingState } from "@/shared/ui/LoadingState";
-import { Plural, Trans, useLingui } from "@lingui/react/macro";
-import Head from "expo-router/head";
+import { SEOHead } from "@/shared/ui/SEOHead";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { FlatList, Text, View } from "react-native";
 
 export default function BookmarksScreen() {
@@ -56,39 +56,21 @@ export default function BookmarksScreen() {
   // Loaded state
   return (
     <View className="flex-1 bg-background">
-      <Head>
-        <title>{t`Bookmarks - Sakina Quran`}</title>
-        <meta
-          name="description"
-          content={t`Access your saved Quran verses and bookmarks. Quickly navigate to your favorite Ayahs and continue reading from where you left off.`}
-        />
-        <meta
-          name="keywords"
-          content="Quran bookmarks, saved verses, favorite Ayahs, reading progress"
-        />
-
-        {/* Open Graph */}
-        <meta property="og:title" content={t`Bookmarks - Sakina Quran`} />
-        <meta
-          property="og:description"
-          content={t`Access your saved Quran verses and bookmarks.`}
-        />
-        <meta property="og:url" content="https://quran.mr3od.dev/bookmarks" />
-
-        {/* Canonical URL */}
-        <link rel="canonical" href="https://quran.mr3od.dev/bookmarks" />
-      </Head>
+      <SEOHead
+        title={t`Bookmarks - Sakina Quran`}
+        description={t`Access your saved Quran verses and bookmarks. Quickly navigate to your favorite Ayahs and continue reading from where you left off.`}
+        url="https://quran.mr3od.dev/bookmarks"
+        keywords="Quran bookmarks, saved verses, favorite Ayahs, reading progress"
+      />
       {/* Header */}
       <View className="p-4 border-b border-border">
         <Text className="text-text-primary text-2xl mb-1">
           <Trans>Bookmarks</Trans>
         </Text>
+
         <Text className="text-text-secondary text-sm">
-          <Plural
-            value={bookmarks.length}
-            one="# bookmark"
-            other="# bookmarks"
-          />
+          {bookmarks.length}{" "}
+          {bookmarks.length === 1 ? t`bookmark` : t`bookmarks`}
         </Text>
       </View>
 

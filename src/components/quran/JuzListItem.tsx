@@ -1,3 +1,4 @@
+import { getJuzBadgeGlyph } from "@/shared/lib/quran-fonts";
 import { Trans, useLingui } from "@lingui/react/macro";
 import React from "react";
 import { Text, View } from "react-native";
@@ -9,7 +10,8 @@ interface JuzListItemProps {
 }
 
 export function JuzListItem({ juz }: JuzListItemProps) {
-  const { t } = useLingui();
+  const { t, i18n } = useLingui();
+  const isAr = i18n.locale === "ar";
   return (
     <View
       className="mb-6"
@@ -24,9 +26,15 @@ export function JuzListItem({ juz }: JuzListItemProps) {
             </Text>
           </View>
           <View>
-            <Text className="text-lg font-bold text-text-primary">
-              <Trans>Juz {juz.juz_number}</Trans>
-            </Text>
+            {isAr ? (
+              <Text className="text-2xl font-juz-name text-text-primary">
+                {getJuzBadgeGlyph(juz.juz_number)}
+              </Text>
+            ) : (
+              <Text className="text-lg font-bold text-text-primary">
+                <Trans>Juz {juz.juz_number}</Trans>
+              </Text>
+            )}
           </View>
         </View>
         <View className="h-px bg-border-subtle mt-3" />

@@ -5,8 +5,14 @@
 
 import { Ionicons } from "@expo/vector-icons";
 import { Trans, useLingui } from "@lingui/react/macro";
+import * as Haptics from "expo-haptics";
 import React from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from "react-native-reanimated";
 import { useCSSVariable } from "uniwind";
 import type { ThemeId } from "../domain/settings-contract";
 import { THEMES_ARRAY } from "../domain/theme-metadata";
@@ -34,54 +40,70 @@ export function ThemeSelector({
       {THEMES_ARRAY.map((theme, index) => {
         const isActive = theme.id === activeTheme;
         const isLast = index === THEMES_ARRAY.length - 1;
+        
+        const scale = useSharedValue(1);
+        const animatedStyle = useAnimatedStyle(() => ({
+          transform: [{ scale: scale.value }],
+        }));
 
         return (
           <View key={theme.id} className="flex-row items-center">
-            <Pressable
-              onPress={() => onSelectTheme(theme.id)}
-              accessibilityRole="button"
-              accessibilityState={{ selected: isActive }}
-              accessibilityLabel={isAr ? theme.nameAr : theme.nameEn}
-              className={`
-                flex-row items-center px-4 py-3 rounded-full
-                ${
-                  isActive
-                    ? "bg-surface-elevated border border-border"
-                    : "bg-transparent hover:bg-surface-elevated"
-                }
-                active:opacity-80
-              `}
-            >
-              {/* Icon for specific themes */}
-              {theme.id === "fajr" && (
-                <Ionicons
-                  name="sunny-outline"
-                  size={16}
-                  className={`mr-2 ${
-                    isActive ? "text-text-primary" : "text-text-secondary"
-                  }`}
-                />
-              )}
-              {theme.id === "layl" && (
-                <Ionicons
-                  name="moon-outline"
-                  size={16}
-                  className={`mr-2 ${
-                    isActive ? "text-text-primary" : "text-text-secondary"
-                  }`}
-                />
-              )}
-
-              <Text
-                className={`text-sm ${
-                  isActive
-                    ? "text-text-primary font-medium"
-                    : "text-text-secondary"
-                }`}
+            <Animated.View style={animatedStyle}>
+              <Pressable
+                onPress={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  onSelectTheme(theme.id);
+                }}
+                onPressIn={() => {
+                  scale.value = withSpring(0.95);
+                }}
+                onPressOut={() => {
+                  scale.value = withSpring(1);
+                }}
+                accessibilityRole="button"
+                accessibilityState={{ selected: isActive }}
+                accessibilityLabel={isAr ? theme.nameAr : theme.nameEn}
+                className={`
+                  flex-row items-center px-4 py-3 rounded-full
+                  ${
+                    isActive
+                      ? "bg-surface-elevated border border-border"
+                      : "bg-transparent hover:bg-surface-elevated"
+                  }
+                  active:opacity-80
+                `}
               >
-                <Trans>{isAr ? theme.nameAr : theme.nameEn}</Trans>
-              </Text>
-            </Pressable>
+                {/* Icon for specific themes */}
+                {theme.id === "fajr" && (
+                  <Ionicons
+                    name="sunny-outline"
+                    size={16}
+                    className={`mr-2 ${
+                      isActive ? "text-text-primary" : "text-text-secondary"
+                    }`}
+                  />
+                )}
+                {theme.id === "layl" && (
+                  <Ionicons
+                    name="moon-outline"
+                    size={16}
+                    className={`mr-2 ${
+                      isActive ? "text-text-primary" : "text-text-secondary"
+                    }`}
+                  />
+                )}
+
+                <Text
+                  className={`text-sm ${
+                    isActive
+                      ? "text-text-primary font-medium"
+                      : "text-text-secondary"
+                  }`}
+                >
+                  <Trans>{isAr ? theme.nameAr : theme.nameEn}</Trans>
+                </Text>
+              </Pressable>
+            </Animated.View>
 
             {/* Separator line (except for last item) */}
             {!isLast && (

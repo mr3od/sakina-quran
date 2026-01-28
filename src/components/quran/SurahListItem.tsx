@@ -15,11 +15,9 @@ export function SurahListItem({ surah }: SurahListItemProps) {
   const revelationPlaceRaw = surah.revelation_place.toLowerCase();
 
   // Pick localized revelation text
-  const revelationText =
-    revelationPlaceRaw === "makkah" ? t`Makki` : t`Madani`;
+  const revelationText = revelationPlaceRaw === "makkah" ? t`Makki` : t`Madani`;
 
   const firstPage = parseInt(surah.pages_range.split("-")[0]);
-
   return (
     <Link href={`/pages/${firstPage}?surah=${surah.id}`} asChild>
       <Pressable

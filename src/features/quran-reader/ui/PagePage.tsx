@@ -1,20 +1,18 @@
 import { AyahCard } from "@/components/quran/AyahCard";
 import { BASMALAH, BISMALAH_EXCEPTIONS } from "@/shared/constants/quran";
-import {
-    getSurahNameHeader
-} from "@/shared/lib/quran-fonts";
+import { getSurahNameHeader } from "@/shared/lib/quran-fonts";
 import { ErrorState } from "@/shared/ui/ErrorState";
 import { LoadingState } from "@/shared/ui/LoadingState";
 import type { Ayah } from "@/types/quran.types";
 import { useLingui } from "@lingui/react/macro";
 import { useLocalSearchParams } from "expo-router";
 import React from "react";
-import { Text, View } from "react-native";
-import { FlatList } from "react-native-gesture-handler";
+import type { NativeScrollEvent, NativeSyntheticEvent } from "react-native";
+import { Platform, Text, View } from "react-native";
+import Animated, { useAnimatedScrollHandler } from "react-native-reanimated";
 import { usePageAyahs } from "../app/usePageData";
 import { QuranPageFooter } from "./QuranPageFooter";
 
-// Item types for the FlatList
 type SurahHeaderItem = {
   type: "surah-header";
   surahNumber: number;
@@ -28,17 +26,28 @@ type AyahItem = {
 
 type PageListItem = SurahHeaderItem | AyahItem;
 
+export type ScrollMetrics = {
+  y: number;
+  contentHeight: number;
+  viewportHeight: number;
+};
+
 interface PagePageProps {
   pageNumber: number;
+  onScroll?: (m: ScrollMetrics) => void;
+  headerHeight?: number;
 }
 
 const VerticalSeparator = () => <View style={{ height: 12 }} />;
 
-export function PagePage({ pageNumber }: PagePageProps) {
+export function PagePage({
+  pageNumber,
+  onScroll,
+  headerHeight = 44,
+}: PagePageProps) {
   const { t } = useLingui();
   const { data, isLoading, isError } = usePageAyahs(pageNumber);
 
-  // Highlighting logic
   const params = useLocalSearchParams();
   const targetSurah = params.surah
     ? parseInt(params.surah as string, 10)
@@ -47,7 +56,6 @@ export function PagePage({ pageNumber }: PagePageProps) {
     ? parseInt(params.ayah as string, 10)
     : undefined;
 
-  // Build list with surah headers - React Compiler handles the memoization of this calculation
   const getListItems = (): PageListItem[] => {
     if (!data?.ayahs?.length) return [];
 
@@ -56,12 +64,10 @@ export function PagePage({ pageNumber }: PagePageProps) {
 
     for (const ayah of data.ayahs) {
       if (ayah.sura_number !== currentSurah && ayah.ayah_number === 1) {
-        const showBasmalah = !BISMALAH_EXCEPTIONS.includes(ayah.sura_number);
-
         items.push({
           type: "surah-header",
           surahNumber: ayah.sura_number,
-          showBasmalah,
+          showBasmalah: !BISMALAH_EXCEPTIONS.includes(ayah.sura_number),
         });
       }
 
@@ -74,13 +80,36 @@ export function PagePage({ pageNumber }: PagePageProps) {
 
   const listItems = getListItems();
 
+  // Native: UI-thread scroll (fast)
+  const scrollHandlerNative = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      if (!onScroll) return;
+      onScroll({
+        y: event.contentOffset.y,
+        contentHeight: event.contentSize.height,
+        viewportHeight: event.layoutMeasurement.height,
+      });
+    },
+  });
+
+  // Web: JS scroll event (works on web)
+  const onScrollWeb = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    if (!onScroll) return;
+
+    onScroll({
+      y: e.nativeEvent.contentOffset.y,
+      contentHeight: e.nativeEvent.contentSize.height,
+      viewportHeight: e.nativeEvent.layoutMeasurement.height,
+    });
+  };
+
   if (isLoading) return <LoadingState />;
   if (isError)
     return <ErrorState message={t`Failed to load page ${pageNumber}.`} />;
 
   return (
     <View className="flex-1 bg-background">
-      <FlatList
+      <Animated.FlatList
         data={listItems}
         keyExtractor={(item) =>
           item.type === "surah-header"
@@ -88,9 +117,15 @@ export function PagePage({ pageNumber }: PagePageProps) {
             : `ayah-${item.ayah.sura_number}-${item.ayah.ayah_number}`
         }
         ListFooterComponent={<QuranPageFooter page={pageNumber.toString()} />}
-        contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
+        contentContainerStyle={{
+          flexGrow: 1,
+          paddingTop: headerHeight,
+          paddingBottom: 44,
+        }}
         ItemSeparatorComponent={VerticalSeparator}
-        showsVerticalScrollIndicator={true}
+        showsVerticalScrollIndicator
+        scrollEventThrottle={16}
+        onScroll={Platform.OS === "web" ? onScrollWeb : scrollHandlerNative}
         renderItem={({ item }) => {
           if (item.type === "surah-header") {
             return (
@@ -109,7 +144,7 @@ export function PagePage({ pageNumber }: PagePageProps) {
                     className="font-arabic text-3xl text-text-quran text-center mt-3"
                     accessible
                     accessibilityLanguage="ar"
-                    accessibilityLabel="Bismillah ir-Rahman ir-Raheem"
+                    accessibilityLabel={t`Bismillah ir-Rahman ir-Raheem`}
                   >
                     {BASMALAH}
                   </Text>
@@ -119,11 +154,11 @@ export function PagePage({ pageNumber }: PagePageProps) {
           }
 
           const { ayah } = item;
-          const isAyahMatch =
+          const highlighted =
             targetSurah === ayah.sura_number && targetAyah === ayah.ayah_number;
 
           return (
-            <AyahCard ayah={ayah} page={pageNumber} highlighted={isAyahMatch} />
+            <AyahCard ayah={ayah} page={pageNumber} highlighted={highlighted} />
           );
         }}
       />

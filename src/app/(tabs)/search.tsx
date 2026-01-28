@@ -10,15 +10,14 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useLocalSearchParams } from "expo-router";
-import Head from "expo-router/head";
 import React, { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    FlatList,
-    Pressable,
-    Text,
-    TextInput,
-    View,
+  ActivityIndicator,
+  FlatList,
+  Pressable,
+  Text,
+  TextInput,
+  View,
 } from "react-native";
 import { useCSSVariable } from "uniwind";
 
@@ -26,6 +25,7 @@ import { useSearchController } from "@/features/search/app";
 import { SearchListItem } from "@/features/search/ui/SearchListItem";
 
 import { useLocaleFont } from "@/hooks/useLocaleFont";
+import { SEOHead } from "@/shared/ui/SEOHead";
 
 export default function SearchScreen() {
   const { t } = useLingui();
@@ -62,32 +62,13 @@ export default function SearchScreen() {
 
   return (
     <View className="flex-1 bg-background">
-      <Head>
-        <title>{t`Search Quran - Sakina Quran`}</title>
-        <meta
-          name="description"
-          content={t`Search the Holy Quran by words, verses, or references. Find specific Ayahs, Surahs, Juz, or page numbers with instant results.`}
-        />
-        <meta
-          name="keywords"
-          content="Quran search, Islamic search, Arabic search, verse finder, Ayah search, Surah search, Juz search"
-        />
+      <SEOHead
+        title={t`Search Quran - Sakina Quran`}
+        description={t`Search the Holy Quran by words, verses, or references. Find specific Ayahs, Surahs, Juz, or page numbers with instant results.`}
+        keywords={t`Quran search, Islamic search, Arabic search, verse finder, Ayah search, Surah search, Juz search`}
+        url="https://quran.mr3od.dev/search"
+      />
 
-        {/* Open Graph */}
-        <meta
-          property="og:title"
-          content={t`Search Quran - Sakina Quran`}
-        />
-        <meta
-          property="og:description"
-          content={t`Search the Holy Quran by words, verses, or references.`}
-        />
-        <meta property="og:url" content="https://quran.mr3od.dev/search" />
-        <meta property="og:type" content="website" />
-
-        {/* Canonical URL */}
-        <link rel="canonical" href="https://quran.mr3od.dev/search" />
-      </Head>
       {/* Header */}
       <View className="px-4 pt-4 pb-2">
         <Text className="text-3xl font-bold text-text-primary text-center mb-2">

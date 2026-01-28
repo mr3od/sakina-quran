@@ -22,12 +22,17 @@ export function AyahCard({ ayah, page, onPress, highlighted }: AyahCardProps) {
     page,
   );
 
+  // Compute container classes for better readability
+  const containerClasses = [
+    "flex-row justify-between py-8 w-full px-4 sm:px-8 group relative",
+    "after:content-[''] after:absolute after:bottom-0 after:left-4 after:right-4 after:h-px after:bg-border-subtle/30",
+    highlighted && "bg-surface-highlight",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   return (
-    <View
-      className={`flex-row justify-between py-8 w-full px-4 sm:px-8 group relative ${
-        highlighted ? "bg-surface-highlight" : ""
-      } after:content-[''] after:absolute after:bottom-0 after:left-4 after:right-4 after:h-px after:bg-border-subtle/30`}
-    >
+    <View className={containerClasses}>
       {/* 
         Constrained content wrapper 
         - flex-row: Standard row (Left -> Right in LTR, Right -> Left in RTL)
@@ -37,20 +42,20 @@ export function AyahCard({ ayah, page, onPress, highlighted }: AyahCardProps) {
       <View className="flex-row rtl:flex-row-reverse justify-between w-full max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl xl:max-w-5xl mx-auto">
         <View className="flex flex-col justify-start items-center gap-4">
           <View
-            className="w-10 h-10 rounded-full border border-border-base bg-background items-center justify-center"
+            className="w-8 h-8 rounded-full border border-border-base bg-background items-center justify-center"
             accessible
             accessibilityLabel={t`Verse number ${ayah.ayah_number}`}
           >
-            <Text className="text-base font-semibold text-text-tertiary">
+            <Text className="text-xs font-medium text-text-tertiary">
               <Trans>{ayah.ayah_number}</Trans>
             </Text>
           </View>
 
-          {/* Bookmark button - faded until hover */}
+          {/* Bookmark button*/}
           <Pressable
             onPress={handleToggleBookmark}
             disabled={isPending}
-            className="w-10 h-10 rounded-full items-center justify-center active:opacity-50 opacity-60 hover:opacity-100 transition-opacity duration-200"
+            className="w-10 h-10 rounded-full items-center justify-center active:opacity-50"
             accessible
             accessibilityRole="button"
             accessibilityLabel={
@@ -64,7 +69,7 @@ export function AyahCard({ ayah, page, onPress, highlighted }: AyahCardProps) {
             ) : (
               <Ionicons
                 name={isBookmarked ? "bookmark" : "bookmark-outline"}
-                size={24}
+                size={20}
                 className={isBookmarked ? "text-accent" : "text-text-secondary"}
               />
             )}
@@ -85,7 +90,7 @@ export function AyahCard({ ayah, page, onPress, highlighted }: AyahCardProps) {
           >
             {ayah.uthmani_text}
             <Text className="text-transparent"> </Text>
-            <Text className="font-arabic font-medium text-text-quran text-3xl md:text-4xl lg:text-5xl">
+            <Text className="font-arabic font-medium text-text-quran text-xl md:text-2xl">
               {toArabicIndic(ayah.ayah_number)}
             </Text>
           </Text>

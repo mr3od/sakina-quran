@@ -2,7 +2,7 @@ import { useLastReadPosition } from "@/hooks/useLastReadPosition";
 import { Ionicons } from "@expo/vector-icons";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { Link } from "expo-router";
-import { Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import { useCSSVariable } from "uniwind";
 
 export function ContinueReadingCard() {
@@ -15,15 +15,12 @@ export function ContinueReadingCard() {
   // Fallback: Start Reading card for first-time users
   if (!lastRead) {
     return (
-      <Link
-        href="/pages/1"
-        asChild
-        accessibilityLabel={t`Start reading from page 1`}
-        accessibilityHint={t`Begin reading the Quran from the first page`}
-      >
-        <View
+      <Link href="/pages/1" asChild>
+        <Pressable
           className="bg-surface border border-border rounded-xl p-6 active:bg-surface-elevated"
           accessibilityRole="button"
+          accessibilityLabel={t`Start reading from page 1`}
+          accessibilityHint={t`Begin reading the Quran from the first page`}
         >
           <View className="flex-row items-center mb-3">
             <View className="w-12 h-12 rounded-full bg-accent/10 items-center justify-center mr-4">
@@ -45,22 +42,19 @@ export function ContinueReadingCard() {
           <Text className="text-2xl text-text-primary text-center">
             <Trans>Start Reading</Trans>
           </Text>
-        </View>
+        </Pressable>
       </Link>
     );
   }
 
   // Continue Reading card for returning users
   return (
-    <Link
-      href={`/pages/${lastRead.page_number}` as any}
-      asChild
-      accessibilityLabel={t`Continue reading ${surahName}, page ${lastRead.page_number}`}
-      accessibilityHint={t`Navigate to your last read position`}
-    >
-      <View
+    <Link href={`/pages/${lastRead.page_number}`} asChild>
+      <Pressable
         className="bg-accent/10 border border-accent rounded-xl p-6 active:bg-accent/20"
         accessibilityRole="button"
+        accessibilityLabel={t`Continue reading ${surahName}, page ${lastRead.page_number}`}
+        accessibilityHint={t`Navigate to your last read position`}
       >
         <View className="flex-row items-center mb-3">
           <View className="w-12 h-12 rounded-full bg-accent/20 items-center justify-center mr-4">
@@ -82,7 +76,7 @@ export function ContinueReadingCard() {
         <Text className="font-ui-ar text-2xl text-text-primary text-center">
           {surahName}
         </Text>
-      </View>
+      </Pressable>
     </Link>
   );
 }

@@ -58,7 +58,11 @@ export function BookmarkListItem({
 
           {/* Remove button - faded until hover */}
           <Pressable
-            onPress={() => handleRemove(bookmark)}
+            onPress={(e) => {
+              e.preventDefault?.();
+              e.stopPropagation(); // prevent parent onPress/Link navigation
+              handleRemove(bookmark);
+            }}
             accessibilityRole="button"
             accessibilityLabel={t`Remove bookmark`}
             accessibilityHint={t`Double tap to delete this bookmark`}
@@ -93,7 +97,7 @@ export function BookmarkListItem({
         {/* Footer: Timestamp + Optional note */}
         <View className="flex-row items-center justify-between">
           <Text className="text-text-tertiary text-xs">
-            <Trans>{formatRelativeTime(bookmark.timestamp, i18n.locale)}</Trans>
+            {formatRelativeTime(new Date(bookmark.timestamp), i18n.locale)}
           </Text>
 
           {bookmark.note && (

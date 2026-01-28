@@ -1,20 +1,20 @@
 import {
-    LanguageSelector,
-    ThemeSelector,
-    useSetLanguage,
-    useSetTheme,
-    useSettings,
+  LanguageSelector,
+  ThemeSelector,
+  useSetLanguage,
+  useSetTheme,
+  useSettings,
 } from "@/features/settings/app";
 import { Ionicons } from "@expo/vector-icons";
-import { Trans, useLingui } from "@lingui/react/macro";
+import { Trans } from "@lingui/react/macro";
 import React, { useState } from "react";
 import {
-    Modal,
-    Platform,
-    Pressable,
-    ScrollView,
-    Text,
-    View,
+  Modal,
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
 } from "react-native";
 import { useCSSVariable } from "uniwind";
 
@@ -23,7 +23,6 @@ export function SettingsDrawer() {
   const { data: settings } = useSettings();
   const setTheme = useSetTheme();
   const setLanguage = useSetLanguage();
-  const { t } = useLingui();
   const textColor = useCSSVariable("--color-text-primary");
 
   // Only render on web
@@ -59,7 +58,7 @@ export function SettingsDrawer() {
           onPress={() => setIsOpen(false)}
         >
           {/* Drawer Content */}
-          <View className="absolute right-0 top-0 bottom-0 w-80 bg-background border-l border-border-subtle">
+          <View className="absolute top-0 bottom-0 w-80 bg-background border-border-subtle ltr:right-0 ltr:border-l rtl:left-0 rtl:border-r">
             <ScrollView className="flex-1">
               {/* Header */}
               <View className="flex-row items-center justify-between p-4 border-b border-border-subtle">
