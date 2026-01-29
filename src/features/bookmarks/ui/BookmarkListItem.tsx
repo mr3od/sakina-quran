@@ -86,7 +86,6 @@ export function BookmarkListItem({
           <Text
             className="font-arabic text-text-quran text-right mb-3"
             style={{ fontSize: 22, lineHeight: 22 * 1.8 }}
-            numberOfLines={3}
             accessible
             accessibilityLanguage="ar"
           >
