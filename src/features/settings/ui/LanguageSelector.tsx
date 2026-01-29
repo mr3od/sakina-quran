@@ -31,7 +31,6 @@ interface LanguageItemProps {
   onSelectLanguage: (id: LanguageId) => void;
   borderColor: string;
 }
-
 function LanguageItem({
   lang,
   isActive,
@@ -46,41 +45,36 @@ function LanguageItem({
 
   return (
     <View className="flex-row items-center">
-      <Animated.View style={animatedStyle}>
+      <Animated.View
+        style={animatedStyle}
+        className="rounded-full ios:overflow-hidden"
+      >
         <Pressable
+          disabled={isActive}
           onPress={() => {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
             onSelectLanguage(lang.id);
           }}
-          onPressIn={() => {
-            scale.value = withSpring(0.95);
-          }}
-          onPressOut={() => {
-            scale.value = withSpring(1);
-          }}
+          onPressIn={() => (scale.value = withSpring(0.95))}
+          onPressOut={() => (scale.value = withSpring(1))}
           accessibilityRole="button"
           accessibilityState={{ selected: isActive }}
-          accessibilityLabel={lang.name}
           className={`
-            flex-row items-center px-4 py-3 rounded-full
-            ${
-              isActive
-                ? "bg-surface-elevated border border-border"
-                : "bg-transparent hover:bg-surface-elevated"
-            }
-            active:opacity-80
+            flex-row items-center px-4 py-3 rounded-full ios:overflow-hidden
+            ${isActive ? "bg-surface-elevated border border-border" : "bg-transparent"}
+            active:opacity-80 hover:bg-surface-elevated
           `}
         >
           <Text
-            className={`text-sm ${
-              isActive ? "text-text-primary font-medium" : "text-text-secondary"
-            } ${lang.id === "ar" ? "font-ui-ar" : "font-ui-en"}`}
+            className={`text-sm 
+              ${isActive ? "text-text-primary font-medium" : "text-text-secondary"} 
+              ${lang.id === "ar" ? "font-ui-ar" : "font-ui-en"}
+            `}
           >
             {lang.name}
           </Text>
         </Pressable>
       </Animated.View>
-
       {/* Separator line (except for last item) */}
       {!isLast && (
         <View

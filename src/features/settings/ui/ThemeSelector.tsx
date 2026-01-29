@@ -46,23 +46,22 @@ function ThemeItem({
 
   return (
     <View className="flex-row items-center">
-      <Animated.View style={animatedStyle}>
+      <Animated.View
+        style={animatedStyle}
+        className="rounded-full ios:overflow-hidden"
+      >
         <Pressable
           onPress={() => {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
             onSelectTheme(theme.id);
           }}
-          onPressIn={() => {
-            scale.value = withSpring(0.95);
-          }}
-          onPressOut={() => {
-            scale.value = withSpring(1);
-          }}
+          onPressIn={() => (scale.value = withSpring(0.95))}
+          onPressOut={() => (scale.value = withSpring(1))}
           accessibilityRole="button"
           accessibilityState={{ selected: isActive }}
           accessibilityLabel={isAr ? theme.nameAr : theme.nameEn}
           className={`
-            flex-row items-center px-4 py-3 rounded-full
+            flex-row items-center px-4 py-3 rounded-full ios:overflow-hidden
             ${
               isActive
                 ? "bg-surface-elevated border border-border"
@@ -71,23 +70,18 @@ function ThemeItem({
             active:opacity-80
           `}
         >
-          {/* Icon for specific themes */}
           {theme.id === "fajr" && (
             <Ionicons
               name="sunny-outline"
               size={16}
-              className={`mr-2 ${
-                isActive ? "text-text-primary" : "text-text-secondary"
-              }`}
+              className={`mr-2 ${isActive ? "text-text-primary" : "text-text-secondary"}`}
             />
           )}
           {theme.id === "layl" && (
             <Ionicons
               name="moon-outline"
               size={16}
-              className={`mr-2 ${
-                isActive ? "text-text-primary" : "text-text-secondary"
-              }`}
+              className={`mr-2 ${isActive ? "text-text-primary" : "text-text-secondary"}`}
             />
           )}
 
@@ -124,7 +118,7 @@ export function ThemeSelector({
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
-      contentContainerClassName="flex-row"
+      contentContainerClassName="flex-row px-2"
       className="flex-1"
     >
       {THEMES_ARRAY.map((theme, index) => (
