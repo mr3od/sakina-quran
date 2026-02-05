@@ -1,4 +1,5 @@
 import { MAX_HIZB, MAX_JUZ, MAX_SURAH } from "@/shared/constants/quran";
+import { i18n } from "@lingui/core";
 import type { SQLiteDatabase } from "expo-sqlite";
 import type { Searcher, SearchRow } from "../../domain/search-contract";
 
@@ -12,6 +13,11 @@ export class StructuralSearcher implements Searcher {
     const q = query.trim();
     if (!q || !HAS_DIGIT.test(q)) return [];
 
+    // Determine column name based on locale
+    const isArabic = i18n.locale.includes("ar");
+    console.log("locale ", i18n.locale);
+    const nameCol = isArabic ? "name_arabic" : "name_simple";
+
     // Special: "N:N" → Surah:Ayah
     const pair = q.match(RE_SURA_AYAH);
     if (pair) {
@@ -20,10 +26,10 @@ export class StructuralSearcher implements Searcher {
 
       // Get Surah name and Page number
       const mapped = await this.db.getFirstAsync<{
-        name_simple: string;
+        surah_name: string;
         page_number: number;
       }>(
-        `SELECT s.name_simple,
+        `SELECT s.${nameCol} AS surah_name,
               (SELECT ps.page_number
                FROM page_segments ps
                WHERE (ps.sura_start < ? OR (ps.sura_start = ? AND ps.ayah_start <= ?))
@@ -32,7 +38,7 @@ export class StructuralSearcher implements Searcher {
                LIMIT 1) AS page_number
        FROM surahs s
        WHERE s.id = ?`,
-        [sura, sura, ayah, sura, sura, ayah, sura]
+        [sura, sura, ayah, sura, sura, ayah, sura],
       );
 
       return [
@@ -40,7 +46,7 @@ export class StructuralSearcher implements Searcher {
           type: "surahAyah",
           sura,
           ayah,
-          surahName: mapped?.name_simple || `Surah ${sura}`,
+          surahName: mapped?.surah_name || i18n._("Surah {sura}", { sura }),
           simple: `${sura}:${ayah}`,
           page: mapped?.page_number ?? 0,
         },
@@ -55,13 +61,13 @@ export class StructuralSearcher implements Searcher {
     if (num >= 1 && num <= MAX_SURAH) {
       const s = await this.db.getFirstAsync<{
         page_number: number;
-        name_simple: string;
+        surah_name: string;
       }>(
-        `SELECT MIN(ps.page_number) AS page_number, s.name_simple
+        `SELECT MIN(ps.page_number) AS page_number, s.${nameCol} AS surah_name
        FROM page_segments ps
        JOIN surahs s ON s.id = ps.sura_start
        WHERE ps.sura_start = ?`,
-        [num]
+        [num],
       );
 
       if (s?.page_number) {
@@ -69,8 +75,8 @@ export class StructuralSearcher implements Searcher {
           type: "surah",
           sura: num,
           ayah: 1,
-          surahName: s.name_simple,
-          simple: `سورة ${num}`,
+          surahName: s.surah_name,
+          simple: i18n._("Surah {num}", { num }),
           page: s.page_number,
         });
       }
@@ -82,15 +88,15 @@ export class StructuralSearcher implements Searcher {
         page_number: number;
         sura_start: number;
         ayah_start: number;
-        name_simple: string;
+        surah_name: string;
       }>(
-        `SELECT ps.page_number, ps.sura_start, ps.ayah_start, s.name_simple
+        `SELECT ps.page_number, ps.sura_start, ps.ayah_start, s.${nameCol} AS surah_name
        FROM page_segments ps
        JOIN surahs s ON s.id = ps.sura_start
        WHERE ps.juz_number = ?
        ORDER BY ps.page_number ASC
        LIMIT 1`,
-        [num]
+        [num],
       );
 
       if (j?.page_number && j.sura_start && j.ayah_start) {
@@ -98,8 +104,8 @@ export class StructuralSearcher implements Searcher {
           type: "juz",
           sura: j.sura_start,
           ayah: j.ayah_start,
-          surahName: j.name_simple,
-          simple: `الجزء ${num}`,
+          surahName: j.surah_name,
+          simple: i18n._("Juz {num}", { num }),
           page: j.page_number,
         });
       }
@@ -111,15 +117,15 @@ export class StructuralSearcher implements Searcher {
         page_number: number;
         sura_start: number;
         ayah_start: number;
-        name_simple: string;
+        surah_name: string;
       }>(
-        `SELECT ps.page_number, ps.sura_start, ps.ayah_start, s.name_simple
+        `SELECT ps.page_number, ps.sura_start, ps.ayah_start, s.${nameCol} AS surah_name
        FROM page_segments ps
        JOIN surahs s ON s.id = ps.sura_start
        WHERE ps.hizb_number = ?
        ORDER BY ps.page_number ASC
        LIMIT 1`,
-        [num]
+        [num],
       );
 
       if (h?.page_number && h.sura_start && h.ayah_start) {
@@ -127,8 +133,8 @@ export class StructuralSearcher implements Searcher {
           type: "hizb",
           sura: h.sura_start,
           ayah: h.ayah_start,
-          surahName: h.name_simple,
-          simple: `الحزب ${num}`,
+          surahName: h.surah_name,
+          simple: i18n._("Hizb {num}", { num }),
           page: h.page_number,
         });
       }
@@ -139,14 +145,14 @@ export class StructuralSearcher implements Searcher {
       page_number: number;
       sura_start: number;
       ayah_start: number;
-      name_simple: string;
+      surah_name: string;
     }>(
-      `SELECT ps.page_number, ps.sura_start, ps.ayah_start, s.name_simple
+      `SELECT ps.page_number, ps.sura_start, ps.ayah_start, s.${nameCol} AS surah_name
      FROM page_segments ps
      JOIN surahs s ON s.id = ps.sura_start
      WHERE ps.page_number = ?
      LIMIT 1`,
-      [num]
+      [num],
     );
 
     if (p?.page_number && p.sura_start && p.ayah_start) {
@@ -154,8 +160,8 @@ export class StructuralSearcher implements Searcher {
         type: "page",
         sura: p.sura_start,
         ayah: p.ayah_start,
-        surahName: p.name_simple,
-        simple: `الصفحة ${num}`,
+        surahName: p.surah_name,
+        simple: i18n._("Page {num}", { num }),
         page: p.page_number,
       });
     }

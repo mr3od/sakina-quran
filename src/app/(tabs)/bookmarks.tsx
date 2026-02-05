@@ -69,8 +69,10 @@ export default function BookmarksScreen() {
         </Text>
 
         <Text className="text-text-secondary text-sm">
-          {bookmarks.length}{" "}
-          {bookmarks.length === 1 ? t`bookmark` : t`bookmarks`}
+          <Trans>
+            {bookmarks.length}{" "}
+            {bookmarks.length === 1 ? t`bookmark` : t`bookmarks`}
+          </Trans>
         </Text>
       </View>
 

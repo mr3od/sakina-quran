@@ -8,7 +8,6 @@
  
  */
 
-import { useLocaleFont } from "@/hooks/useLocaleFont";
 import { escapeRegExp } from "@/shared/lib/text-utils";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { Link } from "expo-router";
@@ -47,11 +46,8 @@ function renderHighlightedText(text: string, term: string | undefined) {
   );
 }
 
-
-
 export function SearchListItem({ item, searchTerm }: SearchListItemProps) {
   const { t } = useLingui();
-  const fontClass = useLocaleFont();
   const isAyahResult = item.type === "ayah";
 
   return (
@@ -71,17 +67,32 @@ export function SearchListItem({ item, searchTerm }: SearchListItemProps) {
       >
         {/* Simple with literal highlight */}
         <View>
-          <Text
-            className={`${fontClass} leading-quran text-text-primary mb-2`}
-            accessibilityLanguage="ar"
-            selectable
-          >
-            {isAyahResult
-              ? renderHighlightedText(item.simple, searchTerm)
-              : item.simple}
-          </Text>
+          {isAyahResult ? (
+            <Text
+              className={`font-ui-ar leading-quran text-text-primary mb-2`}
+              style={{
+                writingDirection: "rtl",
+                // for android
+                direction: "rtl",
+              }}
+              accessible
+              accessibilityLanguage="ar"
+              selectable
+            >
+              {renderHighlightedText(item.simple, searchTerm)}
+            </Text>
+          ) : (
+            <Text
+              className={`text-text-primary mb-2`}
+              accessibilityLanguage="ar"
+              selectable
+            >
+              <Trans> {item.simple}</Trans>
+            </Text>
+          )}
+
           {/* Header */}
-          <View className="flex-row items-center">
+          <View className="flex-row items-center gap-1">
             <View className="bg-surface-elevated px-2 py-1 rounded-md">
               <Text className="text-2xs text-text-secondary">
                 <Trans>

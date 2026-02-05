@@ -238,7 +238,7 @@ export function PageReaderScreen() {
               top: 0,
               left: 0,
               right: 0,
-              paddingTop: insets.top,
+              paddingTop: Platform.select({ android: 0, default: insets.top }),
               zIndex: 50,
               backgroundColor: bgColor as string,
               borderBottomWidth: 1,
@@ -249,18 +249,17 @@ export function PageReaderScreen() {
         >
           <View className="px-4 py-3">
             <View className="flex-row items-center justify-between mx-auto w-full max-w-4xl">
-              <Link href="/" asChild>
-                <Pressable
-                  className="p-2 rounded-full active:bg-surface-elevated"
-                  accessibilityLabel={t`Go back`}
-                >
-                  <Ionicons
-                    name={isAr ? "arrow-forward" : "arrow-back"}
-                    size={24}
-                    color={textColor as string}
-                  />
-                </Pressable>
-              </Link>
+              <Pressable
+                className="p-2 rounded-full active:bg-surface-elevated self-start"
+                accessibilityLabel={t`Go back`}
+                onPressIn={() => router.back()}
+              >
+                <Ionicons
+                  name={isAr ? "arrow-forward" : "arrow-back"}
+                  size={24}
+                  color={textColor as string}
+                />
+              </Pressable>
 
               <View className="flex-1 items-center px-4">
                 <Text
@@ -268,50 +267,10 @@ export function PageReaderScreen() {
                 >
                   {surahTitle}
                 </Text>
-                <Text className="text-xs text-text-secondary mt-0.5">
-                  <Trans>Page {currentPage}</Trans>
-                </Text>
               </View>
-
-              <View className="flex-row items-center gap-2">
-                <Link
-                  href={toPageRoute(Math.max(1, currentPage - 1))}
-                  replace
-                  asChild
-                  disabled={currentPage <= 1}
-                >
-                  <Pressable
-                    className={`p-2 rounded-full active:bg-surface-elevated ${currentPage <= 1 ? "opacity-30" : ""}`}
-                    accessibilityLabel={t`Previous Page`}
-                    disabled={currentPage <= 1}
-                  >
-                    <Ionicons
-                      name={isAr ? "chevron-forward" : "chevron-back"}
-                      size={20}
-                      color={textColor as string}
-                    />
-                  </Pressable>
-                </Link>
-
-                <Link
-                  href={toPageRoute(Math.min(TOTAL_PAGES, currentPage + 1))}
-                  replace
-                  asChild
-                  disabled={currentPage >= TOTAL_PAGES}
-                >
-                  <Pressable
-                    className={`p-2 rounded-full active:bg-surface-elevated ${currentPage >= TOTAL_PAGES ? "opacity-30" : ""}`}
-                    accessibilityLabel={t`Next Page`}
-                    disabled={currentPage >= TOTAL_PAGES}
-                  >
-                    <Ionicons
-                      name={isAr ? "chevron-back" : "chevron-forward"}
-                      size={20}
-                      color={textColor as string}
-                    />
-                  </Pressable>
-                </Link>
-              </View>
+              <Text className="text-xs text-text-secondary mt-0.5">
+                <Trans>Page {currentPage}</Trans>
+              </Text>
             </View>
           </View>
         </Animated.View>

@@ -76,16 +76,20 @@ export function AyahCard({ ayah, page, onPress, highlighted }: AyahCardProps) {
           </Pressable>
         </View>
         <Pressable
-          className="ml-8 flex-1 min-w-0"
+          className="ms-8 flex-1 min-w-0"
           onPress={onPress}
           accessible
           accessibilityLabel={t`Verse ${ayah.ayah_number} of Surah ${ayah.sura_number}`}
         >
           <Text
-            className="font-arabic text-text-quran text-right text-3xl md:text-4xl lg:text-5xl leading-quran"
+            className="font-arabic text-text-quran text-3xl md:text-4xl lg:text-5xl leading-quran"
             selectable
             accessible
             accessibilityLanguage="ar"
+            style={{
+              writingDirection: "rtl",
+              direction: "rtl",
+            }}
             accessibilityLabel={ayah.uthmani_text}
           >
             {ayah.uthmani_text}

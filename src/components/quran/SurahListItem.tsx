@@ -55,6 +55,9 @@ export function SurahListItem({ surah }: SurahListItemProps) {
                 numberOfLines={1}
                 accessible
                 lang="ar"
+                style={{
+                  writingDirection: "rtl",
+                }}
                 accessibilityLabel={surah.name_simple}
               >
                 {getSurahNameGlyph(surah.id)}

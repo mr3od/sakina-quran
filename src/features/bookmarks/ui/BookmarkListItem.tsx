@@ -84,8 +84,14 @@ export function BookmarkListItem({
           </View>
         ) : ayah ? (
           <Text
-            className="font-arabic text-text-quran text-right mb-3"
-            style={{ fontSize: 22, lineHeight: 22 * 1.8 }}
+            className="font-arabic text-text-quran mb-3"
+            style={{
+              fontSize: 22,
+              lineHeight: 22 * 1.8,
+              writingDirection: "rtl",
+              // for android
+              direction: "rtl",
+            }}
             accessible
             accessibilityLanguage="ar"
           >

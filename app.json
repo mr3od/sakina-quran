@@ -32,9 +32,6 @@
       "output": "server",
       "favicon": "./assets/images/favicon.png"
     },
-    "extra": {
-      "supportsRTL": true
-    },
     "locales": {
       "en": "./languages/english.json",
       "ar": "./languages/arabic.json"
@@ -89,12 +86,9 @@
         }
       ],
       [
-        "expo-localization",
+        "react-native-localize",
         {
-          "supportedLocales": {
-            "ios": ["en", "ar"],
-            "android": ["en", "ar"]
-          }
+          "locales": ["en", "ar"]
         }
       ]
     ],

@@ -66,10 +66,11 @@ export function JuzListScreen() {
           // Native: FlashList with section headers
           <FlashList
             data={flatData()}
+            contentContainerClassName="px-4 pb-8"
             renderItem={({ item }) => {
               if (item.type === "header") {
                 return (
-                  <View className="py-3 px-2 bg-background">
+                  <View className="py-3 bg-background">
                     <Text className="text-xl font-bold text-text-primary">
                       <Trans>Juz {item.juzNumber}</Trans>
                     </Text>
@@ -77,10 +78,12 @@ export function JuzListScreen() {
                 );
               }
 
-              // Render surah item
               const { surah } = item;
-
-              return <SurahListItem surah={surah} />;
+              return (
+                <View className="mb-2">
+                  <SurahListItem surah={surah} />
+                </View>
+              );
             }}
             keyExtractor={(item, index) =>
               item.type === "header"

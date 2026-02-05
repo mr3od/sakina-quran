@@ -12,12 +12,9 @@ import { SQLiteProvider } from "expo-sqlite";
 import KVStore from "expo-sqlite/kv-store";
 
 import React, { useEffect, useState } from "react";
-import { Platform, Text, View } from "react-native";
+import { I18nManager, Platform, Text, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import {
-  SafeAreaProvider,
-  useSafeAreaInsets,
-} from "react-native-safe-area-context";
+import { SafeAreaListener } from "react-native-safe-area-context";
 import { Uniwind } from "uniwind";
 
 import { useLingui } from "@lingui/react/macro";
@@ -28,22 +25,44 @@ SplashScreen.setOptions({ duration: 2000, fade: true });
 
 const DefaultI18nComponent = ({ children }: TransRenderProps) => {
   const fontClass = useLocaleFont();
-  return <Text className={fontClass}>{children}</Text>;
+  const isRTL = I18nManager.isRTL;
+
+  return (
+    <Text
+      className={fontClass}
+      // Override default Text to respect app locale, not system locale
+      style={{
+        writingDirection: isRTL ? "rtl" : "ltr",
+      }}
+    >
+      {children}
+    </Text>
+  );
 };
 
 function RootLayoutContent() {
-  const insets = useSafeAreaInsets();
   const { i18n } = useLingui();
   const segments = useSegments();
   const isReaderPage = segments[0] === "pages";
   const isAr = i18n.locale === "ar";
   const dir = isAr ? "rtl" : "ltr";
+
+  if (__DEV__) {
+    // Debug RTL state in layout
+    console.debug(`[RootLayoutContent] Render - i18n.locale: ${i18n.locale}`);
+    console.debug(`[RootLayoutContent] Render - isAr: ${isAr}`);
+    console.debug(`[RootLayoutContent] Render - dir: ${dir}`);
+    console.debug(
+      `[RootLayoutContent] Render - I18nManager.isRTL: ${I18nManager.isRTL}`,
+    );
+    console.debug(`[RootLayoutContent] Render - Platform.OS: ${Platform.OS}`);
+  }
+
   return (
     <View
       //@ts-ignore
       dir={Platform.OS === "web" ? dir : undefined}
-      className="flex-1 bg-background"
-      style={{ paddingTop: insets.top }}
+      className="flex-1 bg-background p-safe"
     >
       <SEOHead
         title={t`Sakina Quran - Read the Holy Quran Online`}
@@ -51,14 +70,12 @@ function RootLayoutContent() {
         keywords={t`Quran, Holy Quran, Islamic, Arabic, Surah, Ayah, Muslim, Islam`}
       />
 
-      <View className="flex-1 w-full bg-background">
-        {!isReaderPage && <WebHeader />}
+      {!isReaderPage && <WebHeader />}
 
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="pages/[number]" />
-        </Stack>
-      </View>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="pages/[number]" />
+      </Stack>
     </View>
   );
 }
@@ -90,26 +107,28 @@ export default function RootLayout() {
 
   if (!ready) return null;
 
-  const content = <RootLayoutContent />;
-
   return (
     <GestureHandlerRootView className="flex-1">
-      <SafeAreaProvider>
+      <SafeAreaListener
+        onChange={({ insets }) => {
+          Uniwind.updateInsets(insets);
+        }}
+      >
         <I18nProvider i18n={i18n} defaultComponent={DefaultI18nComponent}>
           <QueryProvider>
             {Platform.OS === "web" ? (
-              content
+              <RootLayoutContent />
             ) : (
               <SQLiteProvider
                 databaseName="quran.db"
                 assetSource={{ assetId: require("../../assets/quran.db") }}
               >
-                {content}
+                <RootLayoutContent />
               </SQLiteProvider>
             )}
           </QueryProvider>
         </I18nProvider>
-      </SafeAreaProvider>
+      </SafeAreaListener>
     </GestureHandlerRootView>
   );
 }

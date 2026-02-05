@@ -1,3 +1,4 @@
+import { i18n } from "@lingui/core";
 import type { SQLiteDatabase } from "expo-sqlite";
 import type { Searcher, SearchRow } from "../../domain/search-contract";
 
@@ -8,6 +9,10 @@ export class TextSearcher implements Searcher {
   async search(query: string, limit = 50): Promise<SearchRow[]> {
     const q = query.trim();
     if (!q || /\d/.test(q)) return []; // leave numeric to structural
+
+    // Determine column name based on locale
+    const isArabic = i18n.locale.includes("ar");
+    const nameCol = isArabic ? "name_arabic" : "name_simple";
 
     const pageSubquery = `
     (SELECT ps.page_number
@@ -28,7 +33,7 @@ export class TextSearcher implements Searcher {
           page_number: number;
         }>(
           `SELECT a.sura_number, a.ayah_number, a.simple_text,
-                s.name_simple AS surah_name,
+                s.${nameCol} AS surah_name,
                 ${pageSubquery}
          FROM ayahs_fts f
          JOIN ayahs a ON a.rowid = f.rowid
@@ -54,7 +59,7 @@ export class TextSearcher implements Searcher {
       page_number: number;
     }>(
       `SELECT a.sura_number, a.ayah_number, a.simple_text,
-            s.name_simple AS surah_name,
+            s.${nameCol} AS surah_name,
             ${pageSubquery}
      FROM ayahs a
      JOIN surahs s ON s.id = a.sura_number
