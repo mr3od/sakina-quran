@@ -1,12 +1,13 @@
-// src/components/ui/NavigationSegments.tsx
-
+import { useLocaleFont } from "@/hooks/useLocaleFont";
+import type { MessageDescriptor } from "@lingui/core";
+import { useLingui } from "@lingui/react/macro";
 import React from "react";
 import { Pressable, Text, View } from "react-native";
+import Animated, { Easing, LinearTransition } from "react-native-reanimated";
 
 type Segment = {
   id: string;
-  label: string;
-  labelAr?: string;
+  label: string | MessageDescriptor;
 };
 
 interface NavigationSegmentsProps {
@@ -20,52 +21,49 @@ export function NavigationSegments({
   activeSegment,
   onSelect,
 }: NavigationSegmentsProps) {
+  const { i18n, t } = useLingui();
+  const fontClass = useLocaleFont();
+
   return (
     <View
-      className="p-1 rounded-lg bg-surface-elevated flex-row gap-1"
-      accessible
+      className="p-1 rounded-lg bg-surface-elevated flex-row gap-1 w-full"
       accessibilityRole="tablist"
     >
       {segments.map((segment) => {
         const isActive = activeSegment === segment.id;
+
+        const labelText =
+          typeof segment.label === "string"
+            ? segment.label
+            : i18n._(segment.label);
+
         return (
           <Pressable
             key={segment.id}
-            onPress={() => onSelect(segment.id)}
-            className={`
-              flex-1 py-3 px-4 items-center justify-center rounded-md
-              ${
-                isActive
-                  ? "bg-accent shadow-sm rounded-md"
-                  : "bg-transparent active:bg-surface-elevated"
-              }
-            `}
-            style={{
-              borderRadius: 10,
-            }}
-            accessible
+            onPress={() => !isActive && onSelect(segment.id)}
+            className="flex-1"
             accessibilityRole="tab"
             accessibilityState={{ selected: isActive }}
-            accessibilityLabel={`${segment.label} tab${
-              isActive ? ", selected" : ""
-            }`}
+            accessibilityLabel={t`${labelText} tab${isActive ? ", selected" : ""}`}
           >
-            <Text
-              className={`${
-                isActive ? "text-white" : "text-text-secondary"
-              } font-ui-en text-sm font-semibold`}
+            <Animated.View
+              layout={LinearTransition.duration(300).easing(
+                Easing.inOut(Easing.cubic),
+              )}
+              className={`rounded-md py-1 items-center justify-center ${
+                isActive ? "bg-accent shadow-sm" : "bg-transparent"
+              }`}
+              style={{ minHeight: 40 }}
             >
-              {segment.label}
-            </Text>
-            {segment.labelAr && (
               <Text
                 className={`${
-                  isActive ? "text-white opacity-90" : "text-text-tertiary"
-                } font-ui-ar text-xs mt-1`}
+                  isActive ? "text-white" : "text-text-secondary"
+                } ${fontClass} text-xs font-semibold text-center`}
+                style={{ opacity: isActive ? 1 : 0.85 }}
               >
-                {segment.labelAr}
+                {labelText}
               </Text>
-            )}
+            </Animated.View>
           </Pressable>
         );
       })}

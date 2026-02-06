@@ -1,7 +1,9 @@
 // src/app/(tabs)/_layout.tsx
 
 import { Ionicons } from "@expo/vector-icons";
+import { useLingui } from "@lingui/react/macro";
 import { Tabs } from "expo-router";
+import { Platform } from "react-native";
 import { useCSSVariable } from "uniwind";
 
 /**
@@ -9,6 +11,7 @@ import { useCSSVariable } from "uniwind";
  * Explicitly styled per theme (no implicit adaptation).
  */
 export default function TabLayout() {
+  const { t } = useLingui();
   const [bgColor, textColor, borderColor, accentColor, inactiveColor] =
     useCSSVariable([
       "--color-background",
@@ -44,6 +47,7 @@ export default function TabLayout() {
           paddingTop: 8,
           elevation: 0,
           shadowOpacity: 0,
+          display: Platform.select({ web: "none", default: "flex" }),
         },
         tabBarActiveTintColor: accentColor as string,
         tabBarInactiveTintColor: inactiveColor as string,
@@ -53,75 +57,75 @@ export default function TabLayout() {
           fontWeight: "500",
           marginTop: 4,
         },
-        tabBarAccessibilityLabel: "Navigation tabs",
+        tabBarAccessibilityLabel: t`Navigation tabs`,
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
           headerShown: false,
-          tabBarLabel: "Home",
+          tabBarLabel: t`Home`,
           tabBarIcon: ({ color, size, focused }) => (
             <Ionicons
               name={focused ? "home" : "home-outline"}
               size={size}
               color={color}
               accessible
-              accessibilityLabel="Home tab icon"
+              accessibilityLabel={t`Home tab icon`}
             />
           ),
-          tabBarAccessibilityLabel: "Home tab, navigate to Quran reading",
+          tabBarAccessibilityLabel: t`Home tab, navigate to Quran reading`,
         }}
       />
       <Tabs.Screen
         name="search"
         options={{
           headerShown: false,
-          tabBarLabel: "Search",
+          tabBarLabel: t`Search`,
           tabBarIcon: ({ color, size, focused }) => (
             <Ionicons
               name={focused ? "search" : "search-outline"}
               size={size}
               color={color}
               accessible
-              accessibilityLabel="Search tab icon"
+              accessibilityLabel={t`Search tab icon`}
             />
           ),
-          tabBarAccessibilityLabel: "Search tab, search Quran verses",
+          tabBarAccessibilityLabel: t`Search tab, search Quran verses`,
         }}
       />
       <Tabs.Screen
         name="bookmarks"
         options={{
           headerShown: false,
-          tabBarLabel: "Bookmarks",
+          tabBarLabel: t`Bookmarks`,
           tabBarIcon: ({ color, size, focused }) => (
             <Ionicons
               name={focused ? "bookmark" : "bookmark-outline"}
               size={size}
               color={color}
               accessible
-              accessibilityLabel="Bookmarks tab icon"
+              accessibilityLabel={t`Bookmarks tab icon`}
             />
           ),
-          tabBarAccessibilityLabel: "Bookmarks tab, view your saved verses",
+          tabBarAccessibilityLabel: t`Bookmarks tab, view your saved verses`,
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
           headerShown: false,
-          tabBarLabel: "Settings",
+          tabBarLabel: t`Settings`,
           tabBarIcon: ({ color, size, focused }) => (
             <Ionicons
               name={focused ? "settings" : "settings-outline"}
               size={size}
               color={color}
               accessible
-              accessibilityLabel="Settings tab icon"
+              accessibilityLabel={t`Settings tab icon`}
             />
           ),
-          tabBarAccessibilityLabel: "Settings tab, manage app preferences",
+          tabBarAccessibilityLabel: t`Settings tab, manage app preferences`,
         }}
       />
     </Tabs>

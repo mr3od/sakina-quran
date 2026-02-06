@@ -1,4 +1,5 @@
 import { QuranRepository } from "@/entities/quran/api/QuranRepository";
+import type { Ayah } from "@/types/quran.types";
 import { useQuery } from "@tanstack/react-query";
 import { useDatabase } from "./useDatabase";
 
@@ -13,12 +14,12 @@ export function useAyahs(suraNumber: number | undefined) {
 
   return useQuery({
     queryKey: ["ayahs", suraNumber],
-    queryFn: async () => {
-      if (!suraNumber) throw new Error("Surah number required");
+    queryFn: async (): Promise<Ayah[]> => {
+      if (!suraNumber) return [];
       const repo = new QuranRepository(db);
       return repo.getAyahs(suraNumber);
     },
-    enabled: !!suraNumber, // Only run when param exists
+    enabled: !!suraNumber,
     // Static data configuration - NEVER refetch
     staleTime: Infinity, // Data never goes stale
     gcTime: Infinity, // Keep in cache forever

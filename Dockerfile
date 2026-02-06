@@ -15,8 +15,8 @@ RUN pnpm install --frozen-lockfile
 # Copy source code
 COPY . .
 
-# Build the web bundle (Expo exports to ./dist by default)
-RUN npx expo export --platform web
+# Build the web bundle with full SEO and static data generation
+RUN pnpm run export:full
 
 # Stage 2: Serve with Nginx
 FROM nginx:alpine

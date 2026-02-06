@@ -1,15 +1,7 @@
 /**
- * useDatabase - Database access hook
- * Thin wrapper around Expo's useSQLiteContext for consistency
- */
-
-import { useSQLiteContext } from "expo-sqlite";
-
-/**
- * Hook to access the database instance
- * Uses Expo's SQLiteProvider context under the hood
+ * useDatabase - Web Implementation
+ * Returns null as we don't use SQLite on web
  */
 export function useDatabase() {
-  const db = useSQLiteContext();
-  return db;
+  return null;
 }

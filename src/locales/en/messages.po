@@ -1,0 +1,631 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-01-20 00:43+0300\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: en\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#. js-lingui-explicit-id
+#: src/features/search/data/searchers/StructuralSearcher.native.ts:49
+msgid "Surah {sura}"
+msgstr "Surah {sura}"
+
+#. js-lingui-explicit-id
+#: src/features/search/data/searchers/StructuralSearcher.native.ts:79
+msgid "Surah {num}"
+msgstr "Surah {num}"
+
+#. js-lingui-explicit-id
+#: src/features/search/data/searchers/StructuralSearcher.native.ts:108
+msgid "Juz {num}"
+msgstr "Juz {num}"
+
+#. js-lingui-explicit-id
+#: src/features/search/data/searchers/StructuralSearcher.native.ts:137
+msgid "Hizb {num}"
+msgstr "Hizb {num}"
+
+#. js-lingui-explicit-id
+#: src/features/search/data/searchers/StructuralSearcher.native.ts:164
+msgid "Page {num}"
+msgstr "Page {num}"
+
+#. placeholder {0}: item.simple
+#: src/features/search/ui/SearchListItem.tsx:84
+msgid " {0}"
+msgstr " {0}"
+
+#. placeholder {0}: ayah.ayah_number
+#. placeholder {0}: bookmark.note
+#. placeholder {0}: isAr ? theme.nameAr : theme.nameEn
+#: src/components/quran/AyahCard.tsx:50
+#: src/components/search/WebSearchOverlay.tsx:110
+#: src/features/bookmarks/ui/BookmarkListItem.tsx:111
+#: src/features/search/ui/SearchListItem.tsx:98
+#: src/features/settings/ui/ThemeSelector.tsx:93
+msgid "{0}"
+msgstr ""
+
+#. placeholder {0}: bookmarks.length
+#. placeholder {1}: bookmarks.length === 1 ? t`bookmark` : t`bookmarks`
+#: src/app/(tabs)/bookmarks.tsx:72
+msgid "{0} {1}"
+msgstr "{0} {1}"
+
+#. placeholder {0}: item.sura
+#. placeholder {1}: item.ayah
+#: src/components/search/WebSearchOverlay.tsx:104
+#: src/features/search/ui/SearchListItem.tsx:92
+msgid "{0}:{1}"
+msgstr ""
+
+#. placeholder {0}: isActive ? ", selected" : ""
+#: src/components/ui/NavigationSegments.tsx:47
+msgid "{labelText} tab{0}"
+msgstr "{labelText} tab{0}"
+
+#: src/features/quran-reader/ui/QuranPageFooter.tsx:11
+msgid "{page}"
+msgstr ""
+
+#: src/features/quran-reader/ui/QuranPageHeader.tsx:24
+msgid "{quarterName}"
+msgstr ""
+
+#: src/components/quran/SurahListItem.tsx:76
+msgid "{revelationText}"
+msgstr ""
+
+#. placeholder {0}: bookmark.sura
+#. placeholder {1}: bookmark.ayah
+#: src/features/bookmarks/ui/BookmarkListItem.tsx:53
+msgid "{surahName} • {0}:{1}"
+msgstr ""
+
+#: src/features/quran-reader/ui/QuranPageHeader.tsx:42
+msgid "{suraNames}"
+msgstr ""
+
+#: src/components/home/SearchHero.web.tsx:51
+#: src/components/search/WebSearchOverlay.tsx:293
+msgid "⌘K"
+msgstr ""
+
+#: src/app/(tabs)/bookmarks.tsx:61
+msgid "Access your saved Quran verses and bookmarks. Quickly navigate to your favorite Ayahs and continue reading from where you left off."
+msgstr "Access your saved Quran verses and bookmarks. Quickly navigate to your favorite Ayahs and continue reading from where you left off."
+
+#: src/components/quran/AyahCard.tsx:62
+msgid "Add bookmark"
+msgstr ""
+
+#: src/app/(tabs)/settings.tsx:125
+msgid "App Information"
+msgstr ""
+
+#: src/components/search/WebSearchOverlay.tsx:145
+msgid "Ayat al-Kursi"
+msgstr "Ayat al-Kursi"
+
+#: src/components/home/ContinueReadingCard.tsx:38
+msgid "Begin from Page 1"
+msgstr ""
+
+#: src/components/home/ContinueReadingCard.tsx:23
+msgid "Begin reading the Quran from the first page"
+msgstr ""
+
+#: src/features/quran-reader/ui/PagePage.tsx:147
+msgid "Bismillah ir-Rahman ir-Raheem"
+msgstr "Bismillah ir-Rahman ir-Raheem"
+
+#: src/app/(tabs)/bookmarks.tsx:74
+msgid "bookmark"
+msgstr "bookmark"
+
+#. placeholder {0}: bookmark.ayah
+#: src/features/bookmarks/ui/BookmarkListItem.tsx:45
+msgid "Bookmark: Surah {surahName}, Ayah {0}"
+msgstr ""
+
+#: src/app/(tabs)/bookmarks.tsx:74
+msgid "bookmarks"
+msgstr "bookmarks"
+
+#: src/app/(tabs)/_layout.tsx:101
+#: src/app/(tabs)/bookmarks.tsx:68
+msgid "Bookmarks"
+msgstr ""
+
+#: src/app/(tabs)/bookmarks.tsx:60
+msgid "Bookmarks - Sakina Quran"
+msgstr "Bookmarks - Sakina Quran"
+
+#: src/app/(tabs)/_layout.tsx:108
+msgid "Bookmarks tab icon"
+msgstr "Bookmarks tab icon"
+
+#: src/app/(tabs)/_layout.tsx:111
+msgid "Bookmarks tab, view your saved verses"
+msgstr "Bookmarks tab, view your saved verses"
+
+#: src/app/(tabs)/settings.tsx:148
+msgid "Built with Expo & React Native"
+msgstr ""
+
+#: src/components/layout/SettingsDrawer.tsx:87
+msgid "Choose your preferred language"
+msgstr ""
+
+#: src/components/layout/SettingsDrawer.tsx:103
+msgid "Choose your preferred theme"
+msgstr ""
+
+#: src/app/(tabs)/search.tsx:101
+msgid "Clear"
+msgstr "Clear"
+
+#: src/components/search/WebSearchOverlay.tsx:287
+msgid "Clear search"
+msgstr ""
+
+#: src/app/(tabs)/index.tsx:58
+#: src/components/home/ContinueReadingCard.tsx:69
+msgid "Continue Reading"
+msgstr ""
+
+#. placeholder {0}: lastRead.page_number
+#: src/components/home/ContinueReadingCard.tsx:56
+msgid "Continue reading {surahName}, page {0}"
+msgstr ""
+
+#: src/app/(tabs)/settings.tsx:141
+msgid "Credits"
+msgstr ""
+
+#: src/app/(tabs)/settings.tsx:80
+msgid "Customize your Quran reading experience."
+msgstr "Customize your Quran reading experience."
+
+#: src/app/(tabs)/settings.tsx:66
+msgid "Customize your Quran reading experience. Change themes, adjust font sizes, and configure app preferences."
+msgstr "Customize your Quran reading experience. Change themes, adjust font sizes, and configure app preferences."
+
+#: src/features/bookmarks/ui/BookmarkListItem.tsx:68
+msgid "Double tap to delete this bookmark"
+msgstr ""
+
+#: src/features/bookmarks/ui/BookmarkListItem.tsx:46
+msgid "Double tap to navigate to verse"
+msgstr ""
+
+#: src/features/search/ui/SearchListItem.tsx:66
+msgid "Double tap to open"
+msgstr ""
+
+#: src/components/quran/SurahListItem.tsx:36
+msgid "Double tap to read this Surah"
+msgstr ""
+
+#: src/components/quran/AyahCard.tsx:64
+msgid "Double tap to toggle bookmark"
+msgstr ""
+
+#: src/app/(tabs)/search.tsx:86
+msgid "e.g., الله — نب — 7 — 7:7 — juz 5 — حزب 7 — page 151"
+msgstr ""
+
+#: src/app/(tabs)/search.tsx:127
+msgid "Enter words (الله), fragments (نب), or references (7, 7:7, juz 5, حزب 7, page 151)."
+msgstr ""
+
+#: src/shared/ui/ErrorState.tsx:20
+msgid "Error"
+msgstr ""
+
+#: src/app/(tabs)/bookmarks.tsx:36
+msgid "Failed to load bookmarks"
+msgstr ""
+
+#: src/components/quran/JuzList.tsx:47
+msgid "Failed to load Juz list"
+msgstr ""
+
+#: src/features/quran-reader/ui/PagePage.tsx:108
+msgid "Failed to load page {pageNumber}."
+msgstr ""
+
+#: src/app/(tabs)/settings.tsx:47
+msgid "Failed to load settings"
+msgstr ""
+
+#: src/components/quran/SurahList.tsx:18
+msgid "Failed to load Surahs"
+msgstr ""
+
+#: src/features/quran-reader/ui/PageReaderScreen.tsx:254
+msgid "Go back"
+msgstr "Go back"
+
+#: src/app/(tabs)/_layout.tsx:67
+msgid "Home"
+msgstr ""
+
+#: src/app/(tabs)/_layout.tsx:74
+msgid "Home tab icon"
+msgstr "Home tab icon"
+
+#: src/app/(tabs)/_layout.tsx:77
+msgid "Home tab, navigate to Quran reading"
+msgstr "Home tab, navigate to Quran reading"
+
+#: src/app/(tabs)/index.tsx:15
+msgid "Juz"
+msgstr ""
+
+#. placeholder {0}: item.juzNumber
+#. placeholder {0}: juz.juz_number
+#: src/components/quran/JuzList.tsx:75
+#: src/components/quran/JuzListItem.tsx:19
+#: src/components/quran/JuzListItem.tsx:35
+msgid "Juz {0}"
+msgstr ""
+
+#: src/features/quran-reader/ui/PageReaderScreen.tsx:329
+msgid "Juz {juzNumber}"
+msgstr ""
+
+#: src/components/search/WebSearchOverlay.tsx:142
+msgid "Juz 1"
+msgstr "Juz 1"
+
+#: src/app/(tabs)/settings.tsx:99
+#: src/components/layout/SettingsDrawer.tsx:84
+msgid "Language"
+msgstr ""
+
+#: src/app/(tabs)/index.tsx:64
+msgid "Latest Bookmarks"
+msgstr ""
+
+#: src/app/(tabs)/settings.tsx:155
+msgid "License"
+msgstr ""
+
+#: src/components/quran/SurahList.tsx:45
+msgid "List of Quran chapters"
+msgstr ""
+
+#: src/components/quran/JuzList.tsx:98
+msgid "List of Quran parts (Juz)"
+msgstr ""
+
+#: src/app/(tabs)/settings.tsx:32
+msgid "Loading settings..."
+msgstr ""
+
+#: src/components/quran/SurahListItem.tsx:18
+msgid "Madani"
+msgstr ""
+
+#: src/components/quran/SurahListItem.tsx:18
+msgid "Makki"
+msgstr ""
+
+#. placeholder {0}: item.simple
+#: src/components/search/WebSearchOverlay.tsx:83
+#: src/features/search/ui/SearchListItem.tsx:64
+msgid "Navigate to {0}"
+msgstr ""
+
+#: src/components/home/SearchHero.tsx:16
+msgid "Navigate to search screen"
+msgstr ""
+
+#: src/components/home/ContinueReadingCard.tsx:57
+msgid "Navigate to your last read position"
+msgstr ""
+
+#: src/app/(tabs)/_layout.tsx:60
+msgid "Navigation tabs"
+msgstr "Navigation tabs"
+
+#: src/features/quran-reader/ui/PageReaderScreen.tsx:345
+msgid "Next Page"
+msgstr ""
+
+#: src/app/(tabs)/bookmarks.tsx:45
+msgid "No Bookmarks Yet"
+msgstr ""
+
+#: src/components/quran/JuzList.tsx:52
+msgid "No Juz found"
+msgstr "No Juz found"
+
+#: src/components/search/WebSearchOverlay.tsx:349
+msgid "No results found"
+msgstr ""
+
+#: src/app/(tabs)/search.tsx:151
+msgid "No Results Found"
+msgstr ""
+
+#: src/components/quran/SurahList.tsx:22
+msgid "No Surahs found"
+msgstr "No Surahs found"
+
+#: src/components/home/SearchHero.web.tsx:44
+msgid "Open search overlay"
+msgstr ""
+
+#: src/app/(tabs)/settings.tsx:158
+msgid "Open source under MIT License"
+msgstr ""
+
+#. placeholder {0}: lastRead.page_number
+#: src/components/home/ContinueReadingCard.tsx:72
+msgid "Page {0}"
+msgstr ""
+
+#: src/features/quran-reader/ui/PageReaderScreen.tsx:272
+#: src/features/quran-reader/ui/PageReaderScreen.tsx:331
+msgid "Page {currentPage}"
+msgstr "Page {currentPage}"
+
+#: src/components/search/WebSearchOverlay.tsx:143
+msgid "Page 1"
+msgstr "Page 1"
+
+#: src/features/quran-reader/ui/PageReaderScreen.tsx:315
+msgid "Previous Page"
+msgstr ""
+
+#: src/app/pages/[number].tsx:20
+msgid "Quran Page {pageNumber} - Sakina Quran"
+msgstr "Quran Page {pageNumber} - Sakina Quran"
+
+#: src/app/pages/[number].tsx:24
+msgid "Quran page {pageNumber}, Islamic text, Arabic verses, Quran reading, Holy Quran"
+msgstr "Quran page {pageNumber}, Islamic text, Arabic verses, Quran reading, Holy Quran"
+
+#: src/app/(tabs)/search.tsx:68
+msgid "Quran search, Islamic search, Arabic search, verse finder, Ayah search, Surah search, Juz search"
+msgstr "Quran search, Islamic search, Arabic search, verse finder, Ayah search, Surah search, Juz search"
+
+#: src/app/(tabs)/settings.tsx:70
+msgid "Quran settings, app preferences, theme selection, customization"
+msgstr "Quran settings, app preferences, theme selection, customization"
+
+#: src/app/(tabs)/settings.tsx:144
+msgid "Quran text from Tanzil.net"
+msgstr ""
+
+#: src/app/_layout.tsx:67
+msgid "Quran, Holy Quran, Islamic, Arabic, Surah, Ayah, Muslim, Islam"
+msgstr "Quran, Holy Quran, Islamic, Arabic, Surah, Ayah, Muslim, Islam"
+
+#: src/app/(tabs)/index.tsx:34
+msgid "Quran, Holy Quran, Islamic, Arabic, Surah, Juz, Ayah, Muslim, Islam, القرآن الكريم"
+msgstr "Quran, Holy Quran, Islamic, Arabic, Surah, Juz, Ayah, Muslim, Islam, القرآن الكريم"
+
+#: src/app/pages/[number].tsx:21
+msgid "Read Page {pageNumber} of the Holy Quran."
+msgstr "Read Page {pageNumber} of the Holy Quran."
+
+#: src/app/_layout.tsx:66
+msgid "Read the Holy Quran Online. Access all 114 Surahs with verse-by-verse navigation and search functionality."
+msgstr "Read the Holy Quran Online. Access all 114 Surahs with verse-by-verse navigation and search functionality."
+
+#: src/app/(tabs)/index.tsx:32
+msgid "Read the Holy Quran Online. Browse by Surah or Juz with verse-by-verse navigation."
+msgstr "Read the Holy Quran Online. Browse by Surah or Juz with verse-by-verse navigation."
+
+#: src/components/quran/AyahCard.tsx:62
+#: src/features/bookmarks/ui/BookmarkListItem.tsx:67
+msgid "Remove bookmark"
+msgstr ""
+
+#: src/components/layout/WebHeader.tsx:24
+#: src/features/quran-reader/ui/PageReaderScreen.tsx:298
+msgid "Sakina Quran"
+msgstr ""
+
+#: src/app/_layout.tsx:65
+#: src/app/(tabs)/index.tsx:31
+msgid "Sakina Quran - Read the Holy Quran Online"
+msgstr "Sakina Quran - Read the Holy Quran Online"
+
+#: src/app/(tabs)/_layout.tsx:84
+msgid "Search"
+msgstr ""
+
+#: src/app/(tabs)/search.tsx:139
+msgid "Search Failed"
+msgstr ""
+
+#: src/app/(tabs)/search.tsx:89
+#: src/components/search/WebSearchOverlay.tsx:274
+msgid "Search input"
+msgstr ""
+
+#: src/app/(tabs)/search.tsx:66
+msgid "Search Quran - Sakina Quran"
+msgstr "Search Quran - Sakina Quran"
+
+#. placeholder {0}: state.items.length
+#: src/app/(tabs)/search.tsx:170
+msgid "Search results, {0} items"
+msgstr "Search results, {0} items"
+
+#: src/app/(tabs)/_layout.tsx:91
+msgid "Search tab icon"
+msgstr "Search tab icon"
+
+#: src/app/(tabs)/_layout.tsx:94
+msgid "Search tab, search Quran verses"
+msgstr "Search tab, search Quran verses"
+
+#: src/app/(tabs)/search.tsx:67
+msgid "Search the Holy Quran by words, verses, or references. Find specific Ayahs, Surahs, Juz, or page numbers with instant results."
+msgstr "Search the Holy Quran by words, verses, or references. Find specific Ayahs, Surahs, Juz, or page numbers with instant results."
+
+#: src/app/(tabs)/search.tsx:75
+#: src/app/(tabs)/search.tsx:124
+#: src/components/home/SearchHero.tsx:15
+#: src/components/home/SearchHero.web.tsx:43
+msgid "Search the Quran"
+msgstr ""
+
+#: src/components/home/SearchHero.tsx:21
+#: src/components/home/SearchHero.web.tsx:48
+#: src/components/search/WebSearchOverlay.tsx:271
+msgid "Search the Quran..."
+msgstr ""
+
+#: src/components/search/WebSearchOverlay.tsx:335
+msgid "Searching..."
+msgstr ""
+
+#: src/app/(tabs)/search.tsx:115
+msgid "Searching…"
+msgstr ""
+
+#: src/app/(tabs)/_layout.tsx:118
+#: src/app/(tabs)/settings.tsx:91
+#: src/components/layout/SettingsDrawer.tsx:66
+msgid "Settings"
+msgstr ""
+
+#: src/app/(tabs)/settings.tsx:63
+#: src/app/(tabs)/settings.tsx:76
+msgid "Settings - Sakina Quran"
+msgstr "Settings - Sakina Quran"
+
+#: src/app/(tabs)/_layout.tsx:125
+msgid "Settings tab icon"
+msgstr "Settings tab icon"
+
+#: src/app/(tabs)/_layout.tsx:128
+msgid "Settings tab, manage app preferences"
+msgstr "Settings tab, manage app preferences"
+
+#: src/shared/ui/ErrorState.tsx:13
+msgid "Something went wrong"
+msgstr ""
+
+#: src/components/home/ContinueReadingCard.tsx:35
+#: src/components/home/ContinueReadingCard.tsx:43
+msgid "Start Reading"
+msgstr ""
+
+#: src/components/home/ContinueReadingCard.tsx:22
+msgid "Start reading from page 1"
+msgstr ""
+
+#: src/app/(tabs)/index.tsx:14
+msgid "Surah"
+msgstr ""
+
+#. placeholder {0}: item.surahNumber
+#: src/features/quran-reader/ui/PagePage.tsx:137
+msgid "Surah {0}"
+msgstr ""
+
+#. placeholder {0}: surah.id
+#. placeholder {1}: surah.name_simple
+#. placeholder {2}: surah.verses_count
+#: src/components/quran/SurahListItem.tsx:35
+msgid "Surah {0}, {1}, {revelationText}, {2} verses"
+msgstr ""
+
+#: src/app/(tabs)/bookmarks.tsx:24
+msgid "Surah {suraNumber}"
+msgstr "Surah {suraNumber}"
+
+#. placeholder {0}: surah.id
+#: src/components/quran/SurahListItem.tsx:43
+msgid "Surah number {0}"
+msgstr ""
+
+#: src/components/search/WebSearchOverlay.tsx:144
+msgid "Surah Ya-Sin"
+msgstr "Surah Ya-Sin"
+
+#: src/app/(tabs)/bookmarks.tsx:48
+msgid "Tap the bookmark icon on any verse to save it here for quick access."
+msgstr ""
+
+#: src/app/(tabs)/index.tsx:44
+#: src/app/(tabs)/index.tsx:46
+#: src/hooks/useLastReadPosition.ts:34
+msgid "The Noble Quran"
+msgstr "The Noble Quran"
+
+#: src/app/(tabs)/settings.tsx:112
+#: src/components/layout/SettingsDrawer.tsx:100
+msgid "Theme"
+msgstr ""
+
+#: src/app/(tabs)/search.tsx:154
+msgid "Try a different word or a smaller fragment (e.g., نب)."
+msgstr ""
+
+#: src/shared/ui/ErrorState.tsx:31
+msgid "Try Again"
+msgstr ""
+
+#: src/components/search/WebSearchOverlay.tsx:308
+msgid "Try searching for"
+msgstr ""
+
+#: src/app/(tabs)/settings.tsx:146
+msgid "Uthmanic Hafs font by KFGQPC"
+msgstr ""
+
+#. placeholder {0}: ayah.ayah_number
+#. placeholder {1}: ayah.sura_number
+#: src/components/quran/AyahCard.tsx:82
+msgid "Verse {0} of Surah {1}"
+msgstr ""
+
+#. placeholder {0}: item.sura
+#. placeholder {1}: item.ayah
+#. placeholder {2}: item.surahName
+#: src/components/search/WebSearchOverlay.tsx:82
+#: src/features/search/ui/SearchListItem.tsx:63
+msgid "Verse {0}:{1} in {2}"
+msgstr ""
+
+#. placeholder {0}: ayah.ayah_number
+#: src/components/quran/AyahCard.tsx:47
+msgid "Verse number {0}"
+msgstr ""
+
+#. placeholder {0}: surah.verses_count
+#: src/components/quran/SurahListItem.tsx:79
+msgid "Verses: {0}"
+msgstr ""
+
+#: src/app/(tabs)/settings.tsx:133
+msgid "Version"
+msgstr ""
+
+#: src/components/search/WebSearchOverlay.tsx:382
+msgid "View all results"
+msgstr ""
+
+#: src/components/search/WebSearchOverlay.tsx:379
+msgid "View all results for {query}"
+msgstr ""
+
+#: src/app/(tabs)/index.tsx:68
+msgid "Your bookmarked verses will appear here"
+msgstr ""
