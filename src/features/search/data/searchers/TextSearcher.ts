@@ -1,3 +1,4 @@
+import { i18n } from "@lingui/core";
 import type { SearchRow, Searcher } from "../../domain/search-contract";
 
 export class TextSearcher implements Searcher {
@@ -10,6 +11,7 @@ export class TextSearcher implements Searcher {
     const params = new URLSearchParams({
       q: query.trim(),
       limit: limit.toString(),
+      locale: i18n.locale,
     });
 
     try {

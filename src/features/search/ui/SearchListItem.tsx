@@ -13,7 +13,7 @@ import { useLingui } from "@lingui/react/macro";
 import { Link } from "expo-router";
 import React from "react";
 import { Pressable, Text, View } from "react-native";
-import { SearchRow, toSurahAyahPath } from "../app";
+import { SearchRow, toSurahAyahPath, useLocalizedSearchLabel } from "../app";
 
 export interface SearchListItemProps {
   item: SearchRow;
@@ -49,6 +49,7 @@ function renderHighlightedText(text: string, term: string | undefined) {
 export function SearchListItem({ item, searchTerm }: SearchListItemProps) {
   const { t } = useLingui();
   const isAyahResult = item.type === "ayah";
+  const displayText = useLocalizedSearchLabel(item);
 
   return (
     <Link href={toSurahAyahPath(item)} asChild>
@@ -84,7 +85,7 @@ export function SearchListItem({ item, searchTerm }: SearchListItemProps) {
               accessibilityLanguage="ar"
               selectable
             >
-              {item.simple}
+              {displayText}
             </Text>
           )}
 

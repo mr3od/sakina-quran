@@ -1,3 +1,4 @@
+import { i18n } from "@lingui/core";
 import type { SearchRow, Searcher } from "../../domain/search-contract";
 
 /**
@@ -16,7 +17,7 @@ export class StructuralSearcher implements Searcher {
 
     try {
       const res = await fetch(
-        `/api/search?type=structural&q=${encodeURIComponent(q)}`,
+        `/api/search?type=structural&q=${encodeURIComponent(q)}&locale=${encodeURIComponent(i18n.locale)}`,
       );
       if (!res.ok) return [];
       const data = await res.json();

@@ -14,42 +14,40 @@ msgstr ""
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
 
 #. js-lingui-explicit-id
-#: src/features/search/data/searchers/StructuralSearcher.native.ts:49
+#: src/features/search/data/searchers/StructuralSearcher.native.ts:39
 msgid "Surah {sura}"
 msgstr "سورة {sura}"
 
 #. js-lingui-explicit-id
-#: src/features/search/data/searchers/StructuralSearcher.native.ts:79
+#: src/features/search/data/searchers/StructuralSearcher.native.ts:69
 msgid "Surah {num}"
 msgstr "سورة {num}"
 
 #. js-lingui-explicit-id
-#: src/features/search/data/searchers/StructuralSearcher.native.ts:108
+#: src/features/search/data/searchers/StructuralSearcher.native.ts:98
 msgid "Juz {num}"
 msgstr "الجزء {num}"
 
 #. js-lingui-explicit-id
-#: src/features/search/data/searchers/StructuralSearcher.native.ts:137
+#: src/features/search/data/searchers/StructuralSearcher.native.ts:127
 msgid "Hizb {num}"
 msgstr "الحزب {num}"
 
 #. js-lingui-explicit-id
-#: src/features/search/data/searchers/StructuralSearcher.native.ts:164
+#: src/features/search/data/searchers/StructuralSearcher.native.ts:154
 msgid "Page {num}"
 msgstr "الصفحة {num}"
 
-#. placeholder {0}: item.simple
 #: src/features/search/ui/SearchListItem.tsx:84
-msgid " {0}"
-msgstr ""
+#~ msgid " {0}"
+#~ msgstr ""
 
 #. placeholder {0}: ayah.ayah_number
 #. placeholder {0}: bookmark.note
 #. placeholder {0}: isAr ? theme.nameAr : theme.nameEn
 #: src/components/quran/AyahCard.tsx:50
 #: src/components/search/WebSearchOverlay.tsx:110
-#: src/features/bookmarks/ui/BookmarkListItem.tsx:111
-#: src/features/search/ui/SearchListItem.tsx:98
+#: src/features/bookmarks/ui/BookmarkListItem.tsx:113
 #: src/features/settings/ui/ThemeSelector.tsx:93
 msgid "{0}"
 msgstr "{0}"
@@ -63,7 +61,6 @@ msgstr "{0} {1}"
 #. placeholder {0}: item.sura
 #. placeholder {1}: item.ayah
 #: src/components/search/WebSearchOverlay.tsx:104
-#: src/features/search/ui/SearchListItem.tsx:92
 msgid "{0}:{1}"
 msgstr "{0}:{1}"
 
@@ -207,7 +204,7 @@ msgstr "انقر مرتين لحذف هذه العلامة"
 msgid "Double tap to navigate to verse"
 msgstr "انقر مرتين للانتقال إلى الآية"
 
-#: src/features/search/ui/SearchListItem.tsx:66
+#: src/features/search/ui/SearchListItem.tsx:82
 msgid "Double tap to open"
 msgstr "انقر مرتين للفتح"
 
@@ -255,6 +252,10 @@ msgstr "فشل تحميل السور"
 msgid "Go back"
 msgstr "رجوع"
 
+#: src/features/search/ui/SearchListItem.tsx:64
+msgid "Hizb {num}"
+msgstr "الحزب {num}"
+
 #: src/app/(tabs)/_layout.tsx:67
 msgid "Home"
 msgstr "الرئيسية"
@@ -282,6 +283,10 @@ msgstr "الجزء {0}"
 #: src/features/quran-reader/ui/PageReaderScreen.tsx:329
 msgid "Juz {juzNumber}"
 msgstr "الجزء {juzNumber}"
+
+#: src/features/search/ui/SearchListItem.tsx:62
+msgid "Juz {num}"
+msgstr "الجزء {num}"
 
 #: src/components/search/WebSearchOverlay.tsx:142
 msgid "Juz 1"
@@ -322,7 +327,7 @@ msgstr "مكية"
 
 #. placeholder {0}: item.simple
 #: src/components/search/WebSearchOverlay.tsx:83
-#: src/features/search/ui/SearchListItem.tsx:64
+#: src/features/search/ui/SearchListItem.tsx:80
 msgid "Navigate to {0}"
 msgstr "الانتقال إلى {0}"
 
@@ -380,6 +385,10 @@ msgstr "صفحة {0}"
 msgid "Page {currentPage}"
 msgstr "صفحة {currentPage}"
 
+#: src/features/search/ui/SearchListItem.tsx:66
+msgid "Page {num}"
+msgstr "صفحة {num}"
+
 #: src/components/search/WebSearchOverlay.tsx:143
 msgid "Page 1"
 msgstr "صفحة 1"
@@ -408,7 +417,7 @@ msgstr "إعدادات القرآن، تفضيلات التطبيق، اختيا
 msgid "Quran text from Tanzil.net"
 msgstr "نص القرآن من Tanzil.net"
 
-#: src/app/_layout.tsx:67
+#: src/app/_layout.tsx:70
 msgid "Quran, Holy Quran, Islamic, Arabic, Surah, Ayah, Muslim, Islam"
 msgstr "القرآن، القرآن الكريم، إسلام، عربي، سورة، آية، مسلم، إسلام"
 
@@ -420,7 +429,7 @@ msgstr "القرآن، القرآن الكريم، إسلام، عربي، سو�
 msgid "Read Page {pageNumber} of the Holy Quran."
 msgstr "اقرأ الصفحة {pageNumber} من القرآن الكريم."
 
-#: src/app/_layout.tsx:66
+#: src/app/_layout.tsx:69
 msgid "Read the Holy Quran Online. Access all 114 Surahs with verse-by-verse navigation and search functionality."
 msgstr "اقرأ القرآن الكريم عبر الإنترنت. تصفح جميع السور الـ 114 مع خاصية البحث والتنقل بين الآيات."
 
@@ -438,7 +447,7 @@ msgstr "إزالة العلامة المرجعية"
 msgid "Sakina Quran"
 msgstr "سكينة القرآن"
 
-#: src/app/_layout.tsx:65
+#: src/app/_layout.tsx:68
 #: src/app/(tabs)/index.tsx:31
 msgid "Sakina Quran - Read the Holy Quran Online"
 msgstr "سكينة القرآن - اقرأ القرآن الكريم"
@@ -546,6 +555,10 @@ msgstr "سورة {0}"
 msgid "Surah {0}, {1}, {revelationText}, {2} verses"
 msgstr "سورة {0}، {1}، {revelationText}، {2} آية"
 
+#: src/features/search/ui/SearchListItem.tsx:60
+msgid "Surah {num}"
+msgstr "سورة {num}"
+
 #: src/app/(tabs)/bookmarks.tsx:24
 msgid "Surah {suraNumber}"
 msgstr "سورة {suraNumber}"
@@ -600,7 +613,7 @@ msgstr "آية {0} من سورة {1}"
 #. placeholder {1}: item.ayah
 #. placeholder {2}: item.surahName
 #: src/components/search/WebSearchOverlay.tsx:82
-#: src/features/search/ui/SearchListItem.tsx:63
+#: src/features/search/ui/SearchListItem.tsx:79
 msgid "Verse {0}:{1} in {2}"
 msgstr "الآية {0}:{1} في {2}"
 

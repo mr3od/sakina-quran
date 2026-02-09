@@ -1,6 +1,8 @@
-import { i18n } from "@lingui/core";
 import type { SQLiteDatabase } from "expo-sqlite";
 import type { Searcher, SearchRow } from "../../domain/search-contract";
+import { parseSearchQuery } from "../../domain/query-parser";
+import { getSurahNameColumn } from "../utils/getSurahNameColumn";
+import { pageResolverSubquery } from "../utils/sqlFragments";
 
 /** Single-token → try FTS prefix first; fallback to LIKE('%…%'). */
 export class TextSearcher implements Searcher {
@@ -8,21 +10,15 @@ export class TextSearcher implements Searcher {
 
   async search(query: string, limit = 50): Promise<SearchRow[]> {
     try {
-      const q = query.trim();
-      if (!q || /^\d+$/.test(q)) return []; // leave pure-numeric to structural
+      const parsed = parseSearchQuery(query);
+      if (parsed.kind === "empty" || parsed.kind === "numeric" || parsed.kind === "surahAyah") return [];
 
-      // Determine column name based on locale
-      const isArabic = i18n.locale.includes("ar");
-      const nameCol = isArabic ? "name_arabic" : "name_simple";
-
-    const pageSubquery = `
-    (SELECT ps.page_number
-     FROM page_segments ps
-     WHERE (ps.sura_start < a.sura_number OR (ps.sura_start = a.sura_number AND ps.ayah_start <= a.ayah_number))
-       AND (ps.sura_end   > a.sura_number OR (ps.sura_end   = a.sura_number AND ps.ayah_end   >= a.ayah_number))
-     ORDER BY ps.page_number ASC
-     LIMIT 1) AS page_number
-  `;
+      const q = parsed.value;
+      const nameCol = getSurahNameColumn();
+      const pageSubquery = pageResolverSubquery(
+        "a.sura_number",
+        "a.ayah_number",
+      );
     // Single token → try FTS prefix
     if (q.indexOf(" ") === -1) {
       try {
@@ -35,7 +31,7 @@ export class TextSearcher implements Searcher {
         }>(
           `SELECT a.sura_number, a.ayah_number, a.simple_text,
                 s.${nameCol} AS surah_name,
-                ${pageSubquery}
+                ${pageSubquery} AS page_number
          FROM ayahs_fts f
          JOIN ayahs a ON a.rowid = f.rowid
          JOIN surahs s ON s.id = a.sura_number
@@ -61,7 +57,7 @@ export class TextSearcher implements Searcher {
     }>(
       `SELECT a.sura_number, a.ayah_number, a.simple_text,
             s.${nameCol} AS surah_name,
-            ${pageSubquery}
+            ${pageSubquery} AS page_number
      FROM ayahs a
      JOIN surahs s ON s.id = a.sura_number
      WHERE a.simple_text LIKE ?

@@ -15,7 +15,7 @@ import {
 import { useCSSVariable } from "uniwind";
 
 import type { SearchRow } from "@/features/search/app";
-import { useSearchController } from "@/features/search/app";
+import { useSearchController, toSurahAyahPath, useLocalizedSearchLabel } from "@/features/search/app";
 import { escapeRegExp } from "@/shared/lib/text-utils";
 
 interface WebSearchOverlayProps {
@@ -65,12 +65,10 @@ function WebSearchResultItem({
   const { t } = useLingui();
   const fontClass = useLocaleFont();
   const isAyahResult = item.type === "ayah";
+  const displayText = useLocalizedSearchLabel(item);
 
   return (
-    <Link
-      href={`/pages/${item.page}?surah=${item.sura}&ayah=${item.ayah}`}
-      asChild
-    >
+    <Link href={toSurahAyahPath(item)} asChild>
       <Pressable
         className={`px-4 py-3 flex-row items-center hover:bg-surface-elevated transition-colors ${
           isSelected ? "bg-surface-elevated" : ""
@@ -80,7 +78,7 @@ function WebSearchResultItem({
         accessibilityLabel={
           isAyahResult
             ? t`Verse ${item.sura}:${item.ayah} in ${item.surahName}`
-            : t`Navigate to ${item.simple}`
+            : t`Navigate to ${displayText}`
         }
       >
         <Ionicons
@@ -95,19 +93,17 @@ function WebSearchResultItem({
             className={`${fontClass} text-base text-text-primary mb-1 leading-relaxed`}
             accessibilityLanguage="ar"
           >
-            {renderHighlightedText(item.simple, highlightRx)}
+            {renderHighlightedText(displayText, highlightRx)}
           </Text>
 
           <View className="flex-row items-center">
             <View className="bg-surface px-2 py-0.5 rounded mr-2">
               <Text className="text-xs text-text-secondary">
-                <Trans>
-                  {item.sura}:{item.ayah}
-                </Trans>
+                {item.sura}:{item.ayah}
               </Text>
             </View>
             <Text className="text-xs text-text-secondary">
-              <Trans>{item.surahName}</Trans>
+              {item.surahName}
             </Text>
           </View>
         </View>
