@@ -1,5 +1,4 @@
 import { MAX_HIZB, MAX_JUZ, MAX_SURAH } from "@/shared/constants/quran";
-import { ExpoRequest } from "expo-router/server";
 import fs from "fs";
 import path from "path";
 import initSqlJs from "sql.js";
@@ -51,7 +50,7 @@ async function getDB() {
 const RE_SURA_AYAH = /^(\d+)\s*[:：]\s*(\d+)$/;
 const HAS_DIGIT = /\d/;
 
-export async function GET(request: ExpoRequest) {
+export async function GET(request: Request) {
   const url = new URL(request.url);
   const q = (url.searchParams.get("q") || "").trim();
   const type = url.searchParams.get("type");
