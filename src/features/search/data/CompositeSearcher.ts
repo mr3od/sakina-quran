@@ -3,6 +3,8 @@ import type { Composite, Searcher, SearchRow } from "../domain/search-contract";
 /**
  * Runs structural first (fast), then text (may be slower),
  * merges and de-duplicates by (sura, ayah, kind).
+ * 
+ * Uses Promise.allSettled to tolerate individual searcher failures.
  */
 export class CompositeSearcher implements Composite {
   constructor(
@@ -11,10 +13,13 @@ export class CompositeSearcher implements Composite {
   ) {}
 
   async search(query: string, limit = 50): Promise<SearchRow[]> {
-    const [structuralRows, textRows] = await Promise.all([
+    const results = await Promise.allSettled([
       this.structural.search(query, limit),
       this.text.search(query, limit),
     ]);
+
+    const structuralRows = results[0].status === "fulfilled" ? results[0].value : [];
+    const textRows = results[1].status === "fulfilled" ? results[1].value : [];
 
     const key = (r: SearchRow) => `${r.type}:${r.sura}:${r.ayah}`;
 

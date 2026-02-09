@@ -19,6 +19,7 @@ export class TextSearcher implements Searcher {
         return [];
       }
       const data = await res.json();
+      if ("error" in data) return [];
       return data as SearchRow[];
     } catch (e) {
       console.error("Search API error", e);

@@ -9,11 +9,11 @@
  */
 
 import { escapeRegExp } from "@/shared/lib/text-utils";
-import { Trans, useLingui } from "@lingui/react/macro";
+import { useLingui } from "@lingui/react/macro";
 import { Link } from "expo-router";
 import React from "react";
 import { Pressable, Text, View } from "react-native";
-import { SearchRow } from "../app";
+import { SearchRow, toSurahAyahPath } from "../app";
 
 export interface SearchListItemProps {
   item: SearchRow;
@@ -51,10 +51,7 @@ export function SearchListItem({ item, searchTerm }: SearchListItemProps) {
   const isAyahResult = item.type === "ayah";
 
   return (
-    <Link
-      href={`/pages/${item.page}?surah=${item.sura}&ayah=${item.ayah}`}
-      asChild
-    >
+    <Link href={toSurahAyahPath(item)} asChild>
       <Pressable
         className="bg-surface border border-border p-4 rounded-xl mb-2 active:opacity-90"
         accessibilityRole="button"
@@ -87,7 +84,7 @@ export function SearchListItem({ item, searchTerm }: SearchListItemProps) {
               accessibilityLanguage="ar"
               selectable
             >
-              <Trans> {item.simple}</Trans>
+              {item.simple}
             </Text>
           )}
 
@@ -95,13 +92,11 @@ export function SearchListItem({ item, searchTerm }: SearchListItemProps) {
           <View className="flex-row items-center gap-1">
             <View className="bg-surface-elevated px-2 py-1 rounded-md">
               <Text className="text-2xs text-text-secondary">
-                <Trans>
-                  {item.sura}:{item.ayah}
-                </Trans>
+                {item.sura}:{item.ayah}
               </Text>
             </View>
             <Text className="text-xs font-semibold text-text-primary">
-              <Trans>{item.surahName}</Trans>
+              {item.surahName}
             </Text>
           </View>
         </View>

@@ -7,12 +7,13 @@ export class TextSearcher implements Searcher {
   constructor(private readonly db: SQLiteDatabase) {}
 
   async search(query: string, limit = 50): Promise<SearchRow[]> {
-    const q = query.trim();
-    if (!q || /\d/.test(q)) return []; // leave numeric to structural
+    try {
+      const q = query.trim();
+      if (!q || /^\d+$/.test(q)) return []; // leave pure-numeric to structural
 
-    // Determine column name based on locale
-    const isArabic = i18n.locale.includes("ar");
-    const nameCol = isArabic ? "name_arabic" : "name_simple";
+      // Determine column name based on locale
+      const isArabic = i18n.locale.includes("ar");
+      const nameCol = isArabic ? "name_arabic" : "name_simple";
 
     const pageSubquery = `
     (SELECT ps.page_number
@@ -69,6 +70,10 @@ export class TextSearcher implements Searcher {
     );
 
     return like.map(toAyahRow);
+    } catch (e) {
+      console.error("TextSearcher.native search failed:", e);
+      return [];
+    }
   }
 }
 

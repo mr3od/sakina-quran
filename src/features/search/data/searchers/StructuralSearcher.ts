@@ -10,7 +10,7 @@ export class StructuralSearcher implements Searcher {
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor(_db: any) {}
 
-  async search(query: string): Promise<SearchRow[]> {
+  async search(query: string, _limit?: number): Promise<SearchRow[]> {
     const q = query.trim();
     if (!q) return [];
 
@@ -20,6 +20,7 @@ export class StructuralSearcher implements Searcher {
       );
       if (!res.ok) return [];
       const data = await res.json();
+      if ("error" in data) return [];
       return data as SearchRow[];
     } catch (e) {
       console.error("Structural search failed", e);

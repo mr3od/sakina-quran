@@ -9,14 +9,14 @@ const HAS_DIGIT = /\d/;
 export class StructuralSearcher implements Searcher {
   constructor(private readonly db: SQLiteDatabase) {}
 
-  async search(query: string): Promise<SearchRow[]> {
-    const q = query.trim();
-    if (!q || !HAS_DIGIT.test(q)) return [];
+  async search(query: string, _limit?: number): Promise<SearchRow[]> {
+    try {
+      const q = query.trim();
+      if (!q || !HAS_DIGIT.test(q)) return [];
 
-    // Determine column name based on locale
-    const isArabic = i18n.locale.includes("ar");
-    console.log("locale ", i18n.locale);
-    const nameCol = isArabic ? "name_arabic" : "name_simple";
+      // Determine column name based on locale
+      const isArabic = i18n.locale.includes("ar");
+      const nameCol = isArabic ? "name_arabic" : "name_simple";
 
     // Special: "N:N" → Surah:Ayah
     const pair = q.match(RE_SURA_AYAH);
@@ -167,5 +167,9 @@ export class StructuralSearcher implements Searcher {
     }
 
     return items;
+    } catch (e) {
+      console.error("StructuralSearcher.native search failed:", e);
+      return [];
+    }
   }
 }
