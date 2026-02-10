@@ -36,6 +36,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Test
+        run: pnpm test
+
       - name: Lint
         run: pnpm lint
 
@@ -50,6 +53,7 @@ jobs:
         run: |
           echo "## ✅ PR Checks Passed" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Tests: ✅" >> $GITHUB_STEP_SUMMARY
           echo "- Lint: ✅" >> $GITHUB_STEP_SUMMARY
           echo "- Prebuild smoke test: ✅" >> $GITHUB_STEP_SUMMARY
           echo "- Web export: ✅" >> $GITHUB_STEP_SUMMARY
