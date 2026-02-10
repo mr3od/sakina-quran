@@ -26,3 +26,8 @@ export function useSettings() {
     refetchOnWindowFocus: false,
   });
 }
+
+export async function getInitialSettings(): Promise<UserSettings> {
+  const manager = new KVSettingsManager();
+  return manager.getAll();
+}

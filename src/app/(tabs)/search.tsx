@@ -8,6 +8,8 @@
  */
 
 import { Ionicons } from "@expo/vector-icons";
+import { Trans, useLingui } from "@lingui/react/macro";
+import { useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -21,20 +23,36 @@ import { useCSSVariable } from "uniwind";
 
 import { useSearchController } from "@/features/search/app";
 import { SearchListItem } from "@/features/search/ui/SearchListItem";
-/** Simple debounce hook; no callbacks, no memoization. */
-function useDebouncedValue(value: string, delayMs = 300): string {
-  const [debounced, setDebounced] = useState(value);
-  useEffect(() => {
-    const id = setTimeout(() => setDebounced(value), delayMs);
-    return () => clearTimeout(id);
-  }, [value, delayMs]);
-  return debounced;
-}
+
+import { useLocaleFont } from "@/hooks/useLocaleFont";
+import { SEOHead } from "@/shared/ui/SEOHead";
 
 export default function SearchScreen() {
-  const [input, setInput] = useState("");
-  const query = useDebouncedValue(input, 300);
-  const state = useSearchController(query);
+  const { t } = useLingui();
+  const fontClass = useLocaleFont();
+  const params = useLocalSearchParams<{ q: string }>();
+  // Initialize with URL param q if it exists
+  const [input, setInput] = useState(params.q || "");
+  // The actual term used for searching
+  const [searchTerm, setSearchTerm] = useState(params.q || "");
+
+  // Debounce logic
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchTerm(input);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [input]);
+
+  // Force update on Enter
+  function handleSearch() {
+    setSearchTerm(input);
+  }
+
+  const state = useSearchController(searchTerm);
+
+  // For display in results list
+  const query = searchTerm;
 
   const accentColor = useCSSVariable("--color-accent");
 
@@ -44,13 +62,17 @@ export default function SearchScreen() {
 
   return (
     <View className="flex-1 bg-background">
+      <SEOHead
+        title={t`Search Quran - Sakina Quran`}
+        description={t`Search the Holy Quran by words, verses, or references. Find specific Ayahs, Surahs, Juz, or page numbers with instant results.`}
+        keywords={t`Quran search, Islamic search, Arabic search, verse finder, Ayah search, Surah search, Juz search`}
+        url="https://quran.mr3od.dev/search"
+      />
+
       {/* Header */}
       <View className="px-4 pt-4 pb-2">
-        <Text className="font-ui-ar text-3xl font-bold text-text-primary text-center mb-2">
-          البحث في القرآن
-        </Text>
-        <Text className="font-ui-en text-sm text-text-secondary text-center">
-          Search the Quran
+        <Text className="text-3xl font-bold text-text-primary text-center mb-2">
+          <Trans>Search the Quran</Trans>
         </Text>
       </View>
 
@@ -61,20 +83,22 @@ export default function SearchScreen() {
           <TextInput
             value={input}
             onChangeText={setInput}
-            placeholder="e.g., الله — نب — 7 — 7:7 — juz 5 — حزب 7 — page 151"
+            placeholder={t`e.g., الله — نب — 7 — 7:7 — juz 5 — حزب 7 — page 151`}
             placeholderTextColor="#94A3B8"
-            className="flex-1 mx-3 font-ui-en text-base text-text-primary h-11"
-            accessibilityLabel="Search input"
+            className={`flex-1 mx-3 ${fontClass} text-base text-text-primary h-11`}
+            accessibilityLabel={t`Search input`}
             autoCapitalize="none"
             autoCorrect={false}
             returnKeyType="search"
+            onSubmitEditing={handleSearch}
+            style={{ outline: "none" }}
           />
           {!!input && (
             <Pressable
               onPress={clear}
               className="p-1"
               accessibilityRole="button"
-              accessibilityLabel="Clear"
+              accessibilityLabel={t`Clear`}
             >
               <Ionicons name="close-circle" size={20} color="#94A3B8" />
             </Pressable>
@@ -87,8 +111,8 @@ export default function SearchScreen() {
         {state.kind === "loading" && query.length > 0 && (
           <View className="flex-1 items-center justify-center">
             <ActivityIndicator size="large" color={accentColor as string} />
-            <Text className="font-ui-en text-sm text-text-secondary mt-4">
-              Searching…
+            <Text className="text-sm text-text-secondary mt-4">
+              <Trans>Searching…</Trans>
             </Text>
           </View>
         )}
@@ -96,12 +120,14 @@ export default function SearchScreen() {
         {state.kind === "entry" && (
           <View className="flex-1 items-center justify-center px-8">
             <Ionicons name="search-outline" size={64} color="#94A3B8" />
-            <Text className="font-ui-en text-base text-text-primary text-center mt-4 mb-2">
-              Search the Quran
+            <Text className="text-base text-text-primary text-center mt-4 mb-2">
+              <Trans>Search the Quran</Trans>
             </Text>
-            <Text className="font-ui-en text-sm text-text-secondary text-center">
-              Enter words (الله), fragments (نب), or references (7, 7:7, juz 5,
-              حزب 7, page 151).
+            <Text className="text-sm text-text-secondary text-center">
+              <Trans>
+                Enter words (الله), fragments (نب), or references (7, 7:7, juz
+                5, حزب 7, page 151).
+              </Trans>
             </Text>
           </View>
         )}
@@ -109,10 +135,10 @@ export default function SearchScreen() {
         {state.kind === "error" && (
           <View className="flex-1 items-center justify-center px-8">
             <Ionicons name="alert-circle-outline" size={48} color="#EF4444" />
-            <Text className="font-ui-en text-base text-text-primary text-center mt-4 mb-2">
-              Search Failed
+            <Text className="text-base text-text-primary text-center mt-4 mb-2">
+              <Trans>Search Failed</Trans>
             </Text>
-            <Text className="font-ui-en text-sm text-text-secondary text-center">
+            <Text className="text-sm text-text-secondary text-center">
               {state.message}
             </Text>
           </View>
@@ -121,11 +147,13 @@ export default function SearchScreen() {
         {state.kind === "empty" && query.length > 0 && (
           <View className="flex-1 items-center justify-center px-8">
             <Ionicons name="document-text-outline" size={64} color="#94A3B8" />
-            <Text className="font-ui-en text-base text-text-primary text-center mt-4 mb-2">
-              No Results Found
+            <Text className="text-base text-text-primary text-center mt-4 mb-2">
+              <Trans>No Results Found</Trans>
             </Text>
-            <Text className="font-ui-en text-sm text-text-secondary text-center">
-              Try a different word or a smaller fragment (e.g., نب).
+            <Text className="text-sm text-text-secondary text-center">
+              <Trans>
+                Try a different word or a smaller fragment (e.g., نب).
+              </Trans>
             </Text>
           </View>
         )}
@@ -133,13 +161,13 @@ export default function SearchScreen() {
         {state.kind === "results" && (
           <FlatList
             data={state.items}
-            keyExtractor={(it) => `${it.type}:${it.sura}:${it.ayah}`}
+            keyExtractor={(it) => `${it.type}:${it.page}:${it.sura}:${it.ayah}`}
             renderItem={({ item }) => (
               <SearchListItem item={item} searchTerm={query} />
             )}
             showsVerticalScrollIndicator={false}
             accessibilityRole="list"
-            accessibilityLabel={`Search results, ${state.items.length} items`}
+            accessibilityLabel={t`Search results, ${state.items.length} items`}
           />
         )}
       </View>

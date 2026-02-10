@@ -3,65 +3,45 @@
  * Manages user settings persistence with versioning and migration
  */
 
+import { getSystemLocale } from "@/shared/i18n";
 import KVStore from "expo-sqlite/kv-store";
 import { Appearance } from "react-native";
 import {
+  assertLanguage,
   assertTheme,
+  type LanguageId,
   type SettingsManager,
   type ThemeId,
   type UserSettings,
 } from "../domain/settings-contract";
 
-/**
- * KV Store keys for settings persistence
- */
 const KEYS = {
   VERSION: "settings_version",
   THEME: "theme",
+  LANGUAGE: "user_locale_override",
 } as const;
 
-/**
- * Current settings schema version
- */
 const CURRENT_VERSION = 1;
 
-/**
- * KV-based settings manager implementation
- * Implements SettingsManager interface with validation and migration
- */
 export class KVSettingsManager implements SettingsManager {
-  /**
-   * Get default theme based on system color scheme
-   * @returns ThemeId based on system preference (fallback: "fajr")
-   */
   private getDefaultTheme(): ThemeId {
     const colorScheme = Appearance.getColorScheme();
     return colorScheme === "dark" ? "layl" : "fajr";
   }
 
-  /**
-   * Migrate settings if version is outdated
-   * @param currentVersion - Current settings version from KV Store
-   */
+  private getDefaultLanguage(): LanguageId {
+    return getSystemLocale();
+  }
+
   private async migrate(currentVersion: number): Promise<void> {
     if (currentVersion >= CURRENT_VERSION) {
-      return; // No migration needed
+      return;
     }
-
-    // Migration logic for future versions
-    // Currently v1 is the first version, so no migration needed
-
-    // Update version after migration
     await KVStore.setItem(KEYS.VERSION, String(CURRENT_VERSION));
   }
 
-  /**
-   * Get all user settings (validated and migrated)
-   * @returns Promise resolving to validated UserSettings
-   */
   async getAll(): Promise<UserSettings> {
     try {
-      // Check version and migrate if needed
       const versionStr = await KVStore.getItem(KEYS.VERSION);
       const version = versionStr ? parseInt(versionStr, 10) : 0;
 
@@ -69,52 +49,54 @@ export class KVSettingsManager implements SettingsManager {
         await this.migrate(version);
       }
 
-      // Read individual keys
       const themeStr = await KVStore.getItem(KEYS.THEME);
+      const languageStr = await KVStore.getItem(KEYS.LANGUAGE);
 
-      // Validate and apply defaults
       let theme: ThemeId;
       try {
         assertTheme(themeStr);
         theme = themeStr;
       } catch {
         theme = this.getDefaultTheme();
-        // Persist default
         await KVStore.setItem(KEYS.THEME, theme);
       }
 
-      return { theme };
+      let language: LanguageId;
+      try {
+        assertLanguage(languageStr);
+        language = languageStr;
+      } catch {
+        language = this.getDefaultLanguage();
+        await KVStore.setItem(KEYS.LANGUAGE, language);
+      }
+
+      return { theme, language };
     } catch (error) {
       console.error("Failed to load settings:", error);
-      // Return safe defaults on error
       return {
         theme: this.getDefaultTheme(),
+        language: this.getDefaultLanguage(),
       };
     }
   }
 
-  /**
-   * Get current theme preference
-   * @returns Promise resolving to ThemeId
-   */
   async getTheme(): Promise<ThemeId> {
     const settings = await this.getAll();
     return settings.theme;
   }
 
-  /**
-   * Set theme preference (validates ThemeId)
-   * @param theme - Must be valid ThemeId
-   * @throws Error if theme is invalid
-   */
   async setTheme(theme: ThemeId): Promise<void> {
-    // Validate at data boundary
     assertTheme(theme);
-
-    // Persist to KV Store
     await KVStore.setItem(KEYS.THEME, theme);
+  }
 
-    // Note: Do NOT call Uniwind.setTheme() here
-    // Application layer handles UI updates
+  async getLanguage(): Promise<LanguageId> {
+    const settings = await this.getAll();
+    return settings.language;
+  }
+
+  async setLanguage(language: LanguageId): Promise<void> {
+    assertLanguage(language);
+    await KVStore.setItem(KEYS.LANGUAGE, language);
   }
 }

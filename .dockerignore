@@ -1,0 +1,12 @@
+node_modules/
+.expo
+dist/
+web-build/
+expo-env.d.ts
+ios
+android
+.pnpm-store
+dist
+.git
+*.log
+.turbo

@@ -1,179 +1,152 @@
-<p align="center">
-  <img src="./social-preview.png" alt="Sakina Quran — Divine Tranquility in Every Verse" />
-</p>
+# Sakina Quran | سكينة القرآن
 
-# 🌙 Sakina Quran (سكينة)
+A cross-platform Quran reader built with React Native and Expo — for iOS, Android, and Web.
 
-**Divine Tranquility in Every Verse.**
+**[quran.mr3od.dev](https://quran.mr3od.dev)** · [Development](https://quran-dev.mr3od.dev)
 
-Sakina Quran is a modern, open-source, offline-first Quran reading application built for iOS, Android, and Web. It prioritizes typography, performance, and accessibility, wrapped in a design language meant to evoke peace and focus.
+## Features
 
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Platform](https://img.shields.io/badge/platform-iOS%20%7C%20Android%20%7C%20Web-lightgrey.svg)
-![Stack](https://img.shields.io/badge/stack-Expo%20%7C%20React%20Native%20%7C%20SQLite-4630EB.svg)
-![Version](https://img.shields.io/badge/version-1.1.5-green.svg)
-![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)
+- 📖 **Page-by-page reading** — All 604 pages with Uthmanic Hafs script
+- 🔍 **Full-text search** — Arabic text, surah:ayah references, juz/hizb/page numbers
+- 🔖 **Bookmarks** — Save and navigate to favorite verses
+- 🎨 **5 themes** — Fajr (light), Layl (dark), Asr (sepia), Tahajjud (AMOLED), Masjid (green)
+- 🌍 **Bilingual** — Arabic and English UI with full RTL support
+- 📱 **Native experience** — Swipe navigation, haptic feedback, auto-hide headers
+- ⌨️ **Web experience** — Keyboard navigation, ⌘K search, responsive layout, SEO optimized
+- 📍 **Reading progress** — Automatically saves and restores last read position
 
-<!-- Add screenshots here later -->
-<!--
-<p align="center">
-  <img src="./assets/screenshots/preview-1.png" width="200" />
-  <img src="./assets/screenshots/preview-2.png" width="200" />
-  <img src="./assets/screenshots/preview-3.png" width="200" />
-</p>
--->
+## Screenshots
 
-## ✨ Key Features
+<!-- TODO: Add screenshots -->
 
-- **📖 Crystal Clear Reading:** Utilizes the **Uthmanic Hafs V22** font for authentic, high-quality Arabic rendering.
-- **⚡ Instant Search:** Powered by **SQLite FTS5**, enabling instant full-text search and structural navigation (e.g., "Surah 18", "Juz 30").
-- **🎨 Sakinah Design System:** Five religiously inspired themes:
-  - **Fajr (Dawn):** Light sand & emerald.
-  - **Layl (Night):** Deep slate for low light.
-  - **Asr (Afternoon):** Warm sepia & gold.
-  - **Tahajjud:** Pure black (AMOLED) for late-night reading.
-  - **Masjid:** Deep green & gold.
-- **🔖 Smart Bookmarking:** Save your progress or favorite verses locally.
-- **🔐 Offline First:** All data is bundled locally. No internet connection required.
-- **♿ Accessibility:** Built with WCAG AA standards, screen reader support, and adjustable typography.
-
-## 🛠 Tech Stack
-
-- **Framework:** React Native 0.81 + Expo SDK 54
-- **Language:** TypeScript
-- **Navigation:** Expo Router (File-based routing)
-- **Database:** Expo SQLite + FTS5
-- **Styling:** [Uniwind](https://uniwind.dev/) (Tailwind CSS for React Native)
-- **State Management:** TanStack Query (React Query) + Optimistic Updates
-- **Architecture:** Feature-Sliced Design (FSD)
-
-## 🏗 Architecture
-
-The project follows a strict **Feature-Sliced Design** to ensure scalability and maintainability.
-
-```bash
-src/
-├── app/                 # Expo Router screens (Thin UI layer)
-├── features/            # Feature modules (Self-contained)
-│   ├── quran-reader/    # Reading logic, paging, rendering
-│   ├── search/          # Search logic, FTS implementation
-│   ├── bookmarks/       # Bookmark management
-│   └── settings/        # Theme & App preferences
-├── entities/            # Domain entities (Database repositories)
-├── shared/              # Shared utilities, UI components, constants
-└── global.css           # Design tokens and Tailwind config
-```
-
-## 🚀 Getting Started
+## Quick Start
 
 ### Prerequisites
 
-- Node.js (LTS)
-- [pnpm](https://pnpm.io/) (Recommended)
-- iOS Simulator (Mac) or Android Emulator
+- Node.js 22+
+- pnpm (`corepack enable`)
+- iOS: Xcode 16+ / Android: Android Studio
 
-### Installation
-
-1. **Clone the repository:**
-
-   ```bash
-   git clone https://github.com/mr3od/sakina-quran.git
-   cd sakina-quran
-   ```
-
-2. **Install dependencies:**
-
-   ```bash
-   pnpm install
-   ```
-
-3. **Prebuild (Required for Native SQLite/Fonts):**
-   Since this app uses native modules (SQLite, Fonts), you must generate the native directories:
-
-   ```bash
-   npx expo prebuild
-   ```
-
-4. **Run the app:**
-
-   ```bash
-   # For iOS
-   pnpm run ios
-
-   # For Android
-   pnpm run android
-
-   # For Web
-   npx expo start --web
-   ```
-
-## 🧪 Database & Schema
-
-The app uses a pre-populated `assets/quran.db` file.
-
-- **`surahs`**: Metadata for 114 chapters.
-- **`ayahs`**: Text (Uthmani & Simple) for 6236 verses.
-- **`page_segments`**: Mapping of verses to the standard 604 Madani pages.
-- **`fts_ayahs`**: Virtual table for high-performance text search.
-
-## 🤝 Contributing
-
-We welcome contributions from the community! Whether you're fixing bugs, adding features, or improving documentation, your help is appreciated.
-
-### Quick Start for Contributors
-
-1. **Read the guidelines**: Check out [CONTRIBUTING.md](CONTRIBUTING.md) for detailed instructions
-2. **Pick an issue**: Look for issues labeled `good first issue` or `help wanted`
-3. **Follow the workflow**: Branch from `development`, use conventional commits, bump version
-4. **Submit a PR**: Target the `development` branch with your changes
-
-### Branch Strategy
-
-- **`development`** - Integration branch for new features (deploy to dev environment)
-- **`main`** - Production branch (deploy to production)
-
-**Important**: Always branch from `development`, never from `main`.
-
-### Commit Convention
-
-We use [Conventional Commits](https://www.conventionalcommits.org/):
+### Setup
 
 ```bash
-feat: add bookmark sync functionality
-fix: resolve crash on surah navigation
-docs: update installation instructions
+git clone https://github.com/mr3od/sakina-quran.git
+cd sakina-quran
+pnpm install
 ```
 
-### Version Management
+### Run
 
-Version is managed in `app.json` (`expo.version`). Use semantic versioning and bump before creating a PR.
+```bash
+# Web
+pnpm web
 
-For more details, see [CONTRIBUTING.md](CONTRIBUTING.md).
+# iOS
+pnpm ios
 
-## 🐛 Reporting Issues
+# Android
+pnpm android
+```
 
-Found a bug? Have a feature request? Please use our issue templates:
+### Test
 
-- [Bug Report](.github/ISSUE_TEMPLATE/bug_report.md)
-- [Feature Request](.github/ISSUE_TEMPLATE/feature_request.md)
-- [Documentation](.github/ISSUE_TEMPLATE/documentation.md)
+```bash
+# Run tests
+pnpm test
 
-## 🤖 AI Agent Guidelines
+# Watch mode
+pnpm test:watch
 
-If you're using an AI coding assistant, check out our [AI Agent Steering File](.kiro/steering/sakina-development.md) for project-specific guidelines.
+# Coverage report
+pnpm test:coverage
+```
 
-## 📄 License
+Tests use Jest + jest-expo + React Native Testing Library.
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+### Generate Static Data
 
-## 🙏 Acknowledgements
+Required before first web export:
 
-- **Tanzil.net** for the verified Quran text database.
-- **King Fahd Glorious Quran Printing Complex** for the Uthmanic fonts.
-- **Expo** team for the incredible platform.
+```bash
+pnpm run generate:static
+```
 
----
+## Project Structure
 
-<p align="center">
-  Made with ❤️ by <a href="https://github.com/mr3od">Abdulrahman</a>
-</p>
+```
+src/
+├── app/              # Expo Router file-based routes
+│   ├── (tabs)/       # Tab screens (home, search, bookmarks, settings)
+│   ├── pages/        # Quran page reader ([number].tsx)
+│   └── api/          # Server-side API routes (search)
+├── features/         # Feature modules (4-layer architecture)
+│   ├── quran-reader/ # Page reading with swipe/keyboard navigation
+│   ├── search/       # Composite search (structural + text) with React Query
+│   ├── bookmarks/    # Verse bookmarking with optimistic updates
+│   └── settings/     # Theme and language preferences
+├── entities/         # Shared data repositories
+├── components/       # Shared UI components
+├── hooks/            # Shared React hooks
+├── shared/           # Constants, i18n, utilities
+└── types/            # TypeScript type definitions
+```
+
+See [ARCH.md](./ARCH.md) for detailed architecture documentation.
+
+## Tech Stack
+
+| Layer     | Technology                                                         |
+| --------- | ------------------------------------------------------------------ |
+| Framework | Expo 54 (New Architecture)                                         |
+| UI        | React Native 0.81 / React 19 + React Compiler                      |
+| Routing   | Expo Router 6 (typed routes)                                       |
+| Styling   | Tailwind CSS 4 via Uniwind                                         |
+| Data      | TanStack React Query 5                                             |
+| Database  | expo-sqlite (native) / sql.js (web API) / static JSON (web client) |
+| Lists     | @shopify/flash-list                                                |
+| i18n      | Lingui 5                                                           |
+| Animation | Reanimated 4                                                       |
+
+## Data
+
+- **Quran text**: Uthmanic Hafs script from [Tanzil.net](https://tanzil.net)
+- **Fonts**: UthmanicHafs V22, SurahNames V4, JuzNames V2 by [KFGQPC](https://fonts.qurancomplex.gov.sa)
+- **Database**: SQLite with FTS5 full-text search on simplified Arabic text
+- **Static export**: 604 pre-generated page JSON files for web
+
+## Deployment
+
+### Docker
+
+```bash
+docker build -t sakina-quran .
+docker run -p 3000:3000 sakina-quran
+```
+
+### CI/CD
+
+- **PR checks**: Test → Lint → Expo prebuild → Web export
+- **Deploy**: Push to `main` or `development` → Docker build → MicroK8s
+- **Releases**: Auto-tagged from `app.json` version on merge to `main`
+
+| Branch        | Environment | URL                                                |
+| ------------- | ----------- | -------------------------------------------------- |
+| `main`        | Production  | [quran.mr3od.dev](https://quran.mr3od.dev)         |
+| `development` | Development | [quran-dev.mr3od.dev](https://quran-dev.mr3od.dev) |
+
+## Contributing
+
+1. Create a feature branch from `development`
+2. Use conventional commits: `feat:`, `fix:`, `chore:`, `docs:`
+3. Open PR to `development`
+4. PRs to `main` require a version bump in `app.json`
+
+## License
+
+MIT
+
+## Credits
+
+- Quran text from [Tanzil.net](https://tanzil.net)
+- Uthmanic Hafs font by [KFGQPC](https://fonts.qurancomplex.gov.sa)
+- Built with [Expo](https://expo.dev) & [React Native](https://reactnative.dev)

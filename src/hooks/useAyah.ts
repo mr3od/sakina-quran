@@ -1,4 +1,5 @@
 import { QuranRepository } from "@/entities/quran/api/QuranRepository";
+import type { Ayah } from "@/types/quran.types";
 import { useQuery } from "@tanstack/react-query";
 import { useDatabase } from "./useDatabase";
 
@@ -17,15 +18,13 @@ export function useAyah(
 
   return useQuery({
     queryKey: ["ayah", suraNumber, ayahNumber],
-    queryFn: async () => {
-      if (!suraNumber || !ayahNumber) {
-        throw new Error("Surah and Ayah numbers required");
-      }
+    queryFn: async (): Promise<Ayah | null> => {
+      if (!suraNumber || !ayahNumber) return null;
+      // constructor accepts any to satisfy shared hooks like useAyah across platforms
       const repo = new QuranRepository(db);
       return repo.getAyah(suraNumber, ayahNumber);
     },
     enabled: !!suraNumber && !!ayahNumber,
-    // Static data configuration - NEVER refetch
     staleTime: Infinity,
     gcTime: Infinity,
     refetchOnMount: false,

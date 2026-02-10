@@ -13,9 +13,6 @@ export interface ReadingPosition {
  * Handles persistence of reading progress using KV Store.
  */
 export class ProgressRepository {
-  /**
-   * Get the last read position.
-   */
   async getLastReadPosition(): Promise<ReadingPosition | null> {
     try {
       const pageValue = await KVStore.getItem(LAST_READ_PAGE_KEY);
@@ -32,9 +29,6 @@ export class ProgressRepository {
     }
   }
 
-  /**
-   * Update the last read position.
-   */
   async updateLastReadPosition(pageNumber: number): Promise<void> {
     if (pageNumber < 1 || pageNumber > TOTAL_PAGES) {
       throw new Error(`Invalid page number: ${pageNumber}`);
@@ -42,9 +36,6 @@ export class ProgressRepository {
     await KVStore.setItem(LAST_READ_PAGE_KEY, pageNumber.toString());
   }
 
-  /**
-   * Clear the last read position.
-   */
   async clearLastReadPosition(): Promise<void> {
     await KVStore.removeItem(LAST_READ_PAGE_KEY);
   }

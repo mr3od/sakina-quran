@@ -1,2 +1,5 @@
 export type { SearchRow, SearchState } from "../domain/search-contract";
 export { useSearchController } from "./useSearchController";
+export { useSearchQuery } from "./useSearchQuery";
+export { toSurahAyahPath } from "./search-route";
+export { useLocalizedSearchLabel } from "./useLocalizedSearchLabel";

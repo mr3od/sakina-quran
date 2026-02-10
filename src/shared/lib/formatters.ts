@@ -1,6 +1,7 @@
 /**
  * Western Arabic -> Eastern Arabic-Indic numerals
  */
+
 export function toArabicIndic(num: number): string {
   const map = ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
   return num
@@ -13,16 +14,35 @@ export function toArabicIndic(num: number): string {
 /**
  * Format timestamp as relative time
  */
-export function formatRelativeTime(timestamp: number): string {
+export function formatRelativeTime(date: Date, locale: string) {
   const now = Date.now();
-  const diff = now - timestamp;
-  const seconds = Math.floor(diff / 1000);
-  const minutes = Math.floor(seconds / 60);
-  const hours = Math.floor(minutes / 60);
-  const days = Math.floor(hours / 24);
+  const diffMs = date.getTime() - now;
 
-  if (days > 0) return `${days} day${days > 1 ? "s" : ""} ago`;
-  if (hours > 0) return `${hours} hour${hours > 1 ? "s" : ""} ago`;
-  if (minutes > 0) return `${minutes} minute${minutes > 1 ? "s" : ""} ago`;
-  return "Just now";
+  const diffSeconds = Math.round(diffMs / 1000);
+  const diffMinutes = Math.round(diffSeconds / 60);
+  const diffHours = Math.round(diffMinutes / 60);
+  const diffDays = Math.round(diffHours / 24);
+
+  const RTF = Intl?.RelativeTimeFormat;
+
+  // iOS/Hermes: RelativeTimeFormat may be missing -> fallback
+  if (!RTF) {
+    const absDays = Math.abs(diffDays);
+    if (absDays >= 1) return `${absDays}d`;
+
+    const absHours = Math.abs(diffHours);
+    if (absHours >= 1) return `${absHours}h`;
+
+    const absMinutes = Math.abs(diffMinutes);
+    if (absMinutes >= 1) return `${absMinutes}m`;
+
+    return "now";
+  }
+
+  const rtf = new RTF(locale, { numeric: "auto" });
+  if (Math.abs(diffDays) >= 1) return rtf.format(diffDays, "day");
+  if (Math.abs(diffHours) >= 1) return rtf.format(diffHours, "hour");
+  if (Math.abs(diffMinutes) >= 1) return rtf.format(diffMinutes, "minute");
+
+  return rtf.format(diffSeconds, "second");
 }

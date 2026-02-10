@@ -10,6 +10,11 @@
 export type ThemeId = "fajr" | "layl" | "asr" | "tahajjud" | "masjid";
 
 /**
+ * Valid language identifiers
+ */
+export type LanguageId = "en" | "ar";
+
+/**
  * User settings data structure
  * Invariants:
  * - theme ∈ ThemeId
@@ -17,6 +22,7 @@ export type ThemeId = "fajr" | "layl" | "asr" | "tahajjud" | "masjid";
  */
 export interface UserSettings {
   theme: ThemeId;
+  language: LanguageId;
 }
 
 /**
@@ -42,6 +48,16 @@ export interface SettingsManager {
    * @throws Error if theme is invalid
    */
   setTheme(theme: ThemeId): Promise<void>;
+
+  /**
+   * Get current language preference
+   */
+  getLanguage(): Promise<LanguageId>;
+
+  /**
+   * Set language preference
+   */
+  setLanguage(language: LanguageId): Promise<void>;
 }
 
 /**
@@ -70,5 +86,21 @@ export function assertTheme(value: unknown): asserts value is ThemeId {
     throw new Error(
       `Invalid theme: ${value}. Must be one of: fajr, layl, asr, tahajjud, masjid`,
     );
+  }
+}
+
+/**
+ * Type guard for LanguageId
+ */
+export function isLanguageId(value: unknown): value is LanguageId {
+  return typeof value === "string" && (value === "en" || value === "ar");
+}
+
+/**
+ * Assertion helper for LanguageId
+ */
+export function assertLanguage(value: unknown): asserts value is LanguageId {
+  if (!isLanguageId(value)) {
+    throw new Error(`Invalid language: ${value}. Must be one of: en, ar`);
   }
 }

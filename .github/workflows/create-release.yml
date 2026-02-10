@@ -59,6 +59,8 @@ jobs:
           echo "Previous tag: ${PREV:-<none>}"
 
       - name: Generate changelog
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TAG="${{ steps.version.outputs.tag }}"
           PREV="${{ steps.previous.outputs.tag }}"
@@ -71,7 +73,8 @@ jobs:
 
           echo "Generating changelog for range: ${RANGE:-<all commits>}"
 
-          COMMITS=$(git log ${RANGE} --pretty=format:"%s|%an|%h" --no-merges)
+          # message | shortHash | fullSha
+          COMMITS=$(git log ${RANGE} --pretty=format:"%s|%h|%H" --no-merges)
 
           FEATURES=""
           FIXES=""
@@ -79,24 +82,51 @@ jobs:
           DOCS=""
           OTHER=""
 
-          while IFS='|' read -r message author hash; do
+          declare -A SHA_TO_LOGIN
+
+          lookup_login_by_sha() {
+            local sha="$1"
+
+            # cached?
+            if [[ -n "${SHA_TO_LOGIN[$sha]+x}" ]]; then
+              echo "${SHA_TO_LOGIN[$sha]}"
+              return
+            fi
+
+            # Resolve GitHub username from the commit
+            local login
+            login=$(gh api -H "Accept: application/vnd.github+json" \
+              "/repos/${GITHUB_REPOSITORY}/commits/${sha}" \
+              --jq '.author.login // .committer.login // empty' 2>/dev/null || true)
+
+            if [[ -z "$login" || "$login" == "null" ]]; then
+              login="unknown"
+            fi
+
+            SHA_TO_LOGIN[$sha]="$login"
+            echo "$login"
+          }
+
+          while IFS='|' read -r message short full; do
             [ -z "$message" ] && continue
 
+            login="$(lookup_login_by_sha "$full")"
+            who="@${login}"
+
             if [[ $message =~ ^feat(\(.+\))?:\ (.+)$ ]]; then
-              FEATURES="${FEATURES}- ${BASH_REMATCH[2]} (${hash}) — ${author}\n"
+              FEATURES="${FEATURES}- ${BASH_REMATCH[2]} (${short}) — ${who}\n"
             elif [[ $message =~ ^fix(\(.+\))?:\ (.+)$ ]]; then
-              FIXES="${FIXES}- ${BASH_REMATCH[2]} (${hash}) — ${author}\n"
+              FIXES="${FIXES}- ${BASH_REMATCH[2]} (${short}) — ${who}\n"
             elif [[ $message =~ ^chore(\(.+\))?:\ (.+)$ ]]; then
-              CHORES="${CHORES}- ${BASH_REMATCH[2]} (${hash}) — ${author}\n"
+              CHORES="${CHORES}- ${BASH_REMATCH[2]} (${short}) — ${who}\n"
             elif [[ $message =~ ^docs(\(.+\))?:\ (.+)$ ]]; then
-              DOCS="${DOCS}- ${BASH_REMATCH[2]} (${hash}) — ${author}\n"
+              DOCS="${DOCS}- ${BASH_REMATCH[2]} (${short}) — ${who}\n"
             else
-              OTHER="${OTHER}- ${message} (${hash}) — ${author}\n"
+              OTHER="${OTHER}- ${message} (${short}) — ${who}\n"
             fi
           done <<< "$COMMITS"
 
           CHANGELOG="## Changes\n\n"
-
           [ -n "$FEATURES" ] && CHANGELOG="${CHANGELOG}### ✨ Features\n${FEATURES}\n"
           [ -n "$FIXES" ] && CHANGELOG="${CHANGELOG}### 🐛 Bug Fixes\n${FIXES}\n"
           [ -n "$CHORES" ] && CHANGELOG="${CHANGELOG}### 🔧 Chores\n${CHORES}\n"

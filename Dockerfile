@@ -1,37 +1,36 @@
-# Stage 1: Build the app
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 
-# Enable pnpm
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
 WORKDIR /app
 
-# Copy dependency definitions
+# Copy ONLY package files first (for better caching)
 COPY package.json pnpm-lock.yaml ./
 
-# Install dependencies (frozen-lockfile ensures reproducibility)
+# This layer is cached unless package.json or pnpm-lock.yaml changes
 RUN pnpm install --frozen-lockfile
 
-# Copy source code
+# Copy source files (this invalidates cache only for build step)
 COPY . .
 
-# Build the web bundle (Expo exports to ./dist by default)
-RUN npx expo export --platform web
+RUN pnpm run export:full
 
-# Stage 2: Serve with Nginx
-FROM nginx:alpine
+# ============================================
+FROM node:22-alpine
 
-# Remove default nginx static assets
-RUN rm -rf /usr/share/nginx/html/*
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
-# Copy built assets from builder stage
-COPY --from=builder /app/dist /usr/share/nginx/html
+WORKDIR /app
 
-# Copy custom nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+RUN echo '{"name":"sakina-quran","private":true}' > package.json
 
-# Expose port 80
-EXPOSE 80
+RUN pnpm add expo@54.0.30 sql.js@^1.13.0 --ignore-scripts \
+    && pnpm store prune \
+    && rm -rf /root/.local/share/pnpm/store
 
-# Start Nginx
-CMD ["nginx", "-g", "daemon off;"]
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/assets/quran.db ./assets/quran.db
+
+EXPOSE 3000
+
+CMD ["pnpm", "exec", "expo", "serve", "dist", "--port", "3000"]

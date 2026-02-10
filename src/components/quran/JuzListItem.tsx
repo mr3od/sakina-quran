@@ -1,3 +1,5 @@
+import { getJuzBadgeGlyph } from "@/shared/lib/quran-fonts";
+import { Trans, useLingui } from "@lingui/react/macro";
 import React from "react";
 import { Text, View } from "react-native";
 import type { JuzData, Surah } from "../../types/quran.types";
@@ -8,11 +10,13 @@ interface JuzListItemProps {
 }
 
 export function JuzListItem({ juz }: JuzListItemProps) {
+  const { t, i18n } = useLingui();
+  const isAr = i18n.locale === "ar";
   return (
     <View
       className="mb-6"
       accessible
-      accessibilityLabel={`Juz ${juz.juz_number}`}
+      accessibilityLabel={t`Juz ${juz.juz_number}`}
     >
       <View className="mb-4 px-1">
         <View className="flex-row items-center gap-3">
@@ -22,12 +26,15 @@ export function JuzListItem({ juz }: JuzListItemProps) {
             </Text>
           </View>
           <View>
-            <Text className="font-ui-en text-lg font-bold text-text-primary">
-              Juz {juz.juz_number}
-            </Text>
-            <Text className="font-ui-ar text-sm text-text-secondary">
-              الجزء {juz.juz_number}
-            </Text>
+            {isAr ? (
+              <Text className="text-2xl font-juz-name text-text-primary">
+                {getJuzBadgeGlyph(juz.juz_number)}
+              </Text>
+            ) : (
+              <Text className="text-lg font-bold text-text-primary">
+                <Trans>Juz {juz.juz_number}</Trans>
+              </Text>
+            )}
           </View>
         </View>
         <View className="h-px bg-border-subtle mt-3" />

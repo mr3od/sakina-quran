@@ -1,12 +1,11 @@
 import { useDatabase } from "@/hooks/useDatabase";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import type { SQLiteDatabase } from "expo-sqlite";
 import { PageReaderRepository } from "../data/PageReaderRepository";
 
 const pageDataKey = (page: number) =>
   ["quran-reader", "page-data", page] as const;
 
-async function fetchPageData(db: SQLiteDatabase, page: number) {
+async function fetchPageData(db: any, page: number) {
   const repo = new PageReaderRepository(db);
 
   // Fetch Ayahs and Page Metadata (Juz/Hizb info) in parallel

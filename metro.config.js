@@ -8,6 +8,17 @@ const config = getDefaultConfig(__dirname);
 // Add wasm asset support
 config.resolver.assetExts.push('wasm');
 
+// Add Lingui Metro transformer for on-the-fly .po compilation
+config.transformer = {
+    ...config.transformer,
+    babelTransformerPath: require.resolve('@lingui/metro-transformer/expo'),
+};
+config.resolver.sourceExts = [
+    ...config.resolver.sourceExts,
+    'po',
+    'pot',
+];
+
 // Add COEP and COOP headers to support SharedArrayBuffer
 config.server.enhanceMiddleware = (middleware) => {
     return (req, res, next) => {

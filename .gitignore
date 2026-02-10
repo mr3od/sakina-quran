@@ -43,3 +43,7 @@ app-example
 /android
 *.xml.repomix
 staged.txt
+tinker-companion
+.kiro
+chunks
+coverage

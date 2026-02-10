@@ -1,16 +1,16 @@
 /**
- * Page Reader Repository - Data access layer for page-based reading
+ * Page Reader Repository - Web Implementation
  */
 
 import { QuranRepository } from "@/entities/quran/api/QuranRepository";
 import type { Ayah, PageSegment } from "@/types/quran.types";
-import type { SQLiteDatabase } from "expo-sqlite";
 
 export class PageReaderRepository {
   private repo: QuranRepository;
 
-  constructor(private db: SQLiteDatabase) {
-    this.repo = new QuranRepository(db);
+  // Accepts any db object to satisfy shared hooks (null on web, SQLiteDatabase on native)
+  constructor(_db: any) {
+    this.repo = new QuranRepository(null);
   }
 
   /**
