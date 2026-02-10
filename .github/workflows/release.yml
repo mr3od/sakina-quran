@@ -1,4 +1,4 @@
-name: Auto Tag Release
+name: Release
 
 on:
   push:
@@ -9,12 +9,18 @@ permissions:
   contents: write
 
 concurrency:
-  group: auto-tag-main
+  group: release-main
   cancel-in-progress: true
 
 jobs:
   tag:
+    name: Auto Tag
     runs-on: ubuntu-latest
+    outputs:
+      created: ${{ steps.create.outputs.created }}
+      tag: ${{ steps.ver.outputs.tag }}
+      version: ${{ steps.ver.outputs.version }}
+
     steps:
       - name: Checkout (full history)
         uses: actions/checkout@v4
@@ -24,38 +30,27 @@ jobs:
       - name: Fetch tags
         run: git fetch --tags --force
 
-      - name: Read current version from app.json
+      - name: Read version from app.json
         id: ver
         run: |
           VERSION=$(jq -r '.expo.version' app.json)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "tag=v$VERSION" >> $GITHUB_OUTPUT
-          echo "Current version: $VERSION"
 
-      - name: Determine if app.json version changed in this push
+      - name: Check if version changed
         id: changed
         run: |
-          # Compare the pushed commit to its first parent (works for merge commits too)
           BEFORE="${{ github.event.before }}"
           AFTER="${{ github.sha }}"
 
-          echo "Before: $BEFORE"
-          echo "After:  $AFTER"
-
-          # If before is all zeros (rare), tag anyway based on current version
           if [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
             echo "changed=true" >> $GITHUB_OUTPUT
             exit 0
           fi
 
-          # Did app.json change at all?
           if git diff --name-only "$BEFORE" "$AFTER" | grep -qx "app.json"; then
-            # Did expo.version change?
             BEFORE_VER=$(git show "$BEFORE:app.json" | jq -r '.expo.version' || echo "")
             AFTER_VER=$(git show "$AFTER:app.json" | jq -r '.expo.version' || echo "")
-            echo "Before version: $BEFORE_VER"
-            echo "After version:  $AFTER_VER"
-
             if [ -n "$BEFORE_VER" ] && [ "$BEFORE_VER" != "$AFTER_VER" ]; then
               echo "changed=true" >> $GITHUB_OUTPUT
               exit 0
@@ -70,30 +65,137 @@ jobs:
           TAG="${{ steps.ver.outputs.tag }}"
           if git rev-parse "$TAG" >/dev/null 2>&1; then
             echo "exists=true" >> $GITHUB_OUTPUT
-            echo "Tag $TAG already exists."
           else
             echo "exists=false" >> $GITHUB_OUTPUT
-            echo "Tag $TAG does not exist."
           fi
 
       - name: Create and push tag
+        id: create
         if: steps.changed.outputs.changed == 'true' && steps.exists.outputs.exists == 'false'
         run: |
           TAG="${{ steps.ver.outputs.tag }}"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-
           git tag "$TAG" "${{ github.sha }}"
           git push origin "$TAG"
-
-          echo "✅ Pushed tag $TAG at commit ${{ github.sha }}"
+          echo "created=true" >> $GITHUB_OUTPUT
 
       - name: Summary
         run: |
-          echo "## 🏷️ Auto Tag Summary" >> $GITHUB_STEP_SUMMARY
+          echo "## 🏷️ Auto Tag" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- Commit: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
           echo "- Version: ${{ steps.ver.outputs.version }}" >> $GITHUB_STEP_SUMMARY
           echo "- Tag: ${{ steps.ver.outputs.tag }}" >> $GITHUB_STEP_SUMMARY
-          echo "- app.json version changed: ${{ steps.changed.outputs.changed }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Tag already existed: ${{ steps.exists.outputs.exists }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Changed: ${{ steps.changed.outputs.changed }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Existed: ${{ steps.exists.outputs.exists }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Created: ${{ steps.create.outputs.created || 'false' }}" >> $GITHUB_STEP_SUMMARY
+
+  release:
+    name: Create GitHub Release
+    needs: tag
+    if: needs.tag.outputs.created == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch tags
+        run: git fetch --tags --force
+
+      - name: Get previous tag
+        id: previous
+        run: |
+          TAG="${{ needs.tag.outputs.tag }}"
+          PREV=$(git tag -l "v*" --sort=-v:refname | grep -A1 "^${TAG}$" | tail -1)
+          if [ "$PREV" = "$TAG" ] || [ -z "$PREV" ]; then
+            PREV=""
+          fi
+          echo "tag=$PREV" >> $GITHUB_OUTPUT
+
+      - name: Generate changelog
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ needs.tag.outputs.tag }}"
+          PREV="${{ steps.previous.outputs.tag }}"
+
+          if [ -z "$PREV" ]; then
+            RANGE=""
+          else
+            RANGE="${PREV}..${TAG}"
+          fi
+
+          COMMITS=$(git log ${RANGE} --pretty=format:"%s|%h|%H" --no-merges)
+
+          FEATURES=""
+          FIXES=""
+          CHORES=""
+          DOCS=""
+          OTHER=""
+
+          declare -A SHA_TO_LOGIN
+
+          lookup_login_by_sha() {
+            local sha="$1"
+            if [[ -n "${SHA_TO_LOGIN[$sha]+x}" ]]; then
+              echo "${SHA_TO_LOGIN[$sha]}"
+              return
+            fi
+            local login
+            login=$(gh api -H "Accept: application/vnd.github+json" \
+              "/repos/${GITHUB_REPOSITORY}/commits/${sha}" \
+              --jq '.author.login // .committer.login // empty' 2>/dev/null || true)
+            if [[ -z "$login" || "$login" == "null" ]]; then
+              login="unknown"
+            fi
+            SHA_TO_LOGIN[$sha]="$login"
+            echo "$login"
+          }
+
+          while IFS='|' read -r message short full; do
+            [ -z "$message" ] && continue
+            login="$(lookup_login_by_sha "$full")"
+            who="@${login}"
+
+            if [[ $message =~ ^feat(\(.+\))?:\ (.+)$ ]]; then
+              FEATURES="${FEATURES}- ${BASH_REMATCH[2]} (${short}) — ${who}\n"
+            elif [[ $message =~ ^fix(\(.+\))?:\ (.+)$ ]]; then
+              FIXES="${FIXES}- ${BASH_REMATCH[2]} (${short}) — ${who}\n"
+            elif [[ $message =~ ^chore(\(.+\))?:\ (.+)$ ]]; then
+              CHORES="${CHORES}- ${BASH_REMATCH[2]} (${short}) — ${who}\n"
+            elif [[ $message =~ ^docs(\(.+\))?:\ (.+)$ ]]; then
+              DOCS="${DOCS}- ${BASH_REMATCH[2]} (${short}) — ${who}\n"
+            else
+              OTHER="${OTHER}- ${message} (${short}) — ${who}\n"
+            fi
+          done <<< "$COMMITS"
+
+          CHANGELOG="## Changes\n\n"
+          [ -n "$FEATURES" ] && CHANGELOG="${CHANGELOG}### ✨ Features\n${FEATURES}\n"
+          [ -n "$FIXES" ] && CHANGELOG="${CHANGELOG}### 🐛 Bug Fixes\n${FIXES}\n"
+          [ -n "$CHORES" ] && CHANGELOG="${CHANGELOG}### 🔧 Chores\n${CHORES}\n"
+          [ -n "$DOCS" ] && CHANGELOG="${CHANGELOG}### 📚 Documentation\n${DOCS}\n"
+          [ -n "$OTHER" ] && CHANGELOG="${CHANGELOG}### 📦 Other Changes\n${OTHER}\n"
+
+          echo -e "$CHANGELOG" > changelog.md
+
+      - name: Create GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ needs.tag.outputs.tag }}"
+          VERSION="${{ needs.tag.outputs.version }}"
+          gh release create "$TAG" \
+            --title "Release $VERSION" \
+            --notes-file changelog.md \
+            --latest
+
+      - name: Summary
+        run: |
+          echo "## 📦 Release Created" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Tag: ${{ needs.tag.outputs.tag }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Version: ${{ needs.tag.outputs.version }}" >> $GITHUB_STEP_SUMMARY
