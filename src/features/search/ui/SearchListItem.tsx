@@ -8,6 +8,7 @@
  
  */
 
+import { useLocaleFont } from "@/hooks/useLocaleFont";
 import { escapeRegExp } from "@/shared/lib/text-utils";
 import { useLingui } from "@lingui/react/macro";
 import { Link } from "expo-router";
@@ -48,6 +49,7 @@ function renderHighlightedText(text: string, term: string | undefined) {
 
 export function SearchListItem({ item, searchTerm }: SearchListItemProps) {
   const { t } = useLingui();
+  const fontClass = useLocaleFont();
   const isAyahResult = item.type === "ayah";
   const displayText = useLocalizedSearchLabel(item);
 
@@ -80,11 +82,7 @@ export function SearchListItem({ item, searchTerm }: SearchListItemProps) {
               {renderHighlightedText(item.simple, searchTerm)}
             </Text>
           ) : (
-            <Text
-              className={`text-text-primary mb-2`}
-              accessibilityLanguage="ar"
-              selectable
-            >
+            <Text className={`${fontClass} text-text-primary mb-2`} selectable>
               {displayText}
             </Text>
           )}
@@ -92,11 +90,13 @@ export function SearchListItem({ item, searchTerm }: SearchListItemProps) {
           {/* Header */}
           <View className="flex-row items-center gap-1">
             <View className="bg-surface-elevated px-2 py-1 rounded-md">
-              <Text className="text-2xs text-text-secondary">
+              <Text className={`${fontClass} text-2xs text-text-secondary`}>
                 {item.sura}:{item.ayah}
               </Text>
             </View>
-            <Text className="text-xs font-semibold text-text-primary">
+            <Text
+              className={`${fontClass} text-xs font-semibold text-text-primary`}
+            >
               {item.surahName}
             </Text>
           </View>

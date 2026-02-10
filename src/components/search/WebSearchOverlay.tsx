@@ -15,7 +15,11 @@ import {
 import { useCSSVariable } from "uniwind";
 
 import type { SearchRow } from "@/features/search/app";
-import { useSearchController, toSurahAyahPath, useLocalizedSearchLabel } from "@/features/search/app";
+import {
+  toSurahAyahPath,
+  useLocalizedSearchLabel,
+  useSearchController,
+} from "@/features/search/app";
 import { escapeRegExp } from "@/shared/lib/text-utils";
 
 interface WebSearchOverlayProps {
@@ -85,7 +89,7 @@ function WebSearchResultItem({
           name={isAyahResult ? "book-outline" : "bookmark-outline"}
           size={16}
           color="#94A3B8"
-          className="mr-3"
+          className="mx-3"
         />
 
         <View className="flex-1">
@@ -98,11 +102,11 @@ function WebSearchResultItem({
 
           <View className="flex-row items-center">
             <View className="bg-surface px-2 py-0.5 rounded mr-2">
-              <Text className="text-xs text-text-secondary">
+              <Text className={`${fontClass} text-xs text-text-secondary`}>
                 {item.sura}:{item.ayah}
               </Text>
             </View>
-            <Text className="text-xs text-text-secondary">
+            <Text className={`${fontClass} text-xs text-text-secondary`}>
               {item.surahName}
             </Text>
           </View>
@@ -137,7 +141,7 @@ export function WebSearchOverlay({ isOpen, onClose }: WebSearchOverlayProps) {
   const defaultSuggestions = [
     { label: msg`Juz 1`, query: "juz 1" },
     { label: msg`Page 1`, query: "page 1" },
-    { label: msg`Surah Ya-Sin`, query: "يس" },
+    { label: msg`Surah Ya-Sin`, query: "36:1" },
     { label: msg`Ayat al-Kursi`, query: "2:255" },
   ];
 
@@ -313,9 +317,9 @@ export function WebSearchOverlay({ isOpen, onClose }: WebSearchOverlayProps) {
                     name="trending-up-outline"
                     size={16}
                     color="#94A3B8"
-                    className="mr-3"
+                    className="mx-3"
                   />
-                  <Text className="text-sm text-text-primary">
+                  <Text className={`${fontClass} text-sm text-text-primary`}>
                     {i18n._(s.label)}
                   </Text>
                 </Pressable>
