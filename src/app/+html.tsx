@@ -35,7 +35,18 @@ export default function Root({ children }: PropsWithChildren) {
         />
 
         <link rel="icon" href="/favicon.ico" />
-        <meta name="theme-color" content="#0f172a" />
+
+        <meta
+          name="theme-color"
+          content="#fcfaf8"
+          media="(prefers-color-scheme: light)"
+        />
+
+        <meta
+          name="theme-color"
+          content="#020617"
+          media="(prefers-color-scheme: dark)"
+        />
       </head>
 
       <body>{children}</body>

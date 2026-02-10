@@ -5,11 +5,11 @@ import { SEOHead } from "@/shared/ui/SEOHead";
 import { t } from "@lingui/core/macro";
 import { I18nProvider, type TransRenderProps } from "@lingui/react";
 
+import { getInitialSettings } from "@/features/settings/app";
 import * as Font from "expo-font";
 import { Stack, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { SQLiteProvider } from "expo-sqlite";
-import KVStore from "expo-sqlite/kv-store";
 
 import React, { useEffect, useState } from "react";
 import { I18nManager, Platform, Text, View } from "react-native";
@@ -81,19 +81,18 @@ function RootLayoutContent() {
 }
 
 async function initApp() {
-  await bootstrapLocale();
-
-  const theme = (await KVStore.getItem("theme")) || "fajr";
-  Uniwind.setTheme(theme as any);
-  if (!(await KVStore.getItem("theme"))) await KVStore.setItem("theme", theme);
-
-  await Font.loadAsync({
-    UthmanicHafs_V22: require("../../assets/fonts/UthmanicHafs_V22.ttf"),
-    SurahNames_V4: require("../../assets/fonts/SurahNames_V4.ttf"),
-    JuzNames_V2: require("../../assets/fonts/JuzNames_V2.ttf"),
-    NotoSansArabic_400Regular: require("../../assets/fonts/NotoSansArabic_400Regular.ttf"),
-    Inter_400Regular: require("../../assets/fonts/Inter_400Regular.ttf"),
-  });
+  const [, settings] = await Promise.all([
+    bootstrapLocale(),
+    getInitialSettings(),
+    Font.loadAsync({
+      UthmanicHafs_V22: require("../../assets/fonts/UthmanicHafs_V22.ttf"),
+      SurahNames_V4: require("../../assets/fonts/SurahNames_V4.ttf"),
+      JuzNames_V2: require("../../assets/fonts/JuzNames_V2.ttf"),
+      NotoSansArabic_400Regular: require("../../assets/fonts/NotoSansArabic_400Regular.ttf"),
+      Inter_400Regular: require("../../assets/fonts/Inter_400Regular.ttf"),
+    }),
+  ]);
+  Uniwind.setTheme(settings.theme);
 }
 
 export default function RootLayout() {

@@ -4,14 +4,14 @@
  */
 
 // Hooks
-export { useSettings } from "./useSettings";
+export { getInitialSettings, useSettings } from "./useSettings";
 export { useSetLanguage, useSetTheme } from "./useSettingsMutations";
 
 // Types
 export type {
-    LanguageId,
-    ThemeId,
-    UserSettings
+  LanguageId,
+  ThemeId,
+  UserSettings,
 } from "../domain/settings-contract";
 
 // Theme Metadata
@@ -21,4 +21,3 @@ export type { ThemeMeta } from "../domain/theme-metadata";
 // UI Components
 export { LanguageSelector } from "../ui/LanguageSelector";
 export { ThemeSelector } from "../ui/ThemeSelector";
-
