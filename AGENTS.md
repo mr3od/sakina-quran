@@ -148,7 +148,7 @@ Use `useLocaleFont()` → returns `"font-ui-ar"` or `"font-ui-en"`.
 | `bookmarks_v2`         | JSON array of Bookmark |
 | `settings_version`     | Migration version      |
 
-Native: `expo-sqlite/kv-store`. Web: `localStorage`.
+**Storage**: All platforms use `expo-sqlite/kv-store` (works on web, iOS, Android). No platform split needed.
 
 ## Database Schema
 

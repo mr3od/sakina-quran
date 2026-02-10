@@ -198,12 +198,14 @@ import { QuranRepository } from "@/entities/quran/api/QuranRepository";
 | Module               | Native (.native.ts)         | Web (.ts)                     |
 | -------------------- | --------------------------- | ----------------------------- |
 | `QuranRepository`    | expo-sqlite                 | fetch `/api/static/*.json`    |
-| `ProgressRepository` | expo-sqlite/kv-store        | localStorage                  |
+| `ProgressRepository` | expo-sqlite/kv-store        | expo-sqlite/kv-store          |
 | `useDatabase`        | `useSQLiteContext()`        | returns `null`                |
 | `PagePager`          | PagerView (swipe 604 pages) | Single View (URL-driven)      |
 | `SearchHero`         | Link to search tab          | ⌘K overlay (WebSearchOverlay) |
 | `StructuralSearcher` | SQLite queries              | fetch `/api/search`           |
 | `TextSearcher`       | FTS5 + LIKE fallback        | fetch `/api/search`           |
+
+**Note**: `expo-sqlite/kv-store` works on all platforms (web, iOS, Android). Settings, progress, and bookmarks use KVStore directly with no platform split.
 
 ### Web-Only Components
 
@@ -388,8 +390,10 @@ ayahs_fts                      -- FTS5 virtual table on simple_text
 | Read page ayahs      | SQL with cross-surah handling | `GET /api/static/pages/{n}.json` | —                            |
 | Search text          | FTS5 `MATCH` → LIKE fallback  | —                                | sql.js LIKE in `/api/search` |
 | Read surahs          | `SELECT * FROM surahs`        | `GET /api/static/surahs.json`    | —                            |
-| Read/write bookmarks | KVStore JSON blob             | localStorage JSON blob           | —                            |
-| Read/write settings  | KVStore individual keys       | localStorage individual keys     | —                            |
+| Read/write bookmarks | KVStore JSON blob             | KVStore JSON blob                | —                            |
+| Read/write settings  | KVStore individual keys       | KVStore individual keys          | —                            |
+
+**Note**: `expo-sqlite/kv-store` works on all platforms. Bookmarks, settings, and reading progress use KVStore directly with no platform-specific code.
 
 ## Testing
 
