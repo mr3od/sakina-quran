@@ -122,19 +122,48 @@ URL /pages/[number]
 
 ```
 User input
-  → debounce 300ms
+  → useDebouncedValue(query, 300ms)
+  → useSearchQuery(debouncedQuery)  [React Query]
+      ├── enabled: query.trim() !== ""
+      ├── placeholderData: keepPreviousData
+      └── queryKey: ["search", debouncedQuery, locale]
+  → CompositeSearcher([StructuralSearcher, TextSearcher])
+      ├── Promise.allSettled (tolerates failures)
+      ├── Deduplicate by type:sura:ayah
+      └── Respects limit
   → useSearchController(query)
-  → CompositeSearcher
-      ├── StructuralSearcher  (parallel)  "2:255", "juz 7", "page 151"
-      └── TextSearcher         (parallel)  Arabic text matching
-  → deduplicate by type:sura:ayah
-  → SearchState { kind: "results", items: SearchRow[] }
+      └── Maps to SearchState discriminated union
 ```
+
+**Query Classification** (single source of truth: `parseSearchQuery`):
+```
+"" → { kind: "empty" }
+"2:255" → { kind: "surahAyah", sura: 2, ayah: 255 }
+"114" → { kind: "numeric", value: 114 }
+"juz 7" → { kind: "numeric", value: 7 }  // Mixed-digit extraction
+"bismillah" → { kind: "text", value: "bismillah" }
+```
+
+**Platform Implementation**:
 
 |            | Native                                       | Web                                  |
 | ---------- | -------------------------------------------- | ------------------------------------ |
 | Structural | SQLite queries (surah/juz/hizb/page lookups) | `GET /api/search?type=structural&q=` |
 | Text       | FTS5 prefix → LIKE fallback                  | `GET /api/search?q=`                 |
+
+**Web API Internals** (`/api/search+api.ts`):
+- Thin orchestrator calling server modules
+- Locale normalization at boundary (`ar-SA` → `ar`, unknown → `en`)
+- Input validation (query length, limit clamp to 100)
+- Shared utilities:
+  - `parseSearchQuery` (domain/query-parser.ts)
+  - `getSurahNameColumn(locale)` → `"name_arabic"` | `"name_simple"`
+  - `pageResolverSubquery(suraRef, ayahRef)` → correlated SQL subquery
+
+**Server Modules** (web only):
+- `server/db.ts` — sql.js Database singleton
+- `server/structuralSearch.ts` — surahAyah/numeric queries
+- `server/textSearch.ts` — LIKE pattern matching (no FTS5 on web)
 
 ### Bookmarks (Optimistic Mutation)
 
@@ -361,6 +390,35 @@ ayahs_fts                      -- FTS5 virtual table on simple_text
 | Read surahs          | `SELECT * FROM surahs`        | `GET /api/static/surahs.json`    | —                            |
 | Read/write bookmarks | KVStore JSON blob             | localStorage JSON blob           | —                            |
 | Read/write settings  | KVStore individual keys       | localStorage individual keys     | —                            |
+
+## Testing
+
+### Architecture
+
+Tests validate feature logic at multiple layers:
+
+- **Domain** (pure functions): query parser, SQL fragment generation, locale helpers
+- **Data** (with mocks): CompositeSearcher deduplication, failure tolerance
+- **Hooks** (with providers): debounce behavior, search state machine, React Query integration
+
+### Execution
+
+Multi-project setup via `jest-expo/universal`:
+- **Node**: Default environment for pure logic
+- **Web**: Browser-like environment
+- **Android/iOS**: React Native environment
+
+Each test runs across all 4 platforms (132 tests × 4 = 528 total assertions).
+
+### Coverage
+
+```bash
+pnpm test:coverage
+```
+
+Target: 90-100% for pure functions, 80-90% for components.
+
+Current: 100% coverage on query-parser, sqlFragments, getSurahNameColumn, CompositeSearcher, useDebouncedValue, useSearchController.
 
 ## Quran Reader Internals
 

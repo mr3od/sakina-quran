@@ -48,6 +48,21 @@ pnpm ios
 pnpm android
 ```
 
+### Test
+
+```bash
+# Run tests
+pnpm test
+
+# Watch mode
+pnpm test:watch
+
+# Coverage report
+pnpm test:coverage
+```
+
+Tests use Jest + jest-expo + React Native Testing Library.
+
 ### Generate Static Data
 
 Required before first web export:
@@ -66,7 +81,7 @@ src/
 │   └── api/          # Server-side API routes (search)
 ├── features/         # Feature modules (4-layer architecture)
 │   ├── quran-reader/ # Page reading with swipe/keyboard navigation
-│   ├── search/       # Composite search (structural + text)
+│   ├── search/       # Composite search (structural + text) with React Query
 │   ├── bookmarks/    # Verse bookmarking with optimistic updates
 │   └── settings/     # Theme and language preferences
 ├── entities/         # Shared data repositories
@@ -110,7 +125,7 @@ docker run -p 3000:3000 sakina-quran
 
 ### CI/CD
 
-- **PR checks**: Lint → Expo prebuild → Web export
+- **PR checks**: Test → Lint → Expo prebuild → Web export
 - **Deploy**: Push to `main` or `development` → Docker build → MicroK8s
 - **Releases**: Auto-tagged from `app.json` version on merge to `main`
 

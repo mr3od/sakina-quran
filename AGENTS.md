@@ -10,6 +10,9 @@ Use **pnpm**: `pnpm install`, `pnpm start`, `pnpm lint`
 | `pnpm web`         | Start web dev server                                          |
 | `pnpm ios`         | Run on iOS                                                    |
 | `pnpm android`     | Run on Android                                                |
+| `pnpm test`        | Run tests                                                     |
+| `pnpm test:watch`  | Run tests in watch mode                                       |
+| `pnpm test:coverage` | Run tests with coverage report                              |
 | `pnpm export:full` | Full web export (static data + build + sitemap + post-export) |
 | `pnpm i18n`        | Extract translation strings to .po files                      |
 | `pnpm lint`        | ESLint with React Compiler plugin                             |
@@ -223,9 +226,50 @@ plugins: [
 ];
 ```
 
+## Testing
+
+### Conventions
+
+- **Colocated tests**: `__tests__` folders next to source files
+- **Framework**: Jest + jest-expo/universal + @testing-library/react-native
+- **Multi-platform**: Tests run on Node, Web, Android, iOS
+- **Providers**: Wrap components with `I18nProvider` (Lingui) + `QueryClientProvider` (React Query)
+- **Mocking**: Mock `useSearchQuery` in controller tests, mock `fetch` in web searchers
+
+### Test Structure
+
+```typescript
+// Domain (pure functions)
+describe("parseSearchQuery", () => {
+  it("parses surahAyah format", () => {
+    expect(parseSearchQuery("2:255")).toEqual({ kind: "surahAyah", sura: 2, ayah: 255 });
+  });
+});
+
+// Hooks (with providers)
+const wrapper = ({ children }) => (
+  <QueryClientProvider client={new QueryClient()}>
+    {children}
+  </QueryClientProvider>
+);
+
+describe("useSearchController", () => {
+  it("returns entry state for empty query", () => {
+    const { result } = renderHook(() => useSearchController(""), { wrapper });
+    expect(result.current).toEqual({ kind: "entry" });
+  });
+});
+```
+
+### Known Warnings (Harmless)
+
+- `watchPlugins` validation: from jest-expo preset, doesn't affect execution
+- `react-test-renderer is deprecated`: React 19 + testing-library, tests pass successfully
+
 ## CI/CD
 
 - Conventional commits: `feat:`, `fix:`, `chore:`, `docs:`
+- **PR checks**: Test → Lint → Expo prebuild → Web export
 - Version bump required in `app.json` before merging to `main`
 - Branch flow: `feature/* → development → main`
 - Deploy: Docker → private registry → MicroK8s via SSH
