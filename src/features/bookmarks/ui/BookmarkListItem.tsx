@@ -3,10 +3,12 @@
  * Displays a single bookmark with navigation and delete actions
  */
 
+import { toPageRoute } from "@/features/quran-reader/app/quran-reader-route";
 import { useAyah } from "@/hooks/useAyah";
+import { useLocaleFont } from "@/hooks/useLocaleFont";
 import { formatRelativeTime } from "@/shared/lib/formatters";
 import { Ionicons } from "@expo/vector-icons";
-import { Trans, useLingui } from "@lingui/react/macro";
+import { useLingui } from "@lingui/react/macro";
 import { Link } from "expo-router";
 import { ActivityIndicator, Pressable, Text, View } from "react-native";
 import { useRemoveBookmark } from "../app";
@@ -22,6 +24,7 @@ export function BookmarkListItem({
   surahName,
 }: BookmarkListItemProps) {
   const { t, i18n } = useLingui();
+  const fontClass = useLocaleFont();
   // Fetch verse text from DB
   const { data: ayah, isLoading } = useAyah(bookmark.sura, bookmark.ayah);
 
@@ -37,7 +40,7 @@ export function BookmarkListItem({
 
   return (
     <Link
-      href={`/pages/${bookmark.page}?surah=${bookmark.sura}&ayah=${bookmark.ayah}`}
+      href={toPageRoute(bookmark.page, bookmark.sura, bookmark.ayah)}
       asChild
     >
       <Pressable
@@ -49,10 +52,8 @@ export function BookmarkListItem({
         {/* Header: Metadata + Remove button */}
         <View className="flex-row items-center justify-between mb-3">
           <View className="flex-1">
-            <Text className="text-text-secondary text-xs">
-              <Trans>
-                {surahName} • {bookmark.sura}:{bookmark.ayah}
-              </Trans>
+            <Text className={`${fontClass} text-text-secondary text-xs`}>
+              {surahName} • {bookmark.sura}:{bookmark.ayah}
             </Text>
           </View>
 
@@ -107,10 +108,10 @@ export function BookmarkListItem({
 
           {bookmark.note && (
             <Text
-              className="text-text-secondary text-xs italic"
+              className={`${fontClass} text-text-secondary text-xs italic`}
               numberOfLines={1}
             >
-              <Trans>{bookmark.note}</Trans>
+              {bookmark.note}
             </Text>
           )}
         </View>
