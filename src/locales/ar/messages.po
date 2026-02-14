@@ -43,11 +43,8 @@ msgstr "الصفحة {num}"
 #~ msgstr ""
 
 #. placeholder {0}: ayah.ayah_number
-#. placeholder {0}: bookmark.note
 #. placeholder {0}: isAr ? theme.nameAr : theme.nameEn
 #: src/components/quran/AyahCard.tsx:50
-#: src/components/search/WebSearchOverlay.tsx:110
-#: src/features/bookmarks/ui/BookmarkListItem.tsx:113
 #: src/features/settings/ui/ThemeSelector.tsx:93
 msgid "{0}"
 msgstr "{0}"
@@ -58,11 +55,9 @@ msgstr "{0}"
 msgid "{0} {1}"
 msgstr "{0} {1}"
 
-#. placeholder {0}: item.sura
-#. placeholder {1}: item.ayah
 #: src/components/search/WebSearchOverlay.tsx:104
-msgid "{0}:{1}"
-msgstr "{0}:{1}"
+#~ msgid "{0}:{1}"
+#~ msgstr "{0}:{1}"
 
 #. placeholder {0}: isActive ? ", selected" : ""
 #: src/components/ui/NavigationSegments.tsx:47
@@ -81,11 +76,9 @@ msgstr "{quarterName}"
 msgid "{revelationText}"
 msgstr "{revelationText}"
 
-#. placeholder {0}: bookmark.sura
-#. placeholder {1}: bookmark.ayah
 #: src/features/bookmarks/ui/BookmarkListItem.tsx:53
-msgid "{surahName} • {0}:{1}"
-msgstr "{surahName} • {0}:{1}"
+#~ msgid "{surahName} • {0}:{1}"
+#~ msgstr "{surahName} • {0}:{1}"
 
 #: src/features/quran-reader/ui/QuranPageHeader.tsx:42
 msgid "{suraNames}"
@@ -128,8 +121,12 @@ msgstr "بسم الله الرحمن الرحيم"
 msgid "bookmark"
 msgstr "إشارة مرجعية"
 
+#: src/components/home/BookmarkHomeCard.tsx:27
+msgid "Bookmark: {surahName}, Ayah {ayah}"
+msgstr "مرجعية: {surahName}, اية {ayah}"
+
 #. placeholder {0}: bookmark.ayah
-#: src/features/bookmarks/ui/BookmarkListItem.tsx:45
+#: src/features/bookmarks/ui/BookmarkListItem.tsx:48
 msgid "Bookmark: Surah {surahName}, Ayah {0}"
 msgstr "علامة مرجعية: سورة {surahName}، آية {0}"
 
@@ -174,7 +171,7 @@ msgstr "مسح"
 msgid "Clear search"
 msgstr "مسح البحث"
 
-#: src/app/(tabs)/index.tsx:58
+#: src/app/(tabs)/index.tsx:62
 #: src/components/home/ContinueReadingCard.tsx:69
 msgid "Continue Reading"
 msgstr "متابعة القراءة"
@@ -196,15 +193,16 @@ msgstr "خصص تجربة قراءتك للقرآن."
 msgid "Customize your Quran reading experience. Change themes, adjust font sizes, and configure app preferences."
 msgstr "خصص تجربة قراءتك للقرآن. غير المظاهر، واضبط أحجام الخطوط، وإعدادات التطبيق."
 
-#: src/features/bookmarks/ui/BookmarkListItem.tsx:68
+#: src/features/bookmarks/ui/BookmarkListItem.tsx:69
 msgid "Double tap to delete this bookmark"
 msgstr "انقر مرتين لحذف هذه العلامة"
 
-#: src/features/bookmarks/ui/BookmarkListItem.tsx:46
+#: src/components/home/BookmarkHomeCard.tsx:28
+#: src/features/bookmarks/ui/BookmarkListItem.tsx:49
 msgid "Double tap to navigate to verse"
 msgstr "انقر مرتين للانتقال إلى الآية"
 
-#: src/features/search/ui/SearchListItem.tsx:82
+#: src/features/search/ui/SearchListItem.tsx:66
 msgid "Double tap to open"
 msgstr "انقر مرتين للفتح"
 
@@ -248,11 +246,11 @@ msgstr "فشل تحميل الإعدادات"
 msgid "Failed to load Surahs"
 msgstr "فشل تحميل السور"
 
-#: src/features/quran-reader/ui/PageReaderScreen.tsx:254
+#: src/features/quran-reader/ui/PageReaderScreen.tsx:253
 msgid "Go back"
 msgstr "رجوع"
 
-#: src/features/search/ui/SearchListItem.tsx:64
+#: src/features/search/app/useLocalizedSearchLabel.ts:17
 msgid "Hizb {num}"
 msgstr "الحزب {num}"
 
@@ -268,7 +266,7 @@ msgstr "أيقونة علامة التبويب الرئيسية"
 msgid "Home tab, navigate to Quran reading"
 msgstr "علامة التبويب الرئيسية، تصفح قراءة القرآن"
 
-#: src/app/(tabs)/index.tsx:15
+#: src/app/(tabs)/index.tsx:19
 msgid "Juz"
 msgstr "جزء"
 
@@ -280,11 +278,11 @@ msgstr "جزء"
 msgid "Juz {0}"
 msgstr "الجزء {0}"
 
-#: src/features/quran-reader/ui/PageReaderScreen.tsx:329
+#: src/features/quran-reader/ui/PageReaderScreen.tsx:328
 msgid "Juz {juzNumber}"
 msgstr "الجزء {juzNumber}"
 
-#: src/features/search/ui/SearchListItem.tsx:62
+#: src/features/search/app/useLocalizedSearchLabel.ts:15
 msgid "Juz {num}"
 msgstr "الجزء {num}"
 
@@ -297,7 +295,7 @@ msgstr "الجزء 1"
 msgid "Language"
 msgstr "اللغة"
 
-#: src/app/(tabs)/index.tsx:64
+#: src/app/(tabs)/index.tsx:68
 msgid "Latest Bookmarks"
 msgstr "أحدث الإشارات المرجعية"
 
@@ -326,10 +324,13 @@ msgid "Makki"
 msgstr "مكية"
 
 #. placeholder {0}: item.simple
-#: src/components/search/WebSearchOverlay.tsx:83
-#: src/features/search/ui/SearchListItem.tsx:80
+#: src/features/search/ui/SearchListItem.tsx:64
 msgid "Navigate to {0}"
 msgstr "الانتقال إلى {0}"
+
+#: src/components/search/WebSearchOverlay.tsx:85
+msgid "Navigate to {displayText}"
+msgstr "انتقل الى {displayText}"
 
 #: src/components/home/SearchHero.tsx:16
 msgid "Navigate to search screen"
@@ -343,7 +344,7 @@ msgstr "الانتقال إلى آخر موضع قرأته"
 msgid "Navigation tabs"
 msgstr "علامات تبويب التنقل"
 
-#: src/features/quran-reader/ui/PageReaderScreen.tsx:345
+#: src/features/quran-reader/ui/PageReaderScreen.tsx:344
 msgid "Next Page"
 msgstr "الصفحة التالية"
 
@@ -380,12 +381,12 @@ msgstr "مفتوح المصدر بموجب رخصة MIT"
 msgid "Page {0}"
 msgstr "صفحة {0}"
 
-#: src/features/quran-reader/ui/PageReaderScreen.tsx:272
-#: src/features/quran-reader/ui/PageReaderScreen.tsx:331
+#: src/features/quran-reader/ui/PageReaderScreen.tsx:271
+#: src/features/quran-reader/ui/PageReaderScreen.tsx:330
 msgid "Page {currentPage}"
 msgstr "صفحة {currentPage}"
 
-#: src/features/search/ui/SearchListItem.tsx:66
+#: src/features/search/app/useLocalizedSearchLabel.ts:19
 msgid "Page {num}"
 msgstr "صفحة {num}"
 
@@ -393,7 +394,7 @@ msgstr "صفحة {num}"
 msgid "Page 1"
 msgstr "صفحة 1"
 
-#: src/features/quran-reader/ui/PageReaderScreen.tsx:315
+#: src/features/quran-reader/ui/PageReaderScreen.tsx:314
 msgid "Previous Page"
 msgstr "الصفحة السابقة"
 
@@ -421,7 +422,7 @@ msgstr "نص القرآن من Tanzil.net"
 msgid "Quran, Holy Quran, Islamic, Arabic, Surah, Ayah, Muslim, Islam"
 msgstr "القرآن، القرآن الكريم، إسلام، عربي، سورة، آية، مسلم، إسلام"
 
-#: src/app/(tabs)/index.tsx:34
+#: src/app/(tabs)/index.tsx:38
 msgid "Quran, Holy Quran, Islamic, Arabic, Surah, Juz, Ayah, Muslim, Islam, القرآن الكريم"
 msgstr "القرآن، القرآن الكريم، إسلام، عربي، سورة، جزء، آية، مسلم، إسلام، القرآن الكريم"
 
@@ -433,22 +434,22 @@ msgstr "اقرأ الصفحة {pageNumber} من القرآن الكريم."
 msgid "Read the Holy Quran Online. Access all 114 Surahs with verse-by-verse navigation and search functionality."
 msgstr "اقرأ القرآن الكريم عبر الإنترنت. تصفح جميع السور الـ 114 مع خاصية البحث والتنقل بين الآيات."
 
-#: src/app/(tabs)/index.tsx:32
+#: src/app/(tabs)/index.tsx:36
 msgid "Read the Holy Quran Online. Browse by Surah or Juz with verse-by-verse navigation."
 msgstr "اقرأ القرآن الكريم عبر الإنترنت. تصفح بالسورة أو الجزء مع التنقل بآية تلو الأخرى."
 
 #: src/components/quran/AyahCard.tsx:62
-#: src/features/bookmarks/ui/BookmarkListItem.tsx:67
+#: src/features/bookmarks/ui/BookmarkListItem.tsx:68
 msgid "Remove bookmark"
 msgstr "إزالة العلامة المرجعية"
 
 #: src/components/layout/WebHeader.tsx:24
-#: src/features/quran-reader/ui/PageReaderScreen.tsx:298
+#: src/features/quran-reader/ui/PageReaderScreen.tsx:297
 msgid "Sakina Quran"
 msgstr "سكينة القرآن"
 
 #: src/app/_layout.tsx:68
-#: src/app/(tabs)/index.tsx:31
+#: src/app/(tabs)/index.tsx:35
 msgid "Sakina Quran - Read the Holy Quran Online"
 msgstr "سكينة القرآن - اقرأ القرآن الكريم"
 
@@ -539,11 +540,13 @@ msgstr "ابدأ القراءة"
 msgid "Start reading from page 1"
 msgstr "البدء من الصفحة الأولى"
 
-#: src/app/(tabs)/index.tsx:14
+#: src/app/(tabs)/index.tsx:18
 msgid "Surah"
 msgstr "سورة"
 
+#. placeholder {0}: bookmark.sura
 #. placeholder {0}: item.surahNumber
+#: src/components/home/LatestBookmarks.tsx:46
 #: src/features/quran-reader/ui/PagePage.tsx:137
 msgid "Surah {0}"
 msgstr "سورة {0}"
@@ -555,7 +558,7 @@ msgstr "سورة {0}"
 msgid "Surah {0}, {1}, {revelationText}, {2} verses"
 msgstr "سورة {0}، {1}، {revelationText}، {2} آية"
 
-#: src/features/search/ui/SearchListItem.tsx:60
+#: src/features/search/app/useLocalizedSearchLabel.ts:13
 msgid "Surah {num}"
 msgstr "سورة {num}"
 
@@ -576,8 +579,8 @@ msgstr "سورة يس"
 msgid "Tap the bookmark icon on any verse to save it here for quick access."
 msgstr "اضغط على أيقونة العلامة المرجعية في أي آية لحفظها هنا للوصول السريع."
 
-#: src/app/(tabs)/index.tsx:44
-#: src/app/(tabs)/index.tsx:46
+#: src/app/(tabs)/index.tsx:48
+#: src/app/(tabs)/index.tsx:50
 #: src/hooks/useLastReadPosition.ts:34
 msgid "The Noble Quran"
 msgstr "القرآن الكريم"
@@ -612,8 +615,8 @@ msgstr "آية {0} من سورة {1}"
 #. placeholder {0}: item.sura
 #. placeholder {1}: item.ayah
 #. placeholder {2}: item.surahName
-#: src/components/search/WebSearchOverlay.tsx:82
-#: src/features/search/ui/SearchListItem.tsx:79
+#: src/components/search/WebSearchOverlay.tsx:84
+#: src/features/search/ui/SearchListItem.tsx:63
 msgid "Verse {0}:{1} in {2}"
 msgstr "الآية {0}:{1} في {2}"
 
@@ -631,6 +634,15 @@ msgstr "عدد الآيات: {0}"
 msgid "Version"
 msgstr "الإصدار"
 
+#: src/components/home/LatestBookmarks.tsx:63
+msgid "View all bookmarks"
+msgstr "تصفح كل المرجعيات"
+
+#. placeholder {0}: bookmarks.length
+#: src/components/home/LatestBookmarks.tsx:66
+msgid "View all bookmarks ({0})"
+msgstr "تصفح كل المرجعيات ({0})"
+
 #: src/components/search/WebSearchOverlay.tsx:382
 msgid "View all results"
 msgstr "عرض جميع النتائج"
@@ -639,6 +651,6 @@ msgstr "عرض جميع النتائج"
 msgid "View all results for {query}"
 msgstr "عرض جميع النتائج لـ {query}"
 
-#: src/app/(tabs)/index.tsx:68
+#: src/components/home/LatestBookmarks.tsx:29
 msgid "Your bookmarked verses will appear here"
 msgstr "ستظهر الآيات التي أضفتها للمرجعية هنا"
