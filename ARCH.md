@@ -44,7 +44,7 @@ Cross-platform Quran reader targeting iOS, Android, and Web from a single codeba
 │                                                          │
 │  ┌─── Native ───────────┐  ┌─── Web ──────────────────┐ │
 │  │ expo-sqlite           │  │ fetch(/api/static/*.json)│ │
-│  │ expo-sqlite/kv-store  │  │ localStorage             │ │
+│  │ expo-sqlite/kv-store  │  │ expo-sqlite/kv-store     │ │
 │  │ PagerView             │  │ Single page + URL nav    │ │
 │  │ FTS5 search           │  │ /api/search (sql.js WASM)│ │
 │  │ I18nManager.forceRTL  │  │ <html dir="rtl">         │ │
@@ -74,7 +74,7 @@ features/<name>/
 │                    # Defines contracts that data/ implements
 │
 ├── data/            # Infrastructure implementations
-│                    # KVStore, SQLite, fetch, localStorage
+│                    # KVStore, SQLite, fetch.
 │                    # Platform splits live here (.native.ts / .ts)
 │
 ├── app/             # Application logic & orchestration
@@ -136,6 +136,7 @@ User input
 ```
 
 **Query Classification** (single source of truth: `parseSearchQuery`):
+
 ```
 "" → { kind: "empty" }
 "2:255" → { kind: "surahAyah", sura: 2, ayah: 255 }
@@ -152,6 +153,7 @@ User input
 | Text       | FTS5 prefix → LIKE fallback                  | `GET /api/search?q=`                 |
 
 **Web API Internals** (`/api/search+api.ts`):
+
 - Thin orchestrator calling server modules
 - Locale normalization at boundary (`ar-SA` → `ar`, unknown → `en`)
 - Input validation (query length, limit clamp to 100)
@@ -161,6 +163,7 @@ User input
   - `pageResolverSubquery(suraRef, ayahRef)` → correlated SQL subquery
 
 **Server Modules** (web only):
+
 - `server/db.ts` — sql.js Database singleton
 - `server/structuralSearch.ts` — surahAyah/numeric queries
 - `server/textSearch.ts` — LIKE pattern matching (no FTS5 on web)
@@ -408,6 +411,7 @@ Tests validate feature logic at multiple layers:
 ### Execution
 
 Multi-project setup via `jest-expo/universal`:
+
 - **Node**: Default environment for pure logic
 - **Web**: Browser-like environment
 - **Android/iOS**: React Native environment

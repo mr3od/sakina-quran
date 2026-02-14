@@ -1,21 +1,19 @@
-# AGENTS.md
-
 ## Package Manager
 
 Use **pnpm**: `pnpm install`, `pnpm start`, `pnpm lint`
 
-| Command            | Description                                                   |
-| ------------------ | ------------------------------------------------------------- |
-| `pnpm start`       | Start Expo dev server                                         |
-| `pnpm web`         | Start web dev server                                          |
-| `pnpm ios`         | Run on iOS                                                    |
-| `pnpm android`     | Run on Android                                                |
-| `pnpm test`        | Run tests                                                     |
-| `pnpm test:watch`  | Run tests in watch mode                                       |
-| `pnpm test:coverage` | Run tests with coverage report                              |
-| `pnpm export:full` | Full web export (static data + build + sitemap + post-export) |
-| `pnpm i18n`        | Extract translation strings to .po files                      |
-| `pnpm lint`        | ESLint with React Compiler plugin                             |
+| Command              | Description                                                   |
+| -------------------- | ------------------------------------------------------------- |
+| `pnpm start`         | Start Expo dev server                                         |
+| `pnpm web`           | Start web dev server                                          |
+| `pnpm ios`           | Run on iOS                                                    |
+| `pnpm android`       | Run on Android                                                |
+| `pnpm test`          | Run tests                                                     |
+| `pnpm test:watch`    | Run tests in watch mode                                       |
+| `pnpm test:coverage` | Run tests with coverage report                                |
+| `pnpm export:full`   | Full web export (static data + build + sitemap + post-export) |
+| `pnpm i18n`          | Extract translation strings to .po files                      |
+| `pnpm lint`          | ESLint with React Compiler plugin                             |
 
 ## Stack
 
@@ -206,8 +204,7 @@ export function useMyData(param: number) {
 
 ```typescript
 // src/app/api/<name>+api.ts
-import { ExpoRequest } from "expo-router/server";
-export async function GET(request: ExpoRequest) {
+export async function GET(request: Request) {
   const url = new URL(request.url);
   // ... sql.js queries against assets/quran.db
   return Response.json(data);
