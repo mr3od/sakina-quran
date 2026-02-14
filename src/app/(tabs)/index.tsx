@@ -1,6 +1,10 @@
 // src/app/(tabs)/index.tsx
 
-import { ContinueReadingCard, SearchHero } from "@/components/home";
+import {
+  ContinueReadingCard,
+  LatestBookmarks,
+  SearchHero,
+} from "@/components/home";
 import { JuzListScreen, SurahListScreen } from "@/components/quran";
 import { NavigationSegments } from "@/components/ui";
 import { SEOHead } from "@/shared/ui/SEOHead";
@@ -63,11 +67,7 @@ export default function HomeScreen() {
               <Text className="text-xl font-semibold text-text-primary mb-4">
                 <Trans>Latest Bookmarks</Trans>
               </Text>
-              <View className="bg-surface border border-border rounded-xl p-6">
-                <Text className="text-sm text-text-secondary text-center">
-                  <Trans>Your bookmarked verses will appear here</Trans>
-                </Text>
-              </View>
+              <LatestBookmarks />
             </View>
           </View>
         </View>
