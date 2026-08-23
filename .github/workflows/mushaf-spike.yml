@@ -31,7 +31,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Enable pnpm
-        run: corepack enable && corepack prepare pnpm@latest --activate
+        run: corepack enable && corepack prepare pnpm@10.15.0 --activate
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -73,13 +73,25 @@ jobs:
             }
 
             FIRST=1
-            for p in 2 50 302; do
+            for p in 1 2 50 302; do
               adb shell am start -W -a android.intent.action.VIEW \
                 -d "${DEEP_LINK_BASE}?page=$p" >/dev/null 2>&1 || true
               # Cold start (first page) compiles ART + loads db/font: allow longer
               if [ "$FIRST" = "1" ]; then sleep 20; FIRST=0; else wait_for_app || true; sleep 4; fi
               adb exec-out screencap -p > "screenshots/android-p$p.png"
             done
+
+      - name: Assert captures are valid renders
+        run: |
+          FAIL=0
+          for f in screenshots/*.png; do
+            SIZE=$(stat -c%s "$f")
+            DIMS=$(identify -quiet -format "%wx%h" "$f" 2>/dev/null || echo "?x?")
+            echo "$f: ${DIMS}, ${SIZE} bytes"
+            if [ "$SIZE" -lt 20000 ]; then echo "::error::$f looks blank/corrupt (${SIZE} bytes)"; FAIL=1; fi
+          done
+          [ "$(ls screenshots/*.png | wc -l)" -eq 4 ] || { echo "::error::expected 4 captures"; FAIL=1; }
+          exit $FAIL
 
       - name: Upload screenshots
         uses: actions/upload-artifact@v4
@@ -96,7 +108,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Enable pnpm
-        run: corepack enable && corepack prepare pnpm@latest --activate
+        run: corepack enable && corepack prepare pnpm@10.15.0 --activate
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -139,11 +151,23 @@ jobs:
           xcrun simctl install "$DEVICE" "$APP_PATH"
 
           FIRST=1
-          for p in 2 50 302; do
+          for p in 1 2 50 302; do
             xcrun simctl openurl "$DEVICE" "${DEEP_LINK_BASE}?page=$p" || true
             if [ "$FIRST" = "1" ]; then sleep 25; FIRST=0; else sleep 8; fi
             xcrun simctl io "$DEVICE" screenshot "screenshots/ios-p$p.png"
           done
+
+      - name: Assert captures are valid renders
+        run: |
+          FAIL=0
+          for f in screenshots/*.png; do
+            SIZE=$(stat -f%z "$f")
+            DIMS=$(sips -g pixelWidth -g pixelHeight "$f" 2>/dev/null | awk '/pixel/{printf "%s",$2" "}')
+            echo "$f: ${DIMS}, ${SIZE} bytes"
+            if [ "$SIZE" -lt 20000 ]; then echo "::error::$f looks blank/corrupt (${SIZE} bytes)"; FAIL=1; fi
+          done
+          [ "$(ls screenshots/*.png | wc -l)" -eq 4 ] || { echo "::error::expected 4 captures"; FAIL=1; }
+          exit $FAIL
 
       - name: Upload screenshots
         uses: actions/upload-artifact@v4
