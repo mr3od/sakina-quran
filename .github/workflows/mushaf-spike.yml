@@ -28,13 +28,13 @@ jobs:
     timeout-minutes: 45
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Enable pnpm
         run: corepack enable && corepack prepare pnpm@10.15.0 --activate
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: "22"
           cache: "pnpm"
@@ -94,10 +94,11 @@ jobs:
           exit $FAIL
 
       - name: Upload screenshots
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: mushaf-spike-android
           path: screenshots/
+          retention-days: 7
 
   ios:
     name: iOS (CoreText) rendering evidence
@@ -105,13 +106,13 @@ jobs:
     timeout-minutes: 60
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Enable pnpm
         run: corepack enable && corepack prepare pnpm@10.15.0 --activate
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: "22"
           cache: "pnpm"
@@ -135,6 +136,7 @@ jobs:
           SCHEME=$(xcodebuild -workspace *.xcworkspace -list | awk '/Schemes:/{f=1;next} f&&NF{print $1}' | grep -i sakina | head -1)
           [ -n "$SCHEME" ] || { echo "::error::could not resolve app scheme"; exit 1; }
           echo "Using Xcode scheme: $SCHEME"
+          set -o pipefail
           xcodebuild -workspace *.xcworkspace \
             -scheme "$SCHEME" \
             -configuration Release \
@@ -176,7 +178,8 @@ jobs:
           exit $FAIL
 
       - name: Upload screenshots
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: mushaf-spike-ios
           path: screenshots/
+          retention-days: 7
