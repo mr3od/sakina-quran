@@ -129,7 +129,11 @@ jobs:
       - name: Build simulator app
         working-directory: ios
         run: |
-          SCHEME=$(xcodebuild -workspace *.xcworkspace -list | awk '/Schemes:/{getline; print $1; exit}')
+          xcodebuild -workspace *.xcworkspace -list
+          # Pick the app scheme by NAME — positional picks alphabetically-first
+          # Pods scheme (EXConstants), which builds no usable app bundle.
+          SCHEME=$(xcodebuild -workspace *.xcworkspace -list | awk '/Schemes:/{f=1;next} f&&NF{print $1}' | grep -i sakina | head -1)
+          [ -n "$SCHEME" ] || { echo "::error::could not resolve app scheme"; exit 1; }
           echo "Using Xcode scheme: $SCHEME"
           xcodebuild -workspace *.xcworkspace \
             -scheme "$SCHEME" \
@@ -139,7 +143,9 @@ jobs:
             -derivedDataPath build \
             CODE_SIGNING_ALLOWED=NO \
             build | tail -30
-          echo "APP_PATH=$(find build/Build/Products -name '*.app' -type d | head -1)" >> "$GITHUB_ENV"
+          APP=$(find build/Build/Products -maxdepth 3 -name '*.app' -type d | grep -i sakina | head -1)
+          [ -n "$APP" ] || { echo "::error::app bundle not found in products"; find build/Build/Products -name '*.app'; exit 1; }
+          echo "APP_PATH=$APP" >> "$GITHUB_ENV"
 
       - name: Boot simulator, render pages & capture screenshots
         run: |
