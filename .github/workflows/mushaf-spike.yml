@@ -45,6 +45,9 @@ jobs:
       - name: Prebuild native project
         run: npx expo prebuild -p android --no-install
 
+      - name: Setup Gradle (cache wrapper + dependencies)
+        uses: gradle/actions/setup-gradle@v6
+
       - name: Build release APK (debug-signed, embedded JS)
         working-directory: android
         run: ./gradlew assembleRelease --no-daemon
