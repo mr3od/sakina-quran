@@ -52,8 +52,11 @@ jobs:
       - name: Render pages & capture screenshots
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 34
+          # api 34 image hangs at boot on current ubuntu runners — use 33
+          api-level: 33
+          target: google_apis
           arch: x86_64
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -no-snapshot
           script: |
             adb install -r android/app/build/outputs/apk/release/app-release.apk
             # Deterministic captures: kill all animations
