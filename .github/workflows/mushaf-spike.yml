@@ -79,14 +79,17 @@ jobs:
             adb shell am start -W -a android.intent.action.VIEW -d ${DEEP_LINK_BASE}?page=1
             sleep 25
             adb exec-out screencap -p > screenshots/android-p1.png
+            adb shell am force-stop ${APP_PACKAGE}
             adb shell am start -W -a android.intent.action.VIEW -d ${DEEP_LINK_BASE}?page=2
-            sleep 10
+            sleep 15
             adb exec-out screencap -p > screenshots/android-p2.png
+            adb shell am force-stop ${APP_PACKAGE}
             adb shell am start -W -a android.intent.action.VIEW -d ${DEEP_LINK_BASE}?page=50
-            sleep 10
+            sleep 15
             adb exec-out screencap -p > screenshots/android-p50.png
+            adb shell am force-stop ${APP_PACKAGE}
             adb shell am start -W -a android.intent.action.VIEW -d ${DEEP_LINK_BASE}?page=302
-            sleep 10
+            sleep 15
             adb exec-out screencap -p > screenshots/android-p302.png
 
       - name: Assert captures are valid renders
