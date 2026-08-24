@@ -177,13 +177,13 @@ jobs:
           sleep 10
           mkdir -p screenshots
 
-          xcrun simctl install "$DEVICE" "$APP_PATH"
-
           # Pre-approve the custom scheme — fresh CI sims otherwise raise the
           # system "Open in …?" confirmation on every openurl (expo#47614).
-          # Key is SCHEME-ONLY: the previous attempt appended the full URL
-          # path and the approval silently matched nothing.
-          xcrun simctl spawn "$DEVICE" defaults write com.apple.launchservices.schemeapproval "com.apple.CoreSimulator.CoreSimulatorBridge-->$URL_SCHEME" -bool true
+          # Exact contract from that PR: key = scheme ONLY, value = -string
+          # BUNDLE ID (not -bool), written after boot, before install.
+          xcrun simctl spawn "$DEVICE" defaults write com.apple.launchservices.schemeapproval "com.apple.CoreSimulator.CoreSimulatorBridge-->$URL_SCHEME" -string "$APP_PACKAGE"
+
+          xcrun simctl install "$DEVICE" "$APP_PATH"
 
           # Launch once BEFORE deep linking — cold-start links into expo-router
           # are flaky and first launch registers the URL scheme with SpringBoard.
