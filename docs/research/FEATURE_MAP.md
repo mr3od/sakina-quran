@@ -174,4 +174,4 @@ Status legend: **full** / **partial** / **absent** / **n-a** (platform makes it 
 
 - Geometry DB validated as THE highlight/WBV/audio source for all platforms.
 - **Data audit:** word-segmentation mismatches exist between `uthmani_text` and glyph positions (e.g. 1:1 — 4 words in text vs 5 glyph slots; 18:75 p11 missing). Quantify across all 604 pages before building word-by-word; affects both substrates.
-- Render lab retained (`src/app/render-lab.tsx` + `.github/workflows/native-runner-evidence.yml`): web text-rendering core and zero-cost fallback if image hosting/download friction emerges.
+- Render-lab screen removed from the app (preserved at commit b838cd2); `.github/workflows/native-runner-evidence.yml` + `docs/NATIVE_RUNNER_PLAYBOOK.md` retained as the reference for any future native-runner evidence task.

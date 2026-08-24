@@ -4,11 +4,13 @@ name: Native Runner Evidence (Android emulator · iOS simulator)
 # and uploads screenshots as artifacts — evidence for FEATURE_MAP §4-Q1
 # (text-rendered vs image-based reader substrate).
 
+# REFERENCE implementation for running this app on GitHub-hosted Android/iOS
+# runtimes and capturing screenshot evidence. Traps + flow: docs/NATIVE_RUNNER_PLAYBOOK.md
+# Dispatch-only: the render-lab capture screen was removed from the app
+# (full screen preserved at commit b838cd2). To reuse: restore it or point
+# DEEP_LINK_BASE at any route, then run via Actions tab.
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - worktree-mushaf-text-spike
 
 permissions:
   contents: read
