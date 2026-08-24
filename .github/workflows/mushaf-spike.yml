@@ -95,6 +95,7 @@ jobs:
           exit $FAIL
 
       - name: Upload screenshots
+        if: always()
         uses: actions/upload-artifact@v7
         with:
           name: mushaf-spike-android
@@ -154,21 +155,28 @@ jobs:
             build | tail -30
           APP=$(find build/Build/Products -maxdepth 3 -name '*.app' -type d | grep -i sakina | head -1)
           [ -n "$APP" ] || { echo "::error::app bundle not found in products"; find build/Build/Products -name '*.app'; exit 1; }
-          echo "APP_PATH=$APP" >> "$GITHUB_ENV"
+          # Absolute path — consumers run from repo root, not ios/
+          echo "APP_PATH=$PWD/$APP" >> "$GITHUB_ENV"
 
       - name: Boot simulator, render pages & capture screenshots
         run: |
           DEVICE=$(xcrun simctl list devices available | grep -m1 "iPhone" | sed -E 's/.*\(([A-F0-9-]+)\).*/\1/')
           echo "Booting device $DEVICE"
           xcrun simctl bootstatus "$DEVICE" -b
+          sleep 10
           mkdir -p screenshots
 
           xcrun simctl install "$DEVICE" "$APP_PATH"
 
+          # Launch once BEFORE deep linking — cold-start links into expo-router
+          # are flaky and first launch registers the URL scheme with SpringBoard.
+          xcrun simctl launch "$DEVICE" "$APP_PACKAGE"
+          sleep 8
+
           FIRST=1
           for p in 1 2 50 302; do
             xcrun simctl openurl "$DEVICE" "${DEEP_LINK_BASE}?page=$p" || true
-            if [ "$FIRST" = "1" ]; then sleep 25; FIRST=0; else sleep 8; fi
+            if [ "$FIRST" = "1" ]; then sleep 12; FIRST=0; else sleep 6; fi
             xcrun simctl io "$DEVICE" screenshot "screenshots/ios-p$p.png"
           done
 
@@ -185,6 +193,7 @@ jobs:
           exit $FAIL
 
       - name: Upload screenshots
+        if: always()
         uses: actions/upload-artifact@v7
         with:
           name: mushaf-spike-ios
