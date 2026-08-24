@@ -1,0 +1,126 @@
+{
+  "repo": "quran/quran.com-frontend-next",
+  "architectureSummary": "Quran.com's web frontend is a Next.js 14 app built on the PAGES Router (src/pages/), not the App Router as the brief stated - confirmed by src/pages/_app.tsx and .agents/quran/standards/repo-context.md. It is TypeScript-strict, React 18, styled with SCSS modules over Radix UI primitives, with a reusable Design Language System in src/components/dls (Button, Modal, Tabs, QuranWord, ShareButtons, Toast...) developed in Storybook (.storybook/, *.stories.tsx). Pages are mostly static: GetStaticProps/GetStaticPaths in e.g. src/pages/[chapterId]/index.tsx call src/api.ts, which wraps the quran.com API v4 (API_HOST from .env.example) with caching helpers like fetchAndCacheWithFallback; client-side data comes through SWR (swr 1.2.1) using the shared `fetcher` in src/api.ts. CMS content (learning plans, changelog) comes from @sanity/client in src/components/Sanity. State management is Redux Toolkit in src/redux/store.ts with redux-persist whitelisting ~23 slices into localStorage (QURAN_READER_STYLES, READING_PREFERENCES, TRANSLATIONS, TAFSIRS, THEME, BOOKMARKS, READING_TRACKER, PINNED_VERSES, GUEST_BOOKMARK, ONBOARDING...), plus separate persistConfigs for AudioPlayerState and CommandBar; version migrations live in src/redux/migrations.ts, locale-dependent defaults in src/redux/defaultSettings/defaultSettings.ts applied by defaultSettingsMiddleware, and hydration is surfaced via GlobalPersistGateHydrationListener. Complex playback logic is modeled as XState state machines under src/xstate/actors: audioPlayerMachine.ts (reciter fetch, verse advance, error recovery), rangeCycleMachine/repeatMachine/verseCycle for repeat settings, radioMachine.ts for stations - all provided through AudioPlayerMachineContext.tsx. There is a single-threaded browser model: no workers except an AudioWorklet helper in src/audioInput/audio-worklet.ts used by the microphone visualizer for voice search (src/hooks/useVoiceSearch.ts + src/services/speechRecognition). Persistence layers are localStorage via redux-persist plus server-side preference sync: hooks/auth/usePersistPreferenceGroup.ts pushes each settings change to the account backend grouped by PreferenceGroup so logged-in users get cross-device sync; anonymous users get local guest bookmarks that are migrated after login (GuestBookmarksMigrationModal). Auth is custom JWT + refresh token handling in src/utils/auth/api.ts with a withAuth HOC (src/components/Auth). Background work is limited to the next-pwa service worker configured by pwa-runtime-config.js (Workbox runtime caching of fonts, images, Next images and API responses; MP3 caching deliberately disabled because cached audio breaks Firefox range requests), so 'downloads' means a DownloadAudioButton that saves MP3 files rather than an offline library. Heavy media rendering is offloaded to Remotion + Remotion Lambda (src/components/MediaMaker, scripts/media/deploy.mjs) since browsers cannot render video. Notifications use Novu headless service (@novu/headless) wired in src/components/Notifications/hooks/useHeadlessService.tsx for the inbox, unseen count and read/seen actions. Observability and SEO are first-class: Sentry instrumentation files at repo root, eventLogger used across components for analytics, NextSeoWrapper per page, JSON-LD/OG image generation in src/lib/og and sitemaps via next-sitemap.js. i18n uses next-translate with 18+ locales in locales/<lang> including RTL layouts, which shaped locale-aware default settings and direction primitives (@radix-ui/react-direction). The web platform constraints - SEO-driven discovery, no native storage, browser autoplay policies, MediaSession API for lock-screen controls, and share/embed culture - explain the SSR-first architecture, server-synced preferences instead of a local database, service-worker-only offline support, and the embeddable AyahWidget/iframe pages under src/pages/embed.",
+  "features": [
+    {
+      "slug": "quran-reader",
+      "title": "Continuous-scroll Quran reader",
+      "summary": "Read any surah, verse range, juz, hizb, rub' or mushaf page in one infinite-scrolling reader with per-verse toolbars; implemented by src/components/QuranReader/index.tsx driven by the QuranReaderDataType enum in types/QuranReader.ts and routes src/pages/[chapterId]/index.tsx, /juz, /hizb, /rub, /page."
+    },
+    {
+      "slug": "reading-modes-fonts-settings",
+      "title": "Reading modes and Arabic typography settings",
+      "summary": "Switch between verse-by-verse translation mode, pure Arabic reading mode and reading-with-one-translation mode, pick Uthmani/IndoPak/Tajweed fonts (MadaniV1/V2, QPCHafs), lines-per-page for IndoPak, font scale and tajweed-coloring; see src/components/Navbar/SettingsDrawer/QuranFontSection.tsx and redux/slices/QuranReader/{styles,readingPreferences}.ts."
+    },
+    {
+      "slug": "translations-tafsir",
+      "title": "Translation and tafsir selection",
+      "summary": "Choose from dozens of translations and tafsirs per language and read full tafsir/reflection text for any verse; selection UIs are SettingsDrawer/TranslationSection.tsx and TafsirSection.tsx with slices redux/slices/QuranReader/{translations,tafsirs}.ts and the tafsir route src/pages/[chapterId]/tafsirs."
+    },
+    {
+      "slug": "word-by-word",
+      "title": "Word-by-word study tools",
+      "summary": "Per-word translations/transliteration shown inline or in tooltips, configurable WBW locale, font size and whether tapping a word plays its audio; configured in SettingsDrawer/WordByWordSection.tsx against ReadingPreferences (types/QuranReader.ts WordByWordType/Display enums) and rendered by dls/InlineWordByWord."
+    },
+    {
+      "slug": "audio-recitation",
+      "title": "Audio recitation player",
+      "summary": "Play surah/verse audio with qari selection, playback speed, volume, auto-scroll, download button, lock-screen MediaSession metadata and a repeat modal offering per-verse repeats, whole-range repeats, infinity (-1 sentinel) and delay between verses; core logic is src/xstate/actors/audioPlayer/audioPlayerMachine.ts with UI in src/components/AudioPlayer (RepeatAudioModal/, Buttons/DownloadAudioButton.tsx)."
+    },
+    {
+      "slug": "quran-radio",
+      "title": "Quran radio stations",
+      "summary": "Continuous curated or reciter-based stations playable from home and /radio page without picking a surah; station definitions in src/components/Radio/curatedStations.ts and playback machine in src/xstate/actors/radio/radioMachine.ts."
+    },
+    {
+      "slug": "search-discovery",
+      "title": "Search with voice, history and command bar",
+      "summary": "Search the Quran text with filters and result types spanning verses, surah/juz/hizb/page navigation jumps and ranges, keep search history, dictate queries via SpeechRecognition, and jump anywhere with the Cmd/Ctrl-K command bar palette; code in src/components/Search/* (CommandBar/, VoiceSearch/, SearchHistory/) and src/hooks/useVoiceSearch.ts."
+    },
+    {
+      "slug": "bookmarks-collections",
+      "title": "Bookmarks and collections",
+      "summary": "Bookmark ayahs and your current reading position, organize them into named collections with sort options, and migrate guest bookmarks into your account on login; slices redux/slices/QuranReader/bookmarks.ts and guestBookmark.ts with UI in src/components/Verse/SaveBookmarkModal and src/components/MyQuran/SavedTabContent."
+    },
+    {
+      "slug": "notes-reflections",
+      "title": "Notes and reflections journal",
+      "summary": "Write rich-text notes tied to verses (Milkdown-based editor), browse them in My Quran's notes tab, and post reflections to the QuranReflect community; see src/components/Notes/modal/AddNoteModal.tsx, redux/slices/QuranReader/notes.ts and src/pages/take-notes."
+    },
+    {
+      "slug": "pinned-verses-study-mode",
+      "title": "Pinned verses and study/memorization mode",
+      "summary": "Pin verses to a persistent bar while browsing and enter study mode that hides arabic text or translations so you can test recall word-by-word; implemented in redux/slices/QuranReader/{pinnedVerses,studyMode}.ts, src/components/QuranReader/PinnedVersesBar and StudyModeContainer.tsx."
+    },
+    {
+      "slug": "my-quran-dashboard",
+      "title": "My Quran personal dashboard",
+      "summary": "A signed-in hub with Saved, Recent content and Notes & Reflections tabs plus resume-reading bookmark; composed in src/pages/my-quran/index.tsx using src/components/MyQuran/tabs and readingTracker selectors for last-read verse."
+    },
+    {
+      "slug": "reading-goals-streaks",
+      "title": "Reading goals, streaks and progress tracking",
+      "summary": "Set daily khatma goals measured in pages, time, verses or ranges, maintain streaks, and review progress history on a dedicated progress page with widgets shown across home and end-of-surah states; see src/pages/reading-goal (+progress.tsx), src/components/ReadingGoal, ReadingProgressPage and redux/slices/QuranReader/readingTracker.ts."
+    },
+    {
+      "slug": "verse-share-copy-tools",
+      "title": "Per-verse copy, link and embed actions",
+      "summary": "Every verse offers copy-link, advanced copy with arabic/translation options, share menu, embeddable widget generation and translation feedback; implemented in src/components/Verse/OverflowVerseActionsMenuBody/* (VerseActionAdvancedCopy, VerseActionEmbedWidget) and dls/ShareButtons."
+    },
+    {
+      "slug": "video-image-maker",
+      "title": "Verse video and image maker",
+      "summary": "Generate stylized verse videos or poster images to share on social media, with orientation, background, border and text settings rendered client-side via Remotion Player and rendered server-side on Remotion Lambda; entry points src/pages/media/index.tsx and src/components/MediaMaker/*."
+    },
+    {
+      "slug": "learning-plans",
+      "title": "Learning plans and courses",
+      "summary": "Browse curated learning-plan catalog, enroll (including guest enrollment), track lesson progress and see plan banners inside the reader; pages src/pages/learning-plans and my-learning-plans with components src/components/Course, MyLearningPlans and QuranReader/LearningPlanBanner."
+    },
+    {
+      "slug": "notifications-center",
+      "title": "Notification center and email preferences",
+      "summary": "In-app notification inbox powered by Novu headless service with unread badge, mark-read/seen and delete, plus granular email notification settings on the profile page; see src/components/Notifications/hooks/useHeadlessService.tsx, InAppNotifications/ and Profile/EmailNotificationSettingsForm.tsx."
+    },
+    {
+      "slug": "account-preference-sync",
+      "title": "Accounts with cross-device preference sync",
+      "summary": "Sign up/log in (including SSO flag and password reset flows), edit profile details, avatar, password and delete account; every reader setting changed locally is also persisted to the backend via hooks/auth/usePersistPreferenceGroup.ts so it follows the user across devices (src/pages/login.tsx, profile/index.tsx, src/utils/auth/api.ts)."
+    },
+    {
+      "slug": "themes-dark-mode",
+      "title": "Light, dark and sepia themes",
+      "summary": "Pick light, dark or sepia appearance (with auto variant) applied before rehydration to avoid flash; theme slice in redux/slices/theme.ts with types in redux/types/ThemeType*.ts, picker in Navbar/SettingsDrawer/ThemeSection.tsx and synchronous localStorage restore in store.ts."
+    },
+    {
+      "slug": "browse-navigation-index",
+      "title": "Surah index and juz/page browsing",
+      "summary": "Home lists all 114 surah cards plus juz/hizb quick links, and an in-reader sidebar lets you jump between surahs, ayahs, juz and pages; see src/components/chapters/ChapterAndJuzList, HomePage/QuickLinks and QuranReader/SidebarNavigation/*."
+    },
+    {
+      "slug": "quranic-calendar",
+      "title": "Quranic calendar yearly program",
+      "summary": "A year-round program that serves a fixed portion of the Quran weekly with personal progress tracking and supporting resources; pages src/pages/calendar with components src/components/QuranicCalendar/{WeeklyVerses,MyProgress,QuranicCalendarHero}."
+    },
+    {
+      "slug": "ramadan-seasonal-programs",
+      "title": "Ramadan seasonal programs",
+      "summary": "Seasonal Ramadan activity hub, Ramadan challenge and beyond-Ramadan explainer content; pages src/pages/ramadan*, ramadanchallenge, beyond-ramadan, what-is-ramadan backed by components RamadanActivity/ and RamadanChallenge/."
+    },
+    {
+      "slug": "embeddable-widgets",
+      "title": "Embeddable ayah widget builder",
+      "summary": "Configure and preview a customizable daily-ayah widget then embed it on other sites via iframe routes; builder in src/components/AyahWidget/builder and embed pages src/pages/embed/{[...slug].tsx,ayah.tsx,v1.tsx}."
+    },
+    {
+      "slug": "pwa-offline-cache",
+      "title": "Installable PWA with offline caching",
+      "summary": "The site installs as a Progressive Web App whose Workbox service worker caches fonts, images, Next assets and API responses for offline reuse (MP3 intentionally excluded); config in pwa-runtime-config.js and next.config.js."
+    },
+    {
+      "slug": "verse-content-layers",
+      "title": "Per-surah knowledge layers",
+      "summary": "Each chapter exposes extra resources: qira'at variants, related verses, hadith, video lessons, community Q&A answers and linguistic layers, plus revelation-order browsing; routes under src/pages/[chapterId]/ (qiraat.tsx, related-verses.tsx, hadith.tsx, lessons.tsx, answers/, layers.tsx) with the revelationOrder redux slice."
+    }
+  ]
+}

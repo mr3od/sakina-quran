@@ -2,6 +2,7 @@
   "name": "sakina-quran",
   "main": "expo-router/entry",
   "version": "1.0.0",
+  "packageManager": "pnpm@10.15.0",
   "scripts": {
     "start": "expo start",
     "android": "expo run:android",

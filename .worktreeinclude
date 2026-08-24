@@ -1,0 +1,6 @@
+# Copied into every new Claude Code worktree (gitignored files only).
+# Currently no env files exist in this repo; patterns below future-proof
+# the day one appears, so worktrees don't silently miss local config.
+.env
+.env.*.local
+.env.local

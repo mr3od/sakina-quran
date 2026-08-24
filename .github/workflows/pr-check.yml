@@ -24,7 +24,7 @@ jobs:
 
       # 1. Enable pnpm FIRST
       - name: Enable pnpm
-        run: corepack enable && corepack prepare pnpm@latest --activate
+        run: corepack enable && corepack prepare pnpm@10.15.0 --activate
 
       # 2. THEN Setup Node (now it can find pnpm for caching)
       - name: Setup Node.js

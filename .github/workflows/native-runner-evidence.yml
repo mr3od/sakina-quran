@@ -1,0 +1,232 @@
+name: Native Runner Evidence (Android emulator · iOS simulator)
+
+# Renders /render-lab on real platform text stacks (HarfBuzz/CoreText)
+# and uploads screenshots as artifacts — evidence for FEATURE_MAP §4-Q1
+# (text-rendered vs image-based reader substrate).
+
+# REFERENCE implementation for running this app on GitHub-hosted Android/iOS
+# runtimes and capturing screenshot evidence. Traps + flow: docs/NATIVE_RUNNER_PLAYBOOK.md
+# Dispatch-only: the render-lab capture screen was removed from the app
+# (full screen preserved at commit b838cd2). To reuse: restore it or point
+# DEEP_LINK_BASE at any route, then run via Actions tab.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: render-lab-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  APP_PACKAGE: dev.mr3od.sakinaquran
+  DEEP_LINK_BASE: sakina-quran://render-lab
+  URL_SCHEME: sakina-quran
+
+jobs:
+  android:
+    name: Android (HarfBuzz) rendering evidence
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Enable pnpm
+        run: corepack enable && corepack prepare pnpm@10.15.0 --activate
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Prebuild native project
+        run: npx expo prebuild -p android --no-install
+
+      - name: Setup Gradle (cache wrapper + dependencies)
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Build release APK (debug-signed, embedded JS)
+        working-directory: android
+        run: ./gradlew assembleRelease --no-daemon
+
+      - name: Enable KVM group perms
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Render pages & capture screenshots
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          # api 34 image hangs at boot on current ubuntu runners — use 33
+          api-level: 33
+          target: google_apis
+          arch: x86_64
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -no-snapshot
+          # CONTRACT (verified from runner source): the action splits this
+          # script on newlines and executes EACH LINE via sh -c "<line>".
+          # Therefore: every line must be a complete command, no multi-line
+          # blocks, and NO double quotes (they break the outer wrapping).
+          script: |
+            adb install -r android/app/build/outputs/apk/release/app-release.apk
+            adb shell settings put global window_animation_scale 0
+            adb shell settings put global transition_animation_scale 0
+            adb shell settings put global animator_duration_scale 0
+            mkdir -p screenshots
+            adb shell am start -W -a android.intent.action.VIEW -d ${DEEP_LINK_BASE}?page=1
+            sleep 25
+            adb exec-out screencap -p > screenshots/android-p1.png
+            adb shell am force-stop ${APP_PACKAGE}
+            adb shell am start -W -a android.intent.action.VIEW -d ${DEEP_LINK_BASE}?page=2
+            sleep 15
+            adb exec-out screencap -p > screenshots/android-p2.png
+            adb shell am force-stop ${APP_PACKAGE}
+            adb shell am start -W -a android.intent.action.VIEW -d ${DEEP_LINK_BASE}?page=50
+            sleep 15
+            adb exec-out screencap -p > screenshots/android-p50.png
+            adb shell am force-stop ${APP_PACKAGE}
+            adb shell am start -W -a android.intent.action.VIEW -d ${DEEP_LINK_BASE}?page=302
+            sleep 15
+            adb exec-out screencap -p > screenshots/android-p302.png
+
+      - name: Assert captures are valid renders
+        run: |
+          FAIL=0
+          for f in screenshots/*.png; do
+            SIZE=$(stat -c%s "$f")
+            DIMS=$(identify -quiet -format "%wx%h" "$f" 2>/dev/null || echo "?x?")
+            echo "$f: ${DIMS}, ${SIZE} bytes"
+            if [ "$SIZE" -lt 8000 ]; then echo "::error::$f looks blank/corrupt (${SIZE} bytes)"; FAIL=1; fi
+          done
+          [ "$(ls screenshots/*.png | wc -l)" -eq 4 ] || { echo "::error::expected 4 captures"; FAIL=1; }
+          exit $FAIL
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: render-lab-android
+          path: screenshots/
+          retention-days: 7
+
+  ios:
+    name: iOS (CoreText) rendering evidence
+    runs-on: macos-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Enable pnpm
+        run: corepack enable && corepack prepare pnpm@10.15.0 --activate
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Prebuild native project
+        run: npx expo prebuild -p ios --no-install
+
+      - name: Install CocoaPods dependencies
+        working-directory: ios
+        run: pod install
+
+      - name: Build simulator app
+        working-directory: ios
+        run: |
+          # Full scheme list: printed as collapsible group AND saved next to
+          # screenshots so failures are diagnosable from artifacts alone.
+          mkdir -p ../screenshots
+          xcodebuild -workspace *.xcworkspace -list | tee ../screenshots/ios-schemes.txt
+          # Pick the app scheme by NAME — positional picks alphabetically-first
+          # Pods scheme (EXConstants); naive name-match grabs Pods-sakinaquran.
+          # Exclude Pods-* so only the real app target remains.
+          # NOTE: scheme lines are indented — ^Pods- anchors wrong and filters
+          # nothing; allow leading whitespace.
+          SCHEME=$(grep -iv '^[[:space:]]*Pods-' ../screenshots/ios-schemes.txt | awk '/Schemes:/{f=1;next} f&&NF{print $1}' | grep -i sakina | head -1)
+          [ -n "$SCHEME" ] || { echo "::error::could not resolve app scheme"; exit 1; }
+          echo "Using Xcode scheme: $SCHEME"
+          set -o pipefail
+          xcodebuild -workspace *.xcworkspace \
+            -scheme "$SCHEME" \
+            -configuration Release \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            build | tail -30
+          APP=$(find build/Build/Products -maxdepth 3 -name '*.app' -type d | grep -i sakina | head -1)
+          [ -n "$APP" ] || { echo "::error::app bundle not found in products"; find build/Build/Products -name '*.app'; exit 1; }
+          # Absolute path — consumers run from repo root, not ios/
+          echo "APP_PATH=$PWD/$APP" >> "$GITHUB_ENV"
+
+      - name: Boot simulator, render pages & capture screenshots
+        run: |
+          DEVICE=$(xcrun simctl list devices available | grep -m1 "iPhone" | sed -E 's/.*\(([A-F0-9-]+)\).*/\1/')
+          echo "Booting device $DEVICE"
+          xcrun simctl bootstatus "$DEVICE" -b
+          sleep 10
+          mkdir -p screenshots
+
+          # Pre-approve the custom scheme — fresh CI sims otherwise raise the
+          # system "Open in …?" confirmation on every openurl (expo#47614).
+          # Exact contract from that PR: key = scheme ONLY, value = -string
+          # BUNDLE ID (not -bool), written after boot, before install.
+          xcrun simctl spawn "$DEVICE" defaults write com.apple.launchservices.schemeapproval "com.apple.CoreSimulator.CoreSimulatorBridge-->$URL_SCHEME" -string "$APP_PACKAGE"
+
+          xcrun simctl install "$DEVICE" "$APP_PATH"
+
+          # Launch once BEFORE deep linking — cold-start links into expo-router
+          # are flaky and first launch registers the URL scheme with SpringBoard.
+          xcrun simctl launch "$DEVICE" "$APP_PACKAGE"
+          sleep 8
+
+          # Warm openurl to the running app navigates only ONCE (same failure
+          # Android showed) — terminate before every capture so each page is
+          # a cold-start deep link, the path proven to route.
+          xcrun simctl openurl "$DEVICE" "${DEEP_LINK_BASE}?page=1" || true
+          sleep 12
+          xcrun simctl io "$DEVICE" screenshot "screenshots/ios-p1.png"
+          xcrun simctl terminate "$DEVICE" "$APP_PACKAGE" || true
+          xcrun simctl openurl "$DEVICE" "${DEEP_LINK_BASE}?page=2" || true
+          sleep 12
+          xcrun simctl io "$DEVICE" screenshot "screenshots/ios-p2.png"
+          xcrun simctl terminate "$DEVICE" "$APP_PACKAGE" || true
+          xcrun simctl openurl "$DEVICE" "${DEEP_LINK_BASE}?page=50" || true
+          sleep 12
+          xcrun simctl io "$DEVICE" screenshot "screenshots/ios-p50.png"
+          xcrun simctl terminate "$DEVICE" "$APP_PACKAGE" || true
+          xcrun simctl openurl "$DEVICE" "${DEEP_LINK_BASE}?page=302" || true
+          sleep 12
+          xcrun simctl io "$DEVICE" screenshot "screenshots/ios-p302.png"
+
+      - name: Assert captures are valid renders
+        run: |
+          FAIL=0
+          for f in screenshots/*.png; do
+            SIZE=$(stat -f%z "$f")
+            DIMS=$(sips -g pixelWidth -g pixelHeight "$f" 2>/dev/null | awk '/pixel/{printf "%s",$2" "}')
+            echo "$f: ${DIMS}, ${SIZE} bytes"
+            if [ "$SIZE" -lt 8000 ]; then echo "::error::$f looks blank/corrupt (${SIZE} bytes)"; FAIL=1; fi
+          done
+          [ "$(ls screenshots/*.png | wc -l)" -eq 4 ] || { echo "::error::expected 4 captures"; FAIL=1; }
+          exit $FAIL
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: render-lab-ios
+          path: screenshots/
+          retention-days: 7

@@ -1,0 +1,106 @@
+{
+  "repo": "quran/quran_android",
+  "architectureSummary": "Quran for Android is a multi-module Android app (Kotlin, min SDK modern, GPL3) whose root at /tmp/research/quran_android splits into :app (UI shell, services, workers), ~20 libraries under :common (analytics, audio, bookmark, data, di, download, drawing, linebyline:data|ui, mapper, networking, pages, preference, reading, recitation, search, toolbar, translation, upgrade, ui:core), pluggable feature modules under :feature (audio, audiobar, ayahbookmark, downloadmanager, qarilist, recitation, sync, linebyline, autoquran, analytics-noop/firebase-analytics), and :pages (madani page-image provider plus pages:data:madani / pages:data:warsh metadata sources). Product flavors are dimensioned on pageType (app/build.gradle.kts creates madani/warsh/qaloon/naskh variants); a build picks which mushaf image pack and ayah-coordinate data ships.\n\nDI is Metro (dev.zacsweers.metro @DependencyGraph/@Inject/@SingleIn - the codebase migrated off Dagger; gradle/libs.versions.toml pins metro 1.4.2 and no dagger bindings remain). The graph root is app/src/main/java/com/quran/labs/androidquran/di/component/application/ApplicationComponent.kt (@SingleIn(AppScope)) with ActivityComponent -> QuranActivityComponent/PagerActivityComponent/QuranPageComponent subcomponents under di/component/*. Feature modules contribute through injected provider sets rather than hard deps: ExtraScreenProvider (menu items in QuranActivity), ExtraPreferencesProvider (settings rows in QuranSettingsFragment), AyahActionFragmentProvider (panels in SlidingPagerAdapter), PageProvider map (mushaf types), RecitationPresenter, analytics AnalyticsModule. State handling is hybrid: classic MVP presenters under app/.../presenter/* driven by RxJava3 (CompositeDisposable, Schedulers.io -> AndroidSchedulers.mainThread) for index/search/translation flows; newer Compose features use MVVM-ish StateFlow (feature/audiobar AudioBarPresenter + state/AudioBarScreen, feature/ayahbookmark, feature/downloadmanager SheikhAudioPresenter). Threading is Rx for legacy paths and coroutines (Dispatchers.IO/Main, AppScope CoroutineScope) elsewhere; sync adds its own SupervisorJob scope (feature/sync QuranSyncManager).\n\nPersistence layers: SQLDelight (2.x) databases declared in common/bookmark/src/main/sqldelight (Bookmark.sq, Tag.sq, LastPage.sq, BookmarkTag.sq) with DAOs BookmarksDaoImpl/RecentPagesDaoImpl/ReadingBookmarksDaoImpl exposed via common/data/dao interfaces; legacy raw SQLite adapters remain in app/.../database (BookmarksDBAdapter, DatabaseHandler, SuraTimingDatabaseHandler) for ayah-info (glyph coordinates per page width), audio gapless timing, and Arabic-search DBs; each downloaded translation is its own SQLite DB managed by TranslationsDBAdapterImpl; audio download inventory is cached by common/audio QariDownloadInfoStorageCache. Settings are SharedPreferences wrapped by QuranSettings/SettingsImpl over common/data dao Settings keys in app/.../data/Constants.kt.\n\nNetworking is OkHttp (BOM 5.x) with dnsjava DNS-over-HTTPS in common/networking NetworkModule; downloads hit the project's own CDN for page images/audio zips and quranenc-style endpoints for translation lists; share links call quranapp.com (util/QuranAppUtils). Cloud sync talks to quran.com infrastructure via Kotlin-multiplatform shared graphs (com.quran.shared.auth/pipeline) plus ktor URL building and an OIDC client (org.publicvalue.multiplatform.oidc) in feature/sync.\n\nBackground work uses two foreground Services plus WorkManager: service/QuranDownloadService (WifiLock, zip extraction, retry/resume, progress notifications on the quran_download_progress channel, DOWNLOAD_TYPE_PAGES/AUDIO/TRANSLATION/ARABIC_SEARCH_DB) and service/AudioService (Media3 ExoPlayer Player.Listener, MediaSessionCompat, playback notification, AudioQueue enforcing repeat/bounds). WorkManager workers (worker/AudioUpdateWorker for re-downloading changed audio via MD5 from feature/audio api/AudioUpdateService; worker/MissingPageDownloadWorker) are instantiated through core/worker/QuranWorkerFactory so they get injected.\n\nPlatform constraints shaped this design heavily: pages are pre-rendered mushaf images bucketed by device width (QuranScreenInfo/QuranPageLoader), which is why first-run downloads, storage-location migration to SD card (QuranAdvancedSettingsFragment.moveFiles), scoped-storage prompts, and missing-page repair exist at all; text rendering of Arabic script was avoided in favor of images, with line-by-line Compose rendering (:feature:linebyline) as an alternate page type; large audio corpora motivated gapped/gapless strategies (service/download/*Strategy), streaming preference, and background update workers; automotive needs a media-browser-only entry point, hence the separate :autoquran app module (QuranBrowsableAudioPlaybackService); and Compose adoption is incremental, confined to leaf feature modules that plug into the View-based PagerActivity shell.",
+  "features": [
+    {
+      "slug": "mushaf-page-reading",
+      "title": "Mushaf page reading with ayah interaction",
+      "summary": "Swipeable Madani mushaf page images with tap-to-select and long-press ayah selection, animated highlights, and a per-ayah context toolbar. Implemented in app/src/main/java/com/quran/labs/androidquran/ui/PagerActivity.kt, ui/fragment/QuranPageFragment.kt, presenter/quran/ayahtracker/* and highlight drawing in common/drawing."
+    },
+    {
+      "slug": "translations-tafsir",
+      "title": "Translation & tafsir manager",
+      "summary": "Browse, download, update, reorder and remove dozens of translations and tafsirs fetched from quranenc, with multiple simultaneously active translations. Entry point ui/TranslationManagerActivity.kt + presenter/translation/TranslationManagerPresenter.kt over common/translation."
+    },
+    {
+      "slug": "translation-reading-mode",
+      "title": "Translation reading mode",
+      "summary": "Switch any page from mushaf images to a scrollable verse-by-verse text view (optional Arabic verse before translation, expandable footnotes/tafseer spans, adjustable fonts). ui/fragment/TranslationFragment.kt, ui/translation/TranslationAdapter.kt, ui/helpers/ExpandTafseerSpan.kt, presenter/translation/BaseTranslationPresenter.kt."
+    },
+    {
+      "slug": "audio-recitation",
+      "title": "Audio recitation playback",
+      "summary": "Background Quran audio via a foreground Media3/ExoPlayer service with media notification and lockscreen/headset controls, gapped or gapless reciters, streaming or pre-download, variable playback speed, qari picker, and verse-range playback with per-verse/range repeat counts. Core: app/.../service/AudioService.kt, presenter/audio/service/AudioQueue.kt, ui/fragment/AyahPlaybackFragment.kt, feature/qarilist, feature/downloadmanager SheikhAudioDownloadsActivity, feature/audiobar Compose control bar."
+    },
+    {
+      "slug": "search",
+      "title": "Full-text Quran & translation search",
+      "summary": "Toolbar search across downloaded translations plus Arabic-script search backed by a downloadable Arabic search database, with search suggestions from a ContentProvider. app/.../SearchActivity.kt, data/QuranDataProvider.kt, common/search DefaultSearcher/ArabicSearcher."
+    },
+    {
+      "slug": "bookmarks-tags",
+      "title": "Bookmarks and tags",
+      "summary": "Bookmark verses/pages, organize them into user tags, multi-select contextual actions, sorting/grouping by tag, optional bookmark highlighting on the page, plus a recent-pages section in the Bookmarks tab. ui/fragment/BookmarksFragment.kt, presenter/bookmark/*, persistence in common/bookmark SQLDelight (Bookmark.sq, Tag.sq)."
+    },
+    {
+      "slug": "reading-bookmarks-collections",
+      "title": "Reading bookmarks (movable collections)",
+      "summary": "Newer movable reading bookmarks shown as a Compose bottom sheet with collections, add/remove rows, last-place warning banner and education toast. feature/ayahbookmark ui/AyahBookmarkSheet.kt and ReadingBookmarksDaoImpl in common/bookmark."
+    },
+    {
+      "slug": "bookmark-backup-import-export",
+      "title": "Bookmark backup import/export",
+      "summary": "Export all bookmarks/tags as JSON (shareable) or CSV, and import backups picked from the filesystem. app/.../ui/fragment/QuranAdvancedSettingsFragment.kt using model/bookmark/BookmarkImportExportModel.kt and model/bookmark/BookmarkJsonModel.kt."
+    },
+    {
+      "slug": "cloud-sync-quran-account",
+      "title": "Cloud sync with Quran.com account",
+      "summary": "Sign in with a Quran.com account (OIDC) to keep bookmarks and reading position synced across devices, surfaced as settings rows and a sign-in card. feature/sync QuranSyncManager.kt, QuranSyncActivity.kt, QuranSyncSettingsPreferenceProvider.kt over com.quran.shared.* multiplatform pipelines."
+    },
+    {
+      "slug": "quick-navigation-jump",
+      "title": "Jump-to-anywhere navigation and resume",
+      "summary": "Go-to dialog for page/sura/ayah/juz, 'last page' resume, volume-key page turns, launcher shortcuts (last page, jump) and quran:// deep links. ui/fragment/JumpFragment.kt, ShortcutsActivity.kt, app/src/madani/res/xml/shortcuts.xml, QuranForwarderActivity.kt, feature/reading/model/LatestPageTracker.kt."
+    },
+    {
+      "slug": "index-sura-juz-lists",
+      "title": "Index tabs: suras, juz, bookmarks",
+      "summary": "Home screen with three swipeable tabs listing all 114 suras and 30 juz with metadata, optionally translated sura names or full Arabic UI. ui/QuranActivity.kt, ui/fragment/SuraListFragment.kt, JuzListFragment.kt."
+    },
+    {
+      "slug": "night-mode-themes",
+      "title": "Night mode and app themes",
+      "summary": "Night mode that dims/inverts page images with independent text and background brightness sliders, plus system light/dark/default app theme selection. app/src/main/res/xml/quran_preferences.xml, util/ThemeUtil.kt, ui/preference/SeekBar*BrightnessPreference.kt."
+    },
+    {
+      "slug": "dual-page-split-mode",
+      "title": "Dual-page and split translation layout",
+      "summary": "Tablet/landscape dual-page mode showing two consecutive mushaf pages, with an option to split screen between page image and translation. ui/fragment/TabletFragment.kt and PREF_DUAL_PAGE_ENABLED/PREF_SPLIT_PAGE_AND_TRANSLATION handling in util/SettingsImpl.kt."
+    },
+    {
+      "slug": "mushaf-variants-page-types",
+      "title": "Mushaf variants and page type selection",
+      "summary": "Choose between mushaf renderings (Madani images vs Warsh data, with qaloon/naskh build flavors) and an experimental line-by-line Compose-rendered page. app/.../pageselect/PageSelectActivity.kt, pluggable Map<String,PageProvider> in QuranSettingsFragment.kt, :pages modules and :feature:linebyline."
+    },
+    {
+      "slug": "downloads-manager",
+      "title": "Download manager with progress notifications",
+      "summary": "Central foreground download service handling pages, audio, translations and the Arabic search DB with progress/error notifications, wifi constraints, zip extraction and retry/resume. service/QuranDownloadService.kt, service/download/{Gapless,Gapped,SingleFile}DownloadStrategy.kt, common/download."
+    },
+    {
+      "slug": "first-run-setup-missing-pages",
+      "title": "First-run data setup and missing page repair",
+      "summary": "On launch the app checks permissions and required page images, offers the download, and silently repairs missing/corrupt pages via a background worker. QuranDataActivity.kt + presenter/data/QuranDataPresenter.kt, worker/MissingPageDownloadWorker.kt."
+    },
+    {
+      "slug": "share-copy-verses",
+      "title": "Share and copy verses",
+      "summary": "From the ayah toolbar users copy verse text, share verse text with attribution, or generate a short quranapp.com link to a verse range. common/toolbar res/menu/ayah_menu.xml handled in PagerActivity.onItemClicked, util/ShareUtil.kt, util/QuranAppUtils.kt."
+    },
+    {
+      "slug": "home-screen-widgets",
+      "title": "Home-screen widgets",
+      "summary": "A bookmarks widget listing saved bookmarks with quick actions (open app, jump to latest page, search, jump) and a dedicated search widget. widget/BookmarksWidget.kt + BookmarksWidgetService.kt and widget/SearchWidget.kt, layouts bookmarks_widget_info.xml / search_widget_info.xml."
+    },
+    {
+      "slug": "display-accessibility-settings",
+      "title": "Display & accessibility settings",
+      "summary": "Settings catalog covering Arabic UI locale toggle, dyslexic-friendly font, ayah/translation text size sliders, orientation lock, page info overlay, marker popups, volume-key navigation and translated sura names. ui/fragment/QuranSettingsFragment.kt with SeekBar*Preference widgets and R.xml.quran_preferences.xml."
+    },
+    {
+      "slug": "android-auto-audio",
+      "title": "Android Auto audio browsing",
+      "summary": "A separate Automotive app target exposing browsable sura/qari audio playback through a media browser service with qari artwork and recent-qari memory. :autoquran module - service/QuranBrowsableAudioPlaybackService.kt, common/BrowsableSurahBuilder.kt, common/QariArtworkContentProvider.kt."
+    }
+  ]
+}
