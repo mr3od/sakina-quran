@@ -162,9 +162,11 @@ function SpikeButton({
 }
 
 export default function MushafSpike() {
-  const params = useLocalSearchParams<{ page?: string }>();
+  const params = useLocalSearchParams<{ page?: string; chrome?: string }>();
   const [page, setPage] = useState(Number(params.page) || 2);
   const [zoom, setZoom] = useState(1);
+  // Chrome (toolbar/debug) is opt-in via ?chrome=1 so CI captures a pure page
+  const [showChrome, setShowChrome] = useState(params.chrome === "1");
   const [showDebug, setShowDebug] = useState(true);
   const { width: windowWidth } = useWindowDimensions();
   const { data, isLoading, isError } = usePageLayout(page);
@@ -192,28 +194,33 @@ export default function MushafSpike() {
 
   return (
     <View style={styles.screen}>
-      <View style={styles.toolbar}>
-        <SpikeButton
-          label="‹"
-          onPress={() => setPage((p) => Math.max(1, p - 1))}
-        />
-        <Text style={styles.pageIndicator}>{page}</Text>
-        <SpikeButton
-          label="›"
-          onPress={() => setPage((p) => Math.min(604, p + 1))}
-        />
-        <SpikeButton
-          label="A−"
-          onPress={() => setZoom((z) => Math.max(0.5, z - 0.1))}
-        />
-        <SpikeButton
-          label="A+"
-          onPress={() => setZoom((z) => Math.min(3, z + 0.1))}
-        />
-        <SpikeButton label="dbg" onPress={() => setShowDebug((d) => !d)} />
-      </View>
+      {showChrome && (
+        <View style={styles.toolbar}>
+          <SpikeButton
+            label="‹"
+            onPress={() => setPage((p) => Math.max(1, p - 1))}
+          />
+          <Text style={styles.pageIndicator}>{page}</Text>
+          <SpikeButton
+            label="›"
+            onPress={() => setPage((p) => Math.min(604, p + 1))}
+          />
+          <SpikeButton
+            label="A−"
+            onPress={() => setZoom((z) => Math.max(0.5, z - 0.1))}
+          />
+          <SpikeButton
+            label="A+"
+            onPress={() => setZoom((z) => Math.min(3, z + 0.1))}
+          />
+          <SpikeButton
+            label="dbg"
+            onPress={() => setShowDebug((d) => !d)}
+          />
+        </View>
+      )}
 
-      {showDebug && (
+      {showChrome && showDebug && (
         <View style={styles.debugPanel}>
           <Text style={styles.debugText}>
             w={Math.round(windowWidth)} scale={scale.toFixed(3)} fs=
