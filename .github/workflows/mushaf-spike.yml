@@ -190,12 +190,24 @@ jobs:
           xcrun simctl launch "$DEVICE" "$APP_PACKAGE"
           sleep 8
 
-          FIRST=1
-          for p in 1 2 50 302; do
-            xcrun simctl openurl "$DEVICE" "${DEEP_LINK_BASE}?page=$p" || true
-            if [ "$FIRST" = "1" ]; then sleep 12; FIRST=0; else sleep 6; fi
-            xcrun simctl io "$DEVICE" screenshot "screenshots/ios-p$p.png"
-          done
+          # Warm openurl to the running app navigates only ONCE (same failure
+          # Android showed) — terminate before every capture so each page is
+          # a cold-start deep link, the path proven to route.
+          xcrun simctl openurl "$DEVICE" "${DEEP_LINK_BASE}?page=1" || true
+          sleep 12
+          xcrun simctl io "$DEVICE" screenshot "screenshots/ios-p1.png"
+          xcrun simctl terminate "$DEVICE" "$APP_PACKAGE" || true
+          xcrun simctl openurl "$DEVICE" "${DEEP_LINK_BASE}?page=2" || true
+          sleep 12
+          xcrun simctl io "$DEVICE" screenshot "screenshots/ios-p2.png"
+          xcrun simctl terminate "$DEVICE" "$APP_PACKAGE" || true
+          xcrun simctl openurl "$DEVICE" "${DEEP_LINK_BASE}?page=50" || true
+          sleep 12
+          xcrun simctl io "$DEVICE" screenshot "screenshots/ios-p50.png"
+          xcrun simctl terminate "$DEVICE" "$APP_PACKAGE" || true
+          xcrun simctl openurl "$DEVICE" "${DEEP_LINK_BASE}?page=302" || true
+          sleep 12
+          xcrun simctl io "$DEVICE" screenshot "screenshots/ios-p302.png"
 
       - name: Assert captures are valid renders
         run: |
