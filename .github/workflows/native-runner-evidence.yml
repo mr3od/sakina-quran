@@ -1,6 +1,6 @@
-name: Mushaf Text Spike
+name: Native Runner Evidence (Android emulator · iOS simulator)
 
-# Renders /mushaf-spike on real platform text stacks (HarfBuzz/CoreText)
+# Renders /render-lab on real platform text stacks (HarfBuzz/CoreText)
 # and uploads screenshots as artifacts — evidence for FEATURE_MAP §4-Q1
 # (text-rendered vs image-based reader substrate).
 
@@ -14,12 +14,12 @@ permissions:
   contents: read
 
 concurrency:
-  group: mushaf-spike-${{ github.ref }}
+  group: render-lab-${{ github.ref }}
   cancel-in-progress: true
 
 env:
   APP_PACKAGE: dev.mr3od.sakinaquran
-  DEEP_LINK_BASE: sakina-quran://mushaf-spike
+  DEEP_LINK_BASE: sakina-quran://render-lab
   URL_SCHEME: sakina-quran
 
 jobs:
@@ -109,7 +109,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: mushaf-spike-android
+          name: render-lab-android
           path: screenshots/
           retention-days: 7
 
@@ -225,6 +225,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: mushaf-spike-ios
+          name: render-lab-ios
           path: screenshots/
           retention-days: 7

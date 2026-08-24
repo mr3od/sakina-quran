@@ -88,13 +88,25 @@
       [
         "react-native-localize",
         {
-          "locales": ["en", "ar"]
+          "locales": [
+            "en",
+            "ar"
+          ]
         }
       ]
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {
+        "origin": "https://quran.mr3od.dev"
+      },
+      "eas": {
+        "projectId": "bb8030e4-12fe-49c8-8f6a-98689debb569"
+      }
+    },
+    "owner": "abdulrahman-ye"
   }
 }

@@ -1,7 +1,7 @@
 /**
- * Mushaf rendering spike - /mushaf-spike
+ * Render lab - /render-lab
  *
- * Disposable experiment answering FEATURE_MAP open question §4.1: can a
+ * Permanent rendering-evidence screen answering FEATURE_MAP §5 (decision record): can a
  * page-faithful mushaf be rendered as TEXT (bundled UthmanicHafs_V22 +
  * line geometry from quran.db glyphs table) instead of page images?
  *
@@ -138,7 +138,7 @@ async function fetchPageLayout(
 function usePageLayout(page: number) {
   const db = useDatabase();
   return useQuery({
-    queryKey: ["mushaf-spike", page],
+    queryKey: ["render-lab", page],
     queryFn: () => {
       if (!db) throw new Error("quran.db unavailable on this platform");
       return fetchPageLayout(db, page);
@@ -147,7 +147,7 @@ function usePageLayout(page: number) {
   });
 }
 
-function SpikeButton({
+function RenderLabButton({
   label,
   onPress,
 }: {
@@ -161,7 +161,7 @@ function SpikeButton({
   );
 }
 
-export default function MushafSpike() {
+export default function RenderLab() {
   const params = useLocalSearchParams<{ page?: string; chrome?: string }>();
   const [page, setPage] = useState(Number(params.page) || 2);
   const [zoom, setZoom] = useState(1);
@@ -175,7 +175,7 @@ export default function MushafSpike() {
     return (
       <View style={styles.center}>
         <Text style={styles.debugText}>
-          Native-only spike — run in dev build on simulator/device.
+          Native-only — run in dev build on simulator/device.
         </Text>
       </View>
     );
@@ -196,24 +196,24 @@ export default function MushafSpike() {
     <View style={styles.screen}>
       {showChrome && (
         <View style={styles.toolbar}>
-          <SpikeButton
+          <RenderLabButton
             label="‹"
             onPress={() => setPage((p) => Math.max(1, p - 1))}
           />
           <Text style={styles.pageIndicator}>{page}</Text>
-          <SpikeButton
+          <RenderLabButton
             label="›"
             onPress={() => setPage((p) => Math.min(604, p + 1))}
           />
-          <SpikeButton
+          <RenderLabButton
             label="A−"
             onPress={() => setZoom((z) => Math.max(0.5, z - 0.1))}
           />
-          <SpikeButton
+          <RenderLabButton
             label="A+"
             onPress={() => setZoom((z) => Math.min(3, z + 0.1))}
           />
-          <SpikeButton
+          <RenderLabButton
             label="dbg"
             onPress={() => setShowDebug((d) => !d)}
           />

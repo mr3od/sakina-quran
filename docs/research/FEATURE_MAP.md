@@ -150,9 +150,9 @@ Status legend: **full** / **partial** / **absent** / **n-a** (platform makes it 
 
 **Decision: hybrid substrate.** Native platforms (iOS/Android) render **page images**; web renders **text with per-page QCF fonts**. Both share the same geometry layer (`assets/quran.db` `glyphs`/`word_frames` R-trees) for highlights, word-by-word, and audio sync — images need it exactly as much as text does.
 
-### Evidence (mushaf-text-spike, CI artifacts 2026-08-24)
+### Evidence (render-lab CI artifacts, 2026-08-24)
 
-- Bundled `UthmanicHafs_V22.ttf` shapes **correctly on both platform text stacks** — HarfBuzz (Android emulator) and CoreText (iOS simulator) — pages 1/2/50/302, screenshots in `mushaf-spike-*` artifacts. The founding assumption "Unicode Uthmani won't render right on native devices" is retired with evidence.
+- Bundled `UthmanicHafs_V22.ttf` shapes **correctly on both platform text stacks** — HarfBuzz (Android emulator) and CoreText (iOS simulator) — pages 1/2/50/302, screenshots in `render-lab-*` artifacts. The founding assumption "Unicode Uthmani won't render right on native devices" is retired with evidence.
 - Print line breaks reproduce exactly from the glyph geometry DB at any screen width (vector scaling; verified down to a 320 px emulator).
 - **Fidelity gap — the decision driver:** Unicode text can justify full lines only by inflating inter-word spaces. The printed mushaf justifies via contextual **kashida** (in-word elongation chosen per line position by the calligrapher) — verified visually on p302 lines 3/11/12/15 vs. print. Print-exact kashida requires either page images or per-page QCF pre-shaped glyph fonts.
 - quran.com's web reader reaches print fidelity via **per-page QCF webfonts** (`useQcfFont.ts`, one `@font-face` per page, lazily injected) — the proven web pattern. Per-page QCF fonts on native would be images-with-extra-steps (PUA codepoints, per-page assets, no text semantics).
@@ -170,8 +170,8 @@ Status legend: **full** / **partial** / **absent** / **n-a** (platform makes it 
 - Real text for SEO/SSG (existing static generation), print-exact Uthmani via lazily-injected per-page QCF `@font-face` (quran.com pattern).
 - Non-Uthmani modes (IndoPak / QPC Hafs) stay ordinary text fonts with inter-word justification — acceptable per quran.com precedent; fallback chain to bundled UthmanicHafs.
 
-### Substrate-independent outcomes from the spike
+### Substrate-independent outcomes from the render lab
 
 - Geometry DB validated as THE highlight/WBV/audio source for all platforms.
 - **Data audit:** word-segmentation mismatches exist between `uthmani_text` and glyph positions (e.g. 1:1 — 4 words in text vs 5 glyph slots; 18:75 p11 missing). Quantify across all 604 pages before building word-by-word; affects both substrates.
-- Spike retained (`src/app/mushaf-spike.tsx` + `.github/workflows/mushaf-spike.yml`): web text-rendering core and zero-cost fallback if image hosting/download friction emerges.
+- Render lab retained (`src/app/render-lab.tsx` + `.github/workflows/native-runner-evidence.yml`): web text-rendering core and zero-cost fallback if image hosting/download friction emerges.
