@@ -144,8 +144,9 @@ jobs:
         run: |
           xcodebuild -workspace *.xcworkspace -list
           # Pick the app scheme by NAME — positional picks alphabetically-first
-          # Pods scheme (EXConstants), which builds no usable app bundle.
-          SCHEME=$(xcodebuild -workspace *.xcworkspace -list | awk '/Schemes:/{f=1;next} f&&NF{print $1}' | grep -i sakina | head -1)
+          # Pods scheme (EXConstants); naive name-match grabs Pods-sakinaquran.
+          # Exclude Pods-* so only the real app target remains.
+          SCHEME=$(xcodebuild -workspace *.xcworkspace -list | awk '/Schemes:/{f=1;next} f&&NF{print $1}' | grep -iv '^Pods-' | grep -i sakina | head -1)
           [ -n "$SCHEME" ] || { echo "::error::could not resolve app scheme"; exit 1; }
           echo "Using Xcode scheme: $SCHEME"
           set -o pipefail
