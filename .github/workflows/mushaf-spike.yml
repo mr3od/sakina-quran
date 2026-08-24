@@ -72,25 +72,14 @@ jobs:
             adb shell settings put global window_animation_scale 0
             adb shell settings put global transition_animation_scale 0
             adb shell settings put global animator_duration_scale 0
+            # Flat POSIX loop only — the runner pipes scripts through bare sh,
+            # which choked on function definitions / case blocks.
             mkdir -p screenshots
-
-            wait_for_app() {
-              for i in $(seq 1 30); do
-                FOCUS=$(adb shell dumpsys window 2>/dev/null | grep -i mCurrentFocus || true)
-                case "$FOCUS" in *$APP_PACKAGE*) return 0 ;; esac
-                sleep 2
-              done
-              echo "::warning::app not in foreground after 60s (focus: $FOCUS)"
-              return 1
-            }
-
             FIRST=1
             for p in 1 2 50 302; do
-              adb shell am start -W -a android.intent.action.VIEW \
-                -d "${DEEP_LINK_BASE}?page=$p" >/dev/null 2>&1 || true
-              # Cold start (first page) compiles ART + loads db/font: allow longer
-              if [ "$FIRST" = "1" ]; then sleep 20; FIRST=0; else wait_for_app || true; sleep 4; fi
-              adb exec-out screencap -p > "screenshots/android-p$p.png"
+              adb shell am start -W -a android.intent.action.VIEW -d "${DEEP_LINK_BASE}?page=$p" || true
+              if [ "$FIRST" = "1" ]; then sleep 25; FIRST=0; else sleep 10; fi
+              adb exec-out screencap -p > screenshots/android-p$p.png
             done
 
       - name: Assert captures are valid renders
@@ -149,7 +138,9 @@ jobs:
           # Pick the app scheme by NAME — positional picks alphabetically-first
           # Pods scheme (EXConstants); naive name-match grabs Pods-sakinaquran.
           # Exclude Pods-* so only the real app target remains.
-          SCHEME=$(grep -iv '^Pods-' ../screenshots/ios-schemes.txt | awk '/Schemes:/{f=1;next} f&&NF{print $1}' | grep -i sakina | head -1)
+          # NOTE: scheme lines are indented — ^Pods- anchors wrong and filters
+          # nothing; allow leading whitespace.
+          SCHEME=$(grep -iv '^[[:space:]]*Pods-' ../screenshots/ios-schemes.txt | awk '/Schemes:/{f=1;next} f&&NF{print $1}' | grep -i sakina | head -1)
           [ -n "$SCHEME" ] || { echo "::error::could not resolve app scheme"; exit 1; }
           echo "Using Xcode scheme: $SCHEME"
           set -o pipefail
