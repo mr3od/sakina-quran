@@ -175,6 +175,11 @@ jobs:
 
           xcrun simctl install "$DEVICE" "$APP_PATH"
 
+          # Pre-approve the custom scheme — fresh CI sims otherwise raise the
+          # system "Open in …?" confirmation on every openurl (expo#47614),
+          # which is what every capture ends up photographing otherwise.
+          xcrun simctl spawn "$DEVICE" defaults write com.apple.launchservices.schemeapproval "com.apple.CoreSimulator.CoreSimulatorBridge-->$DEEP_LINK_BASE" -bool true
+
           # Launch once BEFORE deep linking — cold-start links into expo-router
           # are flaky and first launch registers the URL scheme with SpringBoard.
           xcrun simctl launch "$DEVICE" "$APP_PACKAGE"
