@@ -66,21 +66,28 @@ jobs:
           target: google_apis
           arch: x86_64
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -no-snapshot
+          # CONTRACT (verified from runner source): the action splits this
+          # script on newlines and executes EACH LINE via sh -c "<line>".
+          # Therefore: every line must be a complete command, no multi-line
+          # blocks, and NO double quotes (they break the outer wrapping).
           script: |
             adb install -r android/app/build/outputs/apk/release/app-release.apk
-            # Deterministic captures: kill all animations
             adb shell settings put global window_animation_scale 0
             adb shell settings put global transition_animation_scale 0
             adb shell settings put global animator_duration_scale 0
-            # Flat POSIX loop only — the runner pipes scripts through bare sh,
-            # which choked on function definitions / case blocks.
             mkdir -p screenshots
-            FIRST=1
-            for p in 1 2 50 302; do
-              adb shell am start -W -a android.intent.action.VIEW -d "${DEEP_LINK_BASE}?page=$p" || true
-              if [ "$FIRST" = "1" ]; then sleep 25; FIRST=0; else sleep 10; fi
-              adb exec-out screencap -p > screenshots/android-p$p.png
-            done
+            adb shell am start -W -a android.intent.action.VIEW -d ${DEEP_LINK_BASE}?page=1
+            sleep 25
+            adb exec-out screencap -p > screenshots/android-p1.png
+            adb shell am start -W -a android.intent.action.VIEW -d ${DEEP_LINK_BASE}?page=2
+            sleep 10
+            adb exec-out screencap -p > screenshots/android-p2.png
+            adb shell am start -W -a android.intent.action.VIEW -d ${DEEP_LINK_BASE}?page=50
+            sleep 10
+            adb exec-out screencap -p > screenshots/android-p50.png
+            adb shell am start -W -a android.intent.action.VIEW -d ${DEEP_LINK_BASE}?page=302
+            sleep 10
+            adb exec-out screencap -p > screenshots/android-p302.png
 
       - name: Assert captures are valid renders
         run: |
