@@ -1,0 +1,23 @@
+# What's New announcements
+> How **Quran for iOS (github.com/quran/quran-ios)** implements this feature. Sources read from a shallow clone @ main (2026-08-23); repo-relative paths cited throughout.
+
+## 1. What the user sees
+After updating the app, the next launch presents a full-page modal sheet (`pageSheet`, `.large()` detent, `isModalInPresentation`). The first screen is `AppIconAnnouncementView` — an icon-centric announcement whose CTA pushes `AppWhatsNewView`, a scrollable list of feature cards: localized title, subtitle details, an image, and colored badge tags (`NoorTag` with tones like "accent"/"experimental"). A Continue button dismisses. Users who never saw a given announcement see it once; subsequent launches skip it ("Ignoring whats new" log line in `AppWhatsNewController.presentWhatsNewIfNeeded`).
+
+## 2. Architecture & key files
+All inside `Features/WhatsNewFeature/Sources/`:
+- `AppWhatsNewController.swift` — `@MainActor public class` orchestrating detection, presentation, and seen-version persistence; takes only an `AnalyticsLibrary`.
+- `AppWhatsNew.swift` — plain `Decodable` models: `AppWhatsNew { versions: [WhatsNewVersion] }`, `WhatsNewVersion { version, items }`, `WhatsNewItem { title, subtitle, image, tags? }`, `WhatsNewTag { title, tone }`.
+- `AppWhatsNewVersionStore.swift` — persists `lastSeenVersion`; `whats-new.plist` — bundled content; `AppWhatsNewView.swift` / `AppIconAnnouncementView.swift` — SwiftUI screens hosted in `UIHostingController`.
+
+## 3. Data flow
+The host app calls `presentWhatsNewIfNeeded(from:)`. The controller reads `store.lastSeenVersion`, parses content on a background queue (`DispatchQueue.global().async` — the file carries a literal `// TODO: Use async/await`), filters `whatsNew.versions` with numeric comparison (`version.compare(other, options: .numeric) == .orderedDescending`) against last-seen, or returns all versions when nothing was ever seen. If any remain it hops to the main queue and presents. Crucially, `makeWhatsNewViewController` writes `store.lastSeenVersion = latestVersion` at construction time of the detail screen — the version is marked seen when the user reaches the item list, not when they tap Continue. Tapping Continue logs analytics (`PresentingWhatsNew` was logged earlier, on push; continue just dismisses and logs).
+
+## 4. Storage & network
+Fully offline and bundled: content is `Bundle.module.url(forResource: "whats-new.plist", ...)` decoded with `PropertyListDecoder` (`AppWhatsNewController.whatsNew()`). Note: the brief described bundled JSON, but the shipped format is a property list (`Features/WhatsNewFeature/Sources/whats-new.plist`) — same shape, plist encoding. The only persisted state is the single `lastSeenVersion` string in `AppWhatsNewVersionStore`. No network requests, no remote config, no backend. All user-visible strings are localization keys resolved through `l(...)` from the Localization target, including cross-table interpolation via `%%Table:key%%` patterns handled by `WhatsNewItem.subtitleText`'s regex replacement.
+
+## 5. Why it is built this way ON THIS PLATFORM
+Bundling beats server-driven announcements for this app: it must work offline-first (a Quran app used in prayer contexts), needs no infrastructure, and is inherently version-locked to the binary that shipped the features anyway. Numeric `compare(options: .numeric)` handles semver-ish strings without a version-parsing dependency, and because filtering keeps *all* newer versions, a user jumping several releases sees every missed announcement flattened into one list (`versions.flatMap(\.items)` in `makeWhatsNewViewController`). Presentation stays UIKit (`UINavigationController` + sheet detents) consistent with the repo's "UIKit navigation, SwiftUI content" split, while card rendering is SwiftUI. Localization keys instead of literal text let one bundled file serve all locales, with tags mapped onto the design-system's `NoorTag` tones.
+
+## 6. Edge cases & offline behavior
+Parsing uses `try!` twice (force-unwrapped bundle URL, forced decode, both swiftlint-disabled): a malformed plist would crash, acceptable because the resource ships inside the same package as the decoder. First-ever launch (no lastSeenVersion) shows everything accumulated in the plist. Multi-version upgrades accumulate rather than replace. Because seen-state commits when the detail view controller is built, killing the app after that point still suppresses the announcement next launch; conversely, dismissing at the icon screen leaves lastSeenVersion untouched so it reappears. The background-parse + main-hop pattern predates async/await adoption here. If the plist contains no versions newer than lastSeen, presentation is skipped entirely — no empty sheet.

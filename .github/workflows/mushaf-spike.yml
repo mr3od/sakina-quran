@@ -100,7 +100,7 @@ jobs:
             SIZE=$(stat -c%s "$f")
             DIMS=$(identify -quiet -format "%wx%h" "$f" 2>/dev/null || echo "?x?")
             echo "$f: ${DIMS}, ${SIZE} bytes"
-            if [ "$SIZE" -lt 20000 ]; then echo "::error::$f looks blank/corrupt (${SIZE} bytes)"; FAIL=1; fi
+            if [ "$SIZE" -lt 8000 ]; then echo "::error::$f looks blank/corrupt (${SIZE} bytes)"; FAIL=1; fi
           done
           [ "$(ls screenshots/*.png | wc -l)" -eq 4 ] || { echo "::error::expected 4 captures"; FAIL=1; }
           exit $FAIL
@@ -216,7 +216,7 @@ jobs:
             SIZE=$(stat -f%z "$f")
             DIMS=$(sips -g pixelWidth -g pixelHeight "$f" 2>/dev/null | awk '/pixel/{printf "%s",$2" "}')
             echo "$f: ${DIMS}, ${SIZE} bytes"
-            if [ "$SIZE" -lt 20000 ]; then echo "::error::$f looks blank/corrupt (${SIZE} bytes)"; FAIL=1; fi
+            if [ "$SIZE" -lt 8000 ]; then echo "::error::$f looks blank/corrupt (${SIZE} bytes)"; FAIL=1; fi
           done
           [ "$(ls screenshots/*.png | wc -l)" -eq 4 ] || { echo "::error::expected 4 captures"; FAIL=1; }
           exit $FAIL

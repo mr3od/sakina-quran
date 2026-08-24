@@ -1,0 +1,91 @@
+{
+  "repo": "quran/quran-ios",
+  "architectureSummary": "QuranEngine is a Swift Package Manager multi-target package (Package.swift) that ships ~99% of the Quran.com iOS app as reusable targets, plus Example/QuranEngineApp (AppDelegate/SceneDelegate/Container.swift) which composes them into a runnable app. Layers per README: Core/ holds generic infrastructure (Analytics, Caching, Preferences, QueuePlayer, Localization, SystemDependencies, Crashing/VLogging, AppMigrator); Model/ holds plain entities (QuranKit sura/ayah/page/juz/quarter model, QuranAnnotations, QuranAudio, QuranGeometry); Data/ holds SQLite(GRDB)/CoreData persistence and networking (BatchDownloader, NetworkSupport, CoreDataPersistence/CoreDataModel, NotePersistence, PageBookmarkPersistence, LastPagePersistence, VerseTextPersistence, TranslationPersistence, AudioTimingPersistence, WordFramePersistence, WordTextPersistence, LinePagePersistence; AuthenticationClient for quran.com OAuth); Domain/ holds business services (QuranAudioKit player+downloader, AudioTimingService, ReciterService, TranslationService, ReadingService, SettingsService, AnnotationsService, ImageService, WordTextService, WordFrameService, AudioUpdater); UI/NoorUI is the design system (with NoorFont, UIx, ViewConstrainer) including ThemeService with AppearanceMode light/dark/auto (UI/NoorUI/Sources/Theme/ThemeService.swift); Features/ has one SPM target per screen. DI is constructor injection without a framework: every feature has a Builder struct (e.g. Features/AppStructureFeature/Sources/App/AppBuilder.swift builds an AppInteractor over five TabBuilders: HomeTabBuilder, NotesTabBuilder, BookmarksTabBuilder, SearchTabBuilder, SettingsTabBuilder). Cross-cutting dependencies are exposed via the AppDependencies protocol (Features/AppDependencies/Sources/AppDependencies.swift), implemented by the example app's Container.swift, with factory extensions like lastPageService()/noteService() that swap implementations based on the QURAN_SYNC compilation condition. Navigation stays UIKit (README explicitly keeps UIKit for navigation while content moves to SwiftUI): each tab is a TabBuilder/TabInteractor/TabViewController trio pushing UINavigationController view controllers. Screens mix legacy VIPER-style Builder/Interactor/ViewController with SwiftUI ObservableObject view models using @Published and Combine bindings (PublishedBinding in Features/QuranContentFeature/Sources/ContentViewModel.swift). Threading is Swift concurrency end to end: view models and interactors are @MainActor, data flows through AsyncSequence observation loops started in start() methods (HomeViewModel.start() runs concurrent lastPages/suras/quarters/readingBookmark loads), with explicit cancellation checks. Persistence layers: bundled quran.db uthmani verse text plus one SQLite db per downloaded translation (GRDBQuranVerseTextPersistence / GRDBTranslationVerseTextPersistence in Domain/QuranTextKit/Sources/Search/Searchers/CompositeSearcher.swift), words db for word-by-word text, line-page metric dbs, GRDBDownloadsPersistence for download state, CoreData for notes/page bookmarks, and a UserDefaults-backed Preference system (Core/Preferences) behind singletons like AudioPreferences.shared, ReadingPreferences.shared, QuranContentStatePreferences.shared. Networking uses NetworkSupport's NetworkManager against configurable hosts (appHost/filesAppHost on AppDependencies) and BatchDownloader's persisted batch download engine (Data/BatchDownloader/Sources/Downloader/: DownloadManager, DownloadSessionDelegate, DownloadsObserver) for recitation sets, mushaf image sets and translation packs. Background/integration work: MPRemoteCommandCenter lock-screen/headphone controls (Features/AudioBannerFeature/Sources/RemoteCommandsHandler.swift), Domain/AudioUpdater checking every 7 days for revised gapless recitation archives, and - only when built with QURAN_SYNC - the MobileSync Kotlin Multiplatform package (mobile-sync-spm, Package.swift line 27) that syncs bookmarks, highlights, notes and reading position for signed-in users. Platform constraints shaped the design: page-faithful mushaf rendering means Quran content ships as pre-rendered page images plus geometry/timing databases (Domain/ImageService, Domain/AudioTimingService, Model/QuranGeometry) so word hit-testing needs no text layout; distribution as a composable SPM library forces small strictly-layered targets consumers can pick individually; conditional compilation (#if QURAN_SYNC) keeps the closed-source sync binary out of the open-source example build; pervasive crashContext instrumentation (e.g. AudioBannerViewModel.setAudioState, HomeViewModel.recordListUpdate) mirrors production observability. Discrepancies vs common expectations: no WidgetKit widgets, no Siri/AppIntents shortcuts, no share extension, no share-as-image rendering, and no khatma/streak reading tracker exist anywhere in the repo.",
+  "features": [
+    {
+      "slug": "mushaf-image-reading",
+      "title": "Mushaf page-image reading",
+      "summary": "Reads the Quran as page-faithful madani mushaf pages rendered from pre-baked images with authentic typography, swipe paging and per-page bookmarking. Implemented in Features/QuranImageFeature (ContentImageView/ContentLineView) and Features/QuranPagesFeature (QuranPaginationView)."
+    },
+    {
+      "slug": "translation-reading-mode",
+      "title": "Verse-by-verse translation mode",
+      "summary": "Toggles between Arabic mushaf and a translation list view showing selected translations with footnotes, plus a focused single-verse sheet for tapping a verse. See Features/QuranTranslationFeature, Features/TranslationVerseFeature and the mode switch in MoreMenuFeature/Sources/views/MoreMenuModeSelector.swift."
+    },
+    {
+      "slug": "audio-recitation",
+      "title": "Audio recitation playback",
+      "summary": "Plays recitation from any ayah with continuous playback to the end of page/surah/juz/Quran, reciter picker with recent and downloaded sections, verse-range repeat, delays between verses/repetitions, playback speed, streaming-vs-download choice, and lock-screen remote controls. Core code lives in Features/AudioBannerFeature (AudioBannerViewModel, RemoteCommandsHandler), Features/AdvancedAudioOptionsFeature (AdvancedAudioOptions, AyahRangePicker), Features/ReciterListFeature and Domain/QuranAudioKit."
+    },
+    {
+      "slug": "downloads-manager",
+      "title": "Download manager for audio and translations",
+      "summary": "Dedicated screens to download complete recitations per reciter and translation packs, with progress bars, cancel, delete and downloaded-size reporting backed by the persisted batch downloader. See Features/AudioDownloadsFeature/AudioDownloadsViewModel.swift, Features/TranslationsFeature/TranslationsListViewModel.swift and Data/BatchDownloader."
+    },
+    {
+      "slug": "search",
+      "title": "Search across Quran and translations",
+      "summary": "Full-text search of the Arabic Quran and all downloaded translations with autocomplete, ayah-number/sura-name queries, recent searches and popular terms; selecting a translation result auto-enables that translation and jumps to the ayah. Implemented in Features/SearchFeature/SearchViewModel.swift over Domain/QuranTextKit/Sources/Search/Searchers/CompositeSearcher.swift."
+    },
+    {
+      "slug": "bookmarks-collections-highlights",
+      "title": "Bookmarks, collections and highlights",
+      "summary": "A Bookmarks tab where ayah bookmarks are organized into named collections alongside color-coded highlights and a synced reading-position bookmark, with create/delete/edit flows. See Features/BookmarksFeature/BookmarkCollectionsViewModel.swift and Features/AyahMenuFeature highlight actions."
+    },
+    {
+      "slug": "notes-journaling",
+      "title": "Verse notes journaling",
+      "summary": "A Notes tab listing notes attached to verses plus a rich note editor that saves text with a highlight color for one or many verses. Code in Features/NotesFeature and Features/NoteEditorFeature/NoteEditorViewModel.swift."
+    },
+    {
+      "slug": "continue-reading-last-pages",
+      "title": "Continue reading (last pages)",
+      "summary": "Home tracks recently read pages and the current reading position so users resume instantly, with undo toasts when the reading bookmark moves. See HomeViewModel.lastPages in Features/HomeFeature/HomeViewModel.swift and ReadingBookmarkUndoToast.swift in Features/QuranViewFeature."
+    },
+    {
+      "slug": "sura-juz-index-navigation",
+      "title": "Sura/Juz index navigation",
+      "summary": "Home offers a sortable sura list (ascending/descending) and a juz list expandable to quarters (hizb) each previewing its first ayah text for quick jumps. Implemented in Features/HomeFeature/HomeViewModel.swift (HomeViewType.suras/.juzs, QuarterItem)."
+    },
+    {
+      "slug": "word-by-word-popover",
+      "title": "Word-by-word popover",
+      "summary": "Dragging a finger over mushaf words highlights them and shows a pop-up with that word's translation, powered by word frame geometry and a words database. See Features/WordPointerFeature/WordPointerViewModel.swift, Domain/WordTextService and Domain/WordFrameService."
+    },
+    {
+      "slug": "reading-appearance-controls",
+      "title": "Reading display controls (more menu)",
+      "summary": "An in-reader more menu adjusts font size, theme (light/dark/system), orientation lock, two-page tablet layout, vertical scrolling, line-page display and the Arabic/translation mode selector. Implemented in Features/MoreMenuFeature (MoreMenuModel.swift, views/MoreMenuFontSize.swift, MoreMenuThemeSettings.swift, etc.)."
+    },
+    {
+      "slug": "mushaf-edition-selector",
+      "title": "Mushaf edition selector",
+      "summary": "Lets users pick which mushaf edition to read - several Hafs madani prints, Tajweed color-coded, or experimental IndoPak line pages - downloading the chosen edition's assets. See Features/ReadingSelectorFeature/ReadingSelectorViewModel.swift and Model/QuranKit/Sources/Reading.swift."
+    },
+    {
+      "slug": "quran-com-cloud-sync",
+      "title": "Quran.com account cloud sync",
+      "summary": "Sign in/out to Quran.com from Settings or the Bookmarks tab to sync bookmarks, highlights, notes and reading position across devices via the MobileSync KMP package, gated by #if QURAN_SYNC. Entry points in Features/SettingsFeature/SettingsRootViewModel.swift (loginToQuranCom/logoutFromQuranCom), observers in Features/QuranViewFeature, auth stack in Data/AuthenticationClient."
+    },
+    {
+      "slug": "whats-new-announcements",
+      "title": "What's New announcements",
+      "summary": "After app updates users get versioned What's New announcement cards (including new-app-icon announcements) parsed from bundled JSON and shown once per version. See Features/WhatsNewFeature/AppWhatsNewController.swift and AppWhatsNew.swift."
+    },
+    {
+      "slug": "share-verses",
+      "title": "Share verse text",
+      "summary": "Long-pressing verses opens an ayah menu whose share action hands Arabic and translated lines to the iOS share sheet. Implemented in Features/AyahMenuFeature/AyahMenuViewModel.swift shareText path and Features/QuranViewFeature/QuranInteractor.swift:247."
+    },
+    {
+      "slug": "settings-support-hub",
+      "title": "Settings and support hub",
+      "summary": "The Settings tab centralizes appearance mode, streaming toggle, audio download/play amount (juz/sura/page/quran), links to downloads/translations/reading selectors, diagnostics (enable debug logs, share logs), contact us, write review, donate and share-the-app. See Features/SettingsFeature/SettingsRootViewModel.swift and Diagnostics/."
+    },
+    {
+      "slug": "app-upgrade-migration",
+      "title": "Upgrade migration experience",
+      "summary": "When app versions change storage layouts, users see a blocking migration progress screen while databases and reciter files are moved safely. Code in Features/AppMigrationFeature (MigrationView.swift, FileSystemMigrator.swift) driven by Core/AppMigrator."
+    }
+  ]
+}
