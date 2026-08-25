@@ -1,14 +1,11 @@
 name: Native Runner Evidence (Android emulator · iOS simulator)
 # Renders /pages/[number] on real platform text stacks (HarfBuzz/CoreText)
-# and uploads screenshots as artifacts — boot+render evidence for upgrade branches.
-# and uploads screenshots as artifacts — evidence for FEATURE_MAP §4-Q1
-# (text-rendered vs image-based reader substrate).
+# and uploads screenshots as artifacts — boot+render smoke evidence for
+# upgrade branches. Historical note: originally built as /render-lab capture
+# for FEATURE_MAP §4-Q1 (full screen preserved at commit b838cd2).
 
 # REFERENCE implementation for running this app on GitHub-hosted Android/iOS
 # runtimes and capturing screenshot evidence. Traps + flow: docs/NATIVE_RUNNER_PLAYBOOK.md
-# Dispatch-only: the render-lab capture screen was removed from the app
-# (full screen preserved at commit b838cd2). To reuse: restore it or point
-# DEEP_LINK_BASE at any route, then run via Actions tab.
 on:
   workflow_dispatch:
 
@@ -16,7 +13,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: render-lab-${{ github.ref }}
+  group: native-evidence-${{ github.ref }}
   cancel-in-progress: true
 
 env:
@@ -111,7 +108,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: render-lab-android
+          name: native-evidence-android
           path: screenshots/
           retention-days: 7
 
@@ -227,6 +224,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: render-lab-ios
+          name: native-evidence-ios
           path: screenshots/
           retention-days: 7
