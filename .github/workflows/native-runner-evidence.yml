@@ -21,7 +21,7 @@ concurrency:
 
 env:
   APP_PACKAGE: dev.mr3od.sakinaquran
-  DEEP_LINK_BASE: sakina-quran://render-lab
+  DEEP_LINK_BASE: sakina-quran://pages
   URL_SCHEME: sakina-quran
 
 jobs:
@@ -79,19 +79,19 @@ jobs:
             adb shell settings put global transition_animation_scale 0
             adb shell settings put global animator_duration_scale 0
             mkdir -p screenshots
-            adb shell am start -W -a android.intent.action.VIEW -d ${DEEP_LINK_BASE}?page=1
+            adb shell am start -W -a android.intent.action.VIEW -d ${DEEP_LINK_BASE}/1
             sleep 25
             adb exec-out screencap -p > screenshots/android-p1.png
             adb shell am force-stop ${APP_PACKAGE}
-            adb shell am start -W -a android.intent.action.VIEW -d ${DEEP_LINK_BASE}?page=2
+            adb shell am start -W -a android.intent.action.VIEW -d ${DEEP_LINK_BASE}/2
             sleep 15
             adb exec-out screencap -p > screenshots/android-p2.png
             adb shell am force-stop ${APP_PACKAGE}
-            adb shell am start -W -a android.intent.action.VIEW -d ${DEEP_LINK_BASE}?page=50
+            adb shell am start -W -a android.intent.action.VIEW -d ${DEEP_LINK_BASE}/50
             sleep 15
             adb exec-out screencap -p > screenshots/android-p50.png
             adb shell am force-stop ${APP_PACKAGE}
-            adb shell am start -W -a android.intent.action.VIEW -d ${DEEP_LINK_BASE}?page=302
+            adb shell am start -W -a android.intent.action.VIEW -d ${DEEP_LINK_BASE}/302
             sleep 15
             adb exec-out screencap -p > screenshots/android-p302.png
 
@@ -195,19 +195,19 @@ jobs:
           # Warm openurl to the running app navigates only ONCE (same failure
           # Android showed) — terminate before every capture so each page is
           # a cold-start deep link, the path proven to route.
-          xcrun simctl openurl "$DEVICE" "${DEEP_LINK_BASE}?page=1" || true
+          xcrun simctl openurl "$DEVICE" "${DEEP_LINK_BASE}/1" || true
           sleep 12
           xcrun simctl io "$DEVICE" screenshot "screenshots/ios-p1.png"
           xcrun simctl terminate "$DEVICE" "$APP_PACKAGE" || true
-          xcrun simctl openurl "$DEVICE" "${DEEP_LINK_BASE}?page=2" || true
+          xcrun simctl openurl "$DEVICE" "${DEEP_LINK_BASE}/2" || true
           sleep 12
           xcrun simctl io "$DEVICE" screenshot "screenshots/ios-p2.png"
           xcrun simctl terminate "$DEVICE" "$APP_PACKAGE" || true
-          xcrun simctl openurl "$DEVICE" "${DEEP_LINK_BASE}?page=50" || true
+          xcrun simctl openurl "$DEVICE" "${DEEP_LINK_BASE}/50" || true
           sleep 12
           xcrun simctl io "$DEVICE" screenshot "screenshots/ios-p50.png"
           xcrun simctl terminate "$DEVICE" "$APP_PACKAGE" || true
-          xcrun simctl openurl "$DEVICE" "${DEEP_LINK_BASE}?page=302" || true
+          xcrun simctl openurl "$DEVICE" "${DEEP_LINK_BASE}/302" || true
           sleep 12
           xcrun simctl io "$DEVICE" screenshot "screenshots/ios-p302.png"
 
