@@ -24,7 +24,7 @@ WORKDIR /app
 
 RUN echo '{"name":"sakina-quran","private":true}' > package.json
 
-RUN pnpm add expo@54.0.30 sql.js@^1.13.0 --ignore-scripts \
+RUN pnpm add expo@57.0.16 sql.js@^1.14.2 --ignore-scripts \
     && pnpm store prune \
     && rm -rf /root/.local/share/pnpm/store
 

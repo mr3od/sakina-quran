@@ -3,7 +3,6 @@ module.exports = function (api) {
   return {
     presets: ["babel-preset-expo"],
     plugins: [
-      "@babel/plugin-transform-export-namespace-from",
       "@lingui/babel-plugin-lingui-macro",
       // ✅ worklets LAST
       "react-native-worklets/plugin",

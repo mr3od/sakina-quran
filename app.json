@@ -8,7 +8,6 @@
     "userInterfaceStyle": "automatic",
     "icon": "./assets/images/icon.png",
     "backgroundColor": "#fdfbf7",
-    "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "dev.mr3od.sakinaquran",
@@ -20,7 +19,6 @@
     },
     "android": {
       "package": "dev.mr3od.sakinaquran",
-      "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -75,16 +73,6 @@
         }
       ],
       "expo-web-browser",
-      [
-        "expo-build-properties",
-        {
-          "android": {
-            "compileSdkVersion": 35,
-            "targetSdkVersion": 35,
-            "buildToolsVersion": "35.0.0"
-          }
-        }
-      ],
       [
         "react-native-localize",
         {
