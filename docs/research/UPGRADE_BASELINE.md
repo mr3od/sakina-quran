@@ -28,3 +28,10 @@ legitimately changed one gate value (A/B-verified against pristine base `b5ebfa2
 
 Environment: unchanged from step 0 (SDK 54.0.30, RN 0.81.5, React 19.1.0, Node 22, pnpm 10.15.0),
 plus RNTL 14.0.1 / test-renderer 1.1.0 from step 2.
+
+## Revision 2 — 2026-08-25 (after step 3 merged)
+
+Step 3 (Lingui 6, PR #24) raised `/api/search` to **78.3 kB** (78,327 bytes vs Revision 1's
+77,431). A/B-verified against pristine base `f54c613`: inherent Lingui 6 runtime growth in
+the server bundle, not drift. Pages/sitemap unchanged (604/608). This is the effective
+reference for steps 4–6; all other gates identical to Revision 1.
