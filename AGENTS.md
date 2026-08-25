@@ -22,7 +22,7 @@ Use **pnpm**: `pnpm install`, `pnpm start`, `pnpm lint`
 - Tailwind CSS 4 via **Uniwind** (NOT NativeWind)
 - TanStack React Query 5
 - expo-sqlite (native) / sql.js WASM (web server) / static JSON (web client)
-- Lingui 5 for i18n (en, ar)
+- Lingui 6 for i18n (en, ar)
 - Reanimated 4 + Worklets
 - @shopify/flash-list for native lists
 - New Architecture enabled
