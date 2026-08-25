@@ -85,7 +85,7 @@ msgid "{suraNames}"
 msgstr "{suraNames}"
 
 #: src/components/home/SearchHero.web.tsx:51
-#: src/components/search/WebSearchOverlay.tsx:293
+#: src/components/search/WebSearchOverlay.tsx:292
 msgid "⌘K"
 msgstr "⌘K"
 
@@ -163,11 +163,11 @@ msgstr "اختر لغتك المفضلة"
 msgid "Choose your preferred theme"
 msgstr "اختر المظهر المفضل"
 
-#: src/app/(tabs)/search.tsx:101
+#: src/app/(tabs)/search.tsx:100
 msgid "Clear"
 msgstr "مسح"
 
-#: src/components/search/WebSearchOverlay.tsx:287
+#: src/components/search/WebSearchOverlay.tsx:286
 msgid "Clear search"
 msgstr "مسح البحث"
 
@@ -218,7 +218,7 @@ msgstr "انقر مرتين لتبديل العلامة المرجعية"
 msgid "e.g., الله — نب — 7 — 7:7 — juz 5 — حزب 7 — page 151"
 msgstr "مثال: الله — نب — 7 — 7:7 — juz 5 — حزب 7 — page 151"
 
-#: src/app/(tabs)/search.tsx:127
+#: src/app/(tabs)/search.tsx:126
 msgid "Enter words (الله), fragments (نب), or references (7, 7:7, juz 5, حزب 7, page 151)."
 msgstr "أدخل كلمات (الله)، أجزاء من كلمات (نب)، أو مراجع (7، 7:7، الجزء 5، الحزب 7، الصفحة 151)."
 
@@ -246,7 +246,7 @@ msgstr "فشل تحميل الإعدادات"
 msgid "Failed to load Surahs"
 msgstr "فشل تحميل السور"
 
-#: src/features/quran-reader/ui/PageReaderScreen.tsx:253
+#: src/features/quran-reader/ui/PageReaderScreen.tsx:254
 msgid "Go back"
 msgstr "رجوع"
 
@@ -278,7 +278,7 @@ msgstr "جزء"
 msgid "Juz {0}"
 msgstr "الجزء {0}"
 
-#: src/features/quran-reader/ui/PageReaderScreen.tsx:328
+#: src/features/quran-reader/ui/PageReaderScreen.tsx:329
 msgid "Juz {juzNumber}"
 msgstr "الجزء {juzNumber}"
 
@@ -344,7 +344,7 @@ msgstr "الانتقال إلى آخر موضع قرأته"
 msgid "Navigation tabs"
 msgstr "علامات تبويب التنقل"
 
-#: src/features/quran-reader/ui/PageReaderScreen.tsx:344
+#: src/features/quran-reader/ui/PageReaderScreen.tsx:345
 msgid "Next Page"
 msgstr "الصفحة التالية"
 
@@ -356,11 +356,11 @@ msgstr "لا توجد علامات مرجعية بعد"
 msgid "No Juz found"
 msgstr "لم يتم العثور على أجزاء"
 
-#: src/components/search/WebSearchOverlay.tsx:349
+#: src/components/search/WebSearchOverlay.tsx:348
 msgid "No results found"
 msgstr "لم يتم العثور على نتائج"
 
-#: src/app/(tabs)/search.tsx:151
+#: src/app/(tabs)/search.tsx:150
 msgid "No Results Found"
 msgstr "لم يتم العثور على نتائج"
 
@@ -381,8 +381,8 @@ msgstr "مفتوح المصدر بموجب رخصة MIT"
 msgid "Page {0}"
 msgstr "صفحة {0}"
 
-#: src/features/quran-reader/ui/PageReaderScreen.tsx:271
-#: src/features/quran-reader/ui/PageReaderScreen.tsx:330
+#: src/features/quran-reader/ui/PageReaderScreen.tsx:272
+#: src/features/quran-reader/ui/PageReaderScreen.tsx:331
 msgid "Page {currentPage}"
 msgstr "صفحة {currentPage}"
 
@@ -394,7 +394,7 @@ msgstr "صفحة {num}"
 msgid "Page 1"
 msgstr "صفحة 1"
 
-#: src/features/quran-reader/ui/PageReaderScreen.tsx:314
+#: src/features/quran-reader/ui/PageReaderScreen.tsx:315
 msgid "Previous Page"
 msgstr "الصفحة السابقة"
 
@@ -444,7 +444,7 @@ msgid "Remove bookmark"
 msgstr "إزالة العلامة المرجعية"
 
 #: src/components/layout/WebHeader.tsx:24
-#: src/features/quran-reader/ui/PageReaderScreen.tsx:297
+#: src/features/quran-reader/ui/PageReaderScreen.tsx:298
 msgid "Sakina Quran"
 msgstr "سكينة القرآن"
 
@@ -457,7 +457,7 @@ msgstr "سكينة القرآن - اقرأ القرآن الكريم"
 msgid "Search"
 msgstr "بحث"
 
-#: src/app/(tabs)/search.tsx:139
+#: src/app/(tabs)/search.tsx:138
 msgid "Search Failed"
 msgstr "فشل البحث"
 
@@ -471,7 +471,7 @@ msgid "Search Quran - Sakina Quran"
 msgstr "بحث القرآن - سكينة القرآن"
 
 #. placeholder {0}: state.items.length
-#: src/app/(tabs)/search.tsx:170
+#: src/app/(tabs)/search.tsx:169
 msgid "Search results, {0} items"
 msgstr "نتائج البحث، {0} عنصر"
 
@@ -488,7 +488,7 @@ msgid "Search the Holy Quran by words, verses, or references. Find specific Ayah
 msgstr "ابحث في القرآن الكريم. ابحث عن آيات، سور، أجزاء، أو أرقام صفحات محددة مع نتائج فورية."
 
 #: src/app/(tabs)/search.tsx:75
-#: src/app/(tabs)/search.tsx:124
+#: src/app/(tabs)/search.tsx:123
 #: src/components/home/SearchHero.tsx:15
 #: src/components/home/SearchHero.web.tsx:43
 msgid "Search the Quran"
@@ -500,11 +500,11 @@ msgstr "البحث في القرآن"
 msgid "Search the Quran..."
 msgstr "البحث في القرآن..."
 
-#: src/components/search/WebSearchOverlay.tsx:335
+#: src/components/search/WebSearchOverlay.tsx:334
 msgid "Searching..."
 msgstr "جاري البحث..."
 
-#: src/app/(tabs)/search.tsx:115
+#: src/app/(tabs)/search.tsx:114
 msgid "Searching…"
 msgstr "جارٍ البحث..."
 
@@ -590,7 +590,7 @@ msgstr "القرآن الكريم"
 msgid "Theme"
 msgstr "المظهر"
 
-#: src/app/(tabs)/search.tsx:154
+#: src/app/(tabs)/search.tsx:153
 msgid "Try a different word or a smaller fragment (e.g., نب)."
 msgstr "جرب كلمة مختلفة أو جزءاً أصغر من الكلمة (مثل: نب)."
 
@@ -598,7 +598,7 @@ msgstr "جرب كلمة مختلفة أو جزءاً أصغر من الكلمة 
 msgid "Try Again"
 msgstr "إعادة المحاولة"
 
-#: src/components/search/WebSearchOverlay.tsx:308
+#: src/components/search/WebSearchOverlay.tsx:307
 msgid "Try searching for"
 msgstr "جرب البحث عن"
 
@@ -643,11 +643,11 @@ msgstr "تصفح كل المرجعيات"
 msgid "View all bookmarks ({0})"
 msgstr "تصفح كل المرجعيات ({0})"
 
-#: src/components/search/WebSearchOverlay.tsx:382
+#: src/components/search/WebSearchOverlay.tsx:381
 msgid "View all results"
 msgstr "عرض جميع النتائج"
 
-#: src/components/search/WebSearchOverlay.tsx:379
+#: src/components/search/WebSearchOverlay.tsx:378
 msgid "View all results for {query}"
 msgstr "عرض جميع النتائج لـ {query}"
 
