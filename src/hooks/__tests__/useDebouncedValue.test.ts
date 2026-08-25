@@ -11,66 +11,66 @@ describe("useDebouncedValue", () => {
     jest.useRealTimers();
   });
 
-  it("returns initial value immediately", () => {
-    const { result } = renderHook(() => useDebouncedValue("test"));
+  it("returns initial value immediately", async () => {
+    const { result } = await renderHook(() => useDebouncedValue("test"));
     expect(result.current).toBe("test");
   });
 
-  it("debounces value changes", () => {
-    const { result, rerender } = renderHook(
+  it("debounces value changes", async () => {
+    const { result, rerender } = await renderHook(
       ({ value }: { value: string }) => useDebouncedValue(value, 300),
       { initialProps: { value: "initial" } },
     );
 
     expect(result.current).toBe("initial");
 
-    rerender({ value: "updated" });
+    await rerender({ value: "updated" });
     expect(result.current).toBe("initial");
 
-    act(() => {
+    await act(() => {
       jest.advanceTimersByTime(300);
     });
 
     expect(result.current).toBe("updated");
   });
 
-  it("cancels previous timeout on rapid changes", () => {
-    const { result, rerender } = renderHook(
+  it("cancels previous timeout on rapid changes", async () => {
+    const { result, rerender } = await renderHook(
       ({ value }: { value: string }) => useDebouncedValue(value, 300),
       { initialProps: { value: "a" } },
     );
 
-    rerender({ value: "b" });
-    act(() => {
+    await rerender({ value: "b" });
+    await act(() => {
       jest.advanceTimersByTime(100);
     });
 
-    rerender({ value: "c" });
-    act(() => {
+    await rerender({ value: "c" });
+    await act(() => {
       jest.advanceTimersByTime(100);
     });
 
-    rerender({ value: "d" });
-    act(() => {
+    await rerender({ value: "d" });
+    await act(() => {
       jest.advanceTimersByTime(300);
     });
 
     expect(result.current).toBe("d");
   });
 
-  it("uses custom delay", () => {
-    const { result, rerender } = renderHook(
+  it("uses custom delay", async () => {
+    const { result, rerender } = await renderHook(
       ({ value }: { value: string }) => useDebouncedValue(value, 500),
       { initialProps: { value: "initial" } },
     );
 
-    rerender({ value: "updated" });
-    act(() => {
+    await rerender({ value: "updated" });
+    await act(() => {
       jest.advanceTimersByTime(300);
     });
     expect(result.current).toBe("initial");
 
-    act(() => {
+    await act(() => {
       jest.advanceTimersByTime(200);
     });
     expect(result.current).toBe("updated");

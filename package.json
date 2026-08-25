@@ -65,7 +65,7 @@
     "@lingui/cli": "^5.8.0",
     "@lingui/metro-transformer": "^5.8.0",
     "@tanstack/eslint-plugin-query": "^5.102.3",
-    "@testing-library/react-native": "^13.3.3",
+    "@testing-library/react-native": "^14.0.1",
     "@types/jest": "29.5.14",
     "@types/node": "^26.3.0",
     "@types/react": "~19.1.17",
@@ -77,7 +77,8 @@
     "expo-dev-client": "~6.0.20",
     "jest": "~29.7.0",
     "jest-expo": "~54.0.17",
-    "typescript": "~5.9.3"
+    "typescript": "~5.9.3",
+    "test-renderer": "~1.1.0"
   },
   "private": false
 }

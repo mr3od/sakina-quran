@@ -18,33 +18,33 @@ describe("useSearchController", () => {
     jest.clearAllMocks();
   });
 
-  it('returns "entry" for empty query', () => {
+  it('returns "entry" for empty query', async () => {
     useSearchQuery.mockReturnValue({
       data: undefined,
       isFetching: false,
       isError: false,
     });
 
-    const { result } = renderHook(() => useSearchController(""), { wrapper });
+    const { result } = await renderHook(() => useSearchController(""), { wrapper });
 
     expect(result.current).toEqual({ kind: "entry" });
   });
 
-  it('returns "loading" when fetching with no data', () => {
+  it('returns "loading" when fetching with no data', async () => {
     useSearchQuery.mockReturnValue({
       data: undefined,
       isFetching: true,
       isError: false,
     });
 
-    const { result } = renderHook(() => useSearchController("test"), {
+    const { result } = await renderHook(() => useSearchController("test"), {
       wrapper,
     });
 
     expect(result.current).toEqual({ kind: "loading" });
   });
 
-  it('returns "error" on error', () => {
+  it('returns "error" on error', async () => {
     useSearchQuery.mockReturnValue({
       data: undefined,
       isFetching: false,
@@ -52,28 +52,28 @@ describe("useSearchController", () => {
       error: new Error("Network error"),
     });
 
-    const { result } = renderHook(() => useSearchController("test"), {
+    const { result } = await renderHook(() => useSearchController("test"), {
       wrapper,
     });
 
     expect(result.current).toEqual({ kind: "error", message: "Network error" });
   });
 
-  it('returns "empty" when no results', () => {
+  it('returns "empty" when no results', async () => {
     useSearchQuery.mockReturnValue({
       data: [],
       isFetching: false,
       isError: false,
     });
 
-    const { result } = renderHook(() => useSearchController("test"), {
+    const { result } = await renderHook(() => useSearchController("test"), {
       wrapper,
     });
 
     expect(result.current).toEqual({ kind: "empty" });
   });
 
-  it('returns "results" with data', () => {
+  it('returns "results" with data', async () => {
     const rows = [makeRow({ sura: 1, ayah: 1 })];
     useSearchQuery.mockReturnValue({
       data: rows,
@@ -81,14 +81,14 @@ describe("useSearchController", () => {
       isError: false,
     });
 
-    const { result } = renderHook(() => useSearchController("test"), {
+    const { result } = await renderHook(() => useSearchController("test"), {
       wrapper,
     });
 
     expect(result.current).toEqual({ kind: "results", items: rows });
   });
 
-  it("shows previous results while fetching new ones", () => {
+  it("shows previous results while fetching new ones", async () => {
     const rows = [makeRow({ sura: 1, ayah: 1 })];
     useSearchQuery.mockReturnValue({
       data: rows,
@@ -96,7 +96,7 @@ describe("useSearchController", () => {
       isError: false,
     });
 
-    const { result } = renderHook(() => useSearchController("test"), {
+    const { result } = await renderHook(() => useSearchController("test"), {
       wrapper,
     });
 

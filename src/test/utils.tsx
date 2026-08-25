@@ -16,7 +16,7 @@ function createTestQueryClient() {
   });
 }
 
-export function renderWithProviders(
+export async function renderWithProviders(
   ui: React.ReactElement,
   {
     locale = "en",
@@ -34,5 +34,5 @@ export function renderWithProviders(
     );
   }
 
-  return { ...render(ui, { wrapper: Wrapper, ...options }), queryClient };
+  return { ...(await render(ui, { wrapper: Wrapper, ...options })), queryClient };
 }
