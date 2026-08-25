@@ -251,8 +251,8 @@ const wrapper = ({ children }) => (
 );
 
 describe("useSearchController", () => {
-  it("returns entry state for empty query", () => {
-    const { result } = renderHook(() => useSearchController(""), { wrapper });
+  it("returns entry state for empty query", async () => {
+    const { result } = await renderHook(() => useSearchController(""), { wrapper });
     expect(result.current).toEqual({ kind: "entry" });
   });
 });
@@ -261,7 +261,6 @@ describe("useSearchController", () => {
 ### Known Warnings (Harmless)
 
 - `watchPlugins` validation: from jest-expo preset, doesn't affect execution
-- `react-test-renderer is deprecated`: React 19 + testing-library, tests pass successfully
 
 ## CI/CD
 
