@@ -1,6 +1,6 @@
 name: Native Runner Evidence (Android emulator · iOS simulator)
-
-# Renders /render-lab on real platform text stacks (HarfBuzz/CoreText)
+# Renders /pages/[number] on real platform text stacks (HarfBuzz/CoreText)
+# and uploads screenshots as artifacts — boot+render evidence for upgrade branches.
 # and uploads screenshots as artifacts — evidence for FEATURE_MAP §4-Q1
 # (text-rendered vs image-based reader substrate).
 
