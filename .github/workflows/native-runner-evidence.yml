@@ -1,14 +1,11 @@
 name: Native Runner Evidence (Android emulator · iOS simulator)
-
-# Renders /render-lab on real platform text stacks (HarfBuzz/CoreText)
-# and uploads screenshots as artifacts — evidence for FEATURE_MAP §4-Q1
-# (text-rendered vs image-based reader substrate).
+# Renders /pages/[number] on real platform text stacks (HarfBuzz/CoreText)
+# and uploads screenshots as artifacts — boot+render smoke evidence for
+# upgrade branches. Historical note: originally built as /render-lab capture
+# for FEATURE_MAP §4-Q1 (full screen preserved at commit b838cd2).
 
 # REFERENCE implementation for running this app on GitHub-hosted Android/iOS
 # runtimes and capturing screenshot evidence. Traps + flow: docs/NATIVE_RUNNER_PLAYBOOK.md
-# Dispatch-only: the render-lab capture screen was removed from the app
-# (full screen preserved at commit b838cd2). To reuse: restore it or point
-# DEEP_LINK_BASE at any route, then run via Actions tab.
 on:
   workflow_dispatch:
 
@@ -16,12 +13,12 @@ permissions:
   contents: read
 
 concurrency:
-  group: render-lab-${{ github.ref }}
+  group: native-evidence-${{ github.ref }}
   cancel-in-progress: true
 
 env:
   APP_PACKAGE: dev.mr3od.sakinaquran
-  DEEP_LINK_BASE: sakina-quran://render-lab
+  DEEP_LINK_BASE: sakina-quran://pages
   URL_SCHEME: sakina-quran
 
 jobs:
@@ -79,19 +76,19 @@ jobs:
             adb shell settings put global transition_animation_scale 0
             adb shell settings put global animator_duration_scale 0
             mkdir -p screenshots
-            adb shell am start -W -a android.intent.action.VIEW -d ${DEEP_LINK_BASE}?page=1
+            adb shell am start -W -a android.intent.action.VIEW -d ${DEEP_LINK_BASE}/1
             sleep 25
             adb exec-out screencap -p > screenshots/android-p1.png
             adb shell am force-stop ${APP_PACKAGE}
-            adb shell am start -W -a android.intent.action.VIEW -d ${DEEP_LINK_BASE}?page=2
+            adb shell am start -W -a android.intent.action.VIEW -d ${DEEP_LINK_BASE}/2
             sleep 15
             adb exec-out screencap -p > screenshots/android-p2.png
             adb shell am force-stop ${APP_PACKAGE}
-            adb shell am start -W -a android.intent.action.VIEW -d ${DEEP_LINK_BASE}?page=50
+            adb shell am start -W -a android.intent.action.VIEW -d ${DEEP_LINK_BASE}/50
             sleep 15
             adb exec-out screencap -p > screenshots/android-p50.png
             adb shell am force-stop ${APP_PACKAGE}
-            adb shell am start -W -a android.intent.action.VIEW -d ${DEEP_LINK_BASE}?page=302
+            adb shell am start -W -a android.intent.action.VIEW -d ${DEEP_LINK_BASE}/302
             sleep 15
             adb exec-out screencap -p > screenshots/android-p302.png
 
@@ -111,7 +108,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: render-lab-android
+          name: native-evidence-android
           path: screenshots/
           retention-days: 7
 
@@ -195,19 +192,19 @@ jobs:
           # Warm openurl to the running app navigates only ONCE (same failure
           # Android showed) — terminate before every capture so each page is
           # a cold-start deep link, the path proven to route.
-          xcrun simctl openurl "$DEVICE" "${DEEP_LINK_BASE}?page=1" || true
+          xcrun simctl openurl "$DEVICE" "${DEEP_LINK_BASE}/1" || true
           sleep 12
           xcrun simctl io "$DEVICE" screenshot "screenshots/ios-p1.png"
           xcrun simctl terminate "$DEVICE" "$APP_PACKAGE" || true
-          xcrun simctl openurl "$DEVICE" "${DEEP_LINK_BASE}?page=2" || true
+          xcrun simctl openurl "$DEVICE" "${DEEP_LINK_BASE}/2" || true
           sleep 12
           xcrun simctl io "$DEVICE" screenshot "screenshots/ios-p2.png"
           xcrun simctl terminate "$DEVICE" "$APP_PACKAGE" || true
-          xcrun simctl openurl "$DEVICE" "${DEEP_LINK_BASE}?page=50" || true
+          xcrun simctl openurl "$DEVICE" "${DEEP_LINK_BASE}/50" || true
           sleep 12
           xcrun simctl io "$DEVICE" screenshot "screenshots/ios-p50.png"
           xcrun simctl terminate "$DEVICE" "$APP_PACKAGE" || true
-          xcrun simctl openurl "$DEVICE" "${DEEP_LINK_BASE}?page=302" || true
+          xcrun simctl openurl "$DEVICE" "${DEEP_LINK_BASE}/302" || true
           sleep 12
           xcrun simctl io "$DEVICE" screenshot "screenshots/ios-p302.png"
 
@@ -227,6 +224,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: render-lab-ios
+          name: native-evidence-ios
           path: screenshots/
           retention-days: 7

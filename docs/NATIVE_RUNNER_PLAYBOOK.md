@@ -41,7 +41,7 @@
 
 ## Android flow that works
 
-`gradlew assembleRelease` (release signs with debug keystore → self-contained APK, no Metro) → KVM rule → emulator-runner with contract-compliant one-liner script (trap 3): install → zero animations → per page: `am start -W -a VIEW -d <scheme://route?page=N>` → sleep → `adb exec-out screencap -p` → `am force-stop`.
+`gradlew assembleRelease` (release signs with debug keystore → self-contained APK, no Metro) → KVM rule → emulator-runner with contract-compliant one-liner script (trap 3): install → zero animations → per page: `am start -W -a VIEW -d <scheme://route/N> (path form; e.g. sakina-quran://pages/302)` → sleep → `adb exec-out screencap -p` → `am force-stop`.
 
 ## Debugging discipline that saved the session
 
