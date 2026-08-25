@@ -42,6 +42,9 @@ jobs:
       - name: Lint
         run: pnpm lint
 
+      - name: Typecheck
+        run: pnpm typecheck
+
       # Critical: ensures app.json and native plugins are valid
       - name: Expo prebuild smoke test
         run: npx expo prebuild --no-install
@@ -55,6 +58,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "- Tests: ✅" >> $GITHUB_STEP_SUMMARY
           echo "- Lint: ✅" >> $GITHUB_STEP_SUMMARY
+          echo "- Typecheck: ✅" >> $GITHUB_STEP_SUMMARY
           echo "- Prebuild smoke test: ✅" >> $GITHUB_STEP_SUMMARY
           echo "- Web export: ✅" >> $GITHUB_STEP_SUMMARY
 

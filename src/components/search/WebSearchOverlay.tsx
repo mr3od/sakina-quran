@@ -270,14 +270,13 @@ export function WebSearchOverlay({ isOpen, onClose }: WebSearchOverlayProps) {
           onChangeText={setInput}
           placeholder={t`Search the Quran...`}
           placeholderTextColor="#94A3B8"
-          className={`flex-1 mx-4 ${fontClass} text-lg text-text-primary`}
+          className={`flex-1 mx-4 ${fontClass} text-lg text-text-primary outline-none`}
           accessibilityLabel={t`Search input`}
           autoCapitalize="none"
           autoCorrect={false}
           returnKeyType="search"
           onKeyPress={handleKey}
-          style={{ outline: "none" }}
-          // @ts-expect-error RN-web supports onKeyDown
+          // @ts-expect-error web-only prop: react-native-web TextInput handles key events
           onKeyDown={handleKey}
         />
         {input.length > 0 ? (

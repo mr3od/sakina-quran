@@ -27,7 +27,13 @@ export async function getDB(): Promise<Database> {
     throw new Error(`Cannot find sql-wasm.wasm at ${wasmPath}`);
   }
 
-  const wasmBinary = fs.readFileSync(wasmPath);
+  // sql.js types demand an ArrayBuffer; Node hands us a pooled Buffer, so slice
+  // out exactly the file's bytes rather than trusting the underlying pool.
+  const wasmFile = fs.readFileSync(wasmPath);
+  const wasmBinary = wasmFile.buffer.slice(
+    wasmFile.byteOffset,
+    wasmFile.byteOffset + wasmFile.byteLength,
+  );
   const SQL = await initSqlJs({ wasmBinary });
 
   const buffer = fs.readFileSync(dbPath);

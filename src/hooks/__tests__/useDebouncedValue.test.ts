@@ -18,7 +18,7 @@ describe("useDebouncedValue", () => {
 
   it("debounces value changes", () => {
     const { result, rerender } = renderHook(
-      ({ value }) => useDebouncedValue(value, 300),
+      ({ value }: { value: string }) => useDebouncedValue(value, 300),
       { initialProps: { value: "initial" } },
     );
 
@@ -36,7 +36,7 @@ describe("useDebouncedValue", () => {
 
   it("cancels previous timeout on rapid changes", () => {
     const { result, rerender } = renderHook(
-      ({ value }) => useDebouncedValue(value, 300),
+      ({ value }: { value: string }) => useDebouncedValue(value, 300),
       { initialProps: { value: "a" } },
     );
 
@@ -60,7 +60,7 @@ describe("useDebouncedValue", () => {
 
   it("uses custom delay", () => {
     const { result, rerender } = renderHook(
-      ({ value }) => useDebouncedValue(value, 500),
+      ({ value }: { value: string }) => useDebouncedValue(value, 500),
       { initialProps: { value: "initial" } },
     );
 

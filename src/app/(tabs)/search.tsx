@@ -85,13 +85,12 @@ export default function SearchScreen() {
             onChangeText={setInput}
             placeholder={t`e.g., الله — نب — 7 — 7:7 — juz 5 — حزب 7 — page 151`}
             placeholderTextColor="#94A3B8"
-            className={`flex-1 mx-3 ${fontClass} text-base text-text-primary h-11`}
+            className={`flex-1 mx-3 ${fontClass} text-base text-text-primary h-11 outline-none`}
             accessibilityLabel={t`Search input`}
             autoCapitalize="none"
             autoCorrect={false}
             returnKeyType="search"
             onSubmitEditing={handleSearch}
-            style={{ outline: "none" }}
           />
           {!!input && (
             <Pressable
