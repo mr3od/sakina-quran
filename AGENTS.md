@@ -17,8 +17,8 @@ Use **pnpm**: `pnpm install`, `pnpm start`, `pnpm lint`
 
 ## Stack
 
-- Expo 54 / React Native 0.81 / React 19 + React Compiler
-- Expo Router 6 (file-based, typed routes)
+- Expo 57 / React Native 0.86 / React 19.2 + React Compiler
+- Expo Router 57 (file-based, typed routes)
 - Tailwind CSS 4 via **Uniwind** (NOT NativeWind)
 - TanStack React Query 5
 - expo-sqlite (native) / sql.js WASM (web server) / static JSON (web client)
@@ -217,11 +217,14 @@ Worklets plugin MUST be last:
 
 ```javascript
 plugins: [
-  "@babel/plugin-transform-export-namespace-from",
   "@lingui/babel-plugin-lingui-macro",
   "react-native-worklets/plugin", // ← LAST
 ];
 ```
+
+Note: since SDK 57, `babel-preset-expo` also auto-appends the worklets plugin when
+resolvable — the explicit entry is belt-and-braces, and user plugins run before
+preset plugins regardless.
 
 ## Testing
 
