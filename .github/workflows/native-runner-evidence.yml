@@ -91,6 +91,8 @@ jobs:
             adb shell am start -W -a android.intent.action.VIEW -d ${DEEP_LINK_BASE}/302
             sleep 15
             adb exec-out screencap -p > screenshots/android-p302.png
+            adb logcat -b crash -d -v time > screenshots/android-crash.txt
+            adb logcat -d -v time > screenshots/android-logcat.txt
 
       - name: Assert captures are valid renders
         run: |
@@ -102,6 +104,17 @@ jobs:
             if [ "$SIZE" -lt 8000 ]; then echo "::error::$f looks blank/corrupt (${SIZE} bytes)"; FAIL=1; fi
           done
           [ "$(ls screenshots/*.png | wc -l)" -eq 4 ] || { echo "::error::expected 4 captures"; FAIL=1; }
+          # A screenshot only proves the framebuffer was readable. If the app
+          # crashes, `am start` still reports `Status: ok` (the activity did
+          # launch) and screencap happily captures the launcher behind it — a
+          # full-size, non-blank PNG that passes every check above. Playbook
+          # trap 9. The crash buffer is the only trustworthy liveness signal.
+          if [ -s screenshots/android-crash.txt ]; then
+            echo "::error::app crashed during capture - screenshots do not show the app"
+            echo "----- crash buffer -----"
+            cat screenshots/android-crash.txt
+            FAIL=1
+          fi
           exit $FAIL
 
       - name: Upload screenshots
